@@ -30,6 +30,8 @@ public class Scanner {
     private static final Logger log = LoggerFactory.getLogger(Scanner.class);
     /** Upper bound for the doubled output budget (largest output current models accept). */
     static final int MAX_OUTPUT_CAP = 128_000;
+    /** How many times a truncated unit may be re-planned into smaller ones (whole -> chunks -> files/halves). */
+    static final int MAX_REPLAN_DEPTH = 2;
 
     private final LlmClient client;
     private final ModelSpec spec;
@@ -127,7 +129,7 @@ public class Scanner {
 
     private ScanResult replan(ScanUnit unit, String guidance, ScanRun run, int depth, List<String> errors,
                               List<ScanResult.Exchange> exchanges) {
-        List<ScanUnit> parts = depth == 0 ? unitSplitter.split(unit) : List.of();
+        List<ScanUnit> parts = depth < MAX_REPLAN_DEPTH ? unitSplitter.split(unit) : List.of();
         if (parts.isEmpty()) {
             errors.add("answer still truncated after doubling max_tokens and the unit cannot be split further");
             return result(unit, "truncated", List.of(), 0, null, errors, exchanges, List.of());

@@ -1,5 +1,6 @@
 package com.vulnscan.scan;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.List;
 
 /**
@@ -19,7 +20,8 @@ public record Finding(String id, String title, String vulnClass, String cwe, Str
 
     public static final List<String> VERIFIED = List.of("verified_exact", "verified_fuzzy", "relocated", "inventory_match");
 
-    /** Counts toward the headline (verified-only) metrics. */
+    /** Counts toward the headline (verified-only) metrics. Not a stored field (derived from evidenceStatus). */
+    @JsonIgnore
     public boolean isVerified() {
         return VERIFIED.contains(evidenceStatus);
     }

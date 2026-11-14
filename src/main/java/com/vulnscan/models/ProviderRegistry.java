@@ -18,6 +18,11 @@ public class ProviderRegistry {
         adapters.put("openai_compatible", OpenAiCompatibleClient::new);
     }
 
+    /** For tests: a registry with the given adapters (e.g. fakes). */
+    public ProviderRegistry(Map<String, BiFunction<ModelSpec, String, LlmClient>> custom) {
+        adapters.putAll(custom);
+    }
+
     public LlmClient create(ModelSpec spec, String apiKey) {
         BiFunction<ModelSpec, String, LlmClient> factory = adapters.get(spec.provider());
         if (factory == null) {

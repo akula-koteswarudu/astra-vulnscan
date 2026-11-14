@@ -1,0 +1,115 @@
+# Scan report: {{app}}
+
+Run `{{run_id}}` · profile `{{profile}}` · generated from the run folder (every number below is traceable to a file in it).
+
+{{#teacher_reference}}
+**No ground truth for this app.** The teacher's verified findings are the reference, so every number is *agreement with teacher*, not recall. The lessons were distilled from the same findings used as the reference, so this comparison is circular and favours the with-lessons arm. The teacher ceiling and precision are omitted.
+
+{{/teacher_reference}}
+## 1. Core result (single run)
+
+{{headline_sentence}}
+
+| Arm | Model | {{metric_label}} (strict, verified) | Lenient | Incl. unverified |{{#ground_truth}} Precision (strict) |{{/ground_truth}} Findings (verified / total) |
+|---|---|---|---|---|{{#ground_truth}}---|{{/ground_truth}}---|
+{{#core_rows}}
+| {{arm}} | {{model}} | **{{recall_strict}}** | {{recall_lenient}} | {{recall_unverified}} |{{#ground_truth}} {{precision}} |{{/ground_truth}} {{findings}} |
+{{/core_rows}}
+
+{{lift_sentence}}
+
+Strict = the judge said "match"; lenient also counts "partial". One-to-one assignment (Hungarian): each reference item is matched by at most one finding and vice versa. {{#ground_truth}}Precision counts findings that match any item (many-to-one) over verified findings; unmatched findings are "unmatched", not necessarily false positives (the README list may be incomplete).{{/ground_truth}}
+
+### Per item ({{reference_name}})
+
+✓ = strict match, ~ = partial only, · = not matched. Static visibility is the author's label: *partial* and *inventory_only* items cannot be fully seen in the client code.
+
+| Item | Title | Static visibility |{{#arm_headers}} {{.}} |{{/arm_headers}}
+|---|---|---|{{#arm_headers}}---|{{/arm_headers}}
+{{#item_rows}}
+| {{id}} | {{title}} | {{visibility}} |{{#cells}} {{.}} |{{/cells}}
+{{/item_rows}}
+
+## 2. Lessons
+
+{{lessons_sentence}}
+
+Guidance block shown to the student (verbatim, identical in every unit):
+
+```text
+{{{guidance}}}
+```
+
+Sanitiser ({{sanitiser_policy}}): {{sanitiser_sentence}}
+
+{{#has_violations}}
+| Lesson | Field | Rule | Term | Action |
+|---|---|---|---|---|
+{{#violations}}
+| {{lesson}} | {{field}} | {{rule}} | `{{term}}` | {{action}} |
+{{/violations}}
+{{/has_violations}}
+
+## 3. Robustness check: README-only vs enriched reference
+
+{{#has_robustness}}
+The headline uses only the README text. The enriched reference adds the author's accepted CWEs and locations (written before any scan); it changes what the judge sees, so it needs its own judge calls.
+
+| Arm | {{robust_a}} | {{robust_b}} |
+|---|---|---|
+{{#robust_rows}}
+| {{arm}} | {{a}} | {{b}} |
+{{/robust_rows}}
+
+{{robust_sentence}}
+{{/has_robustness}}
+{{^has_robustness}}
+Not computed (no enriched ground truth for this app).
+{{/has_robustness}}
+
+## 4. Judge audit
+
+{{audit_sentence}}
+
+## 5. Betterments
+
+None enabled in this run (profile `{{profile}}`): single run per arm, no checklist control arm.
+
+## 6. Coverage and quality
+
+| Arm | Units | Unit status | Evidence status | Bad findings dropped |
+|---|---|---|---|---|
+{{#coverage_rows}}
+| {{arm}} | {{units}} | {{status}} | {{evidence}} | {{bad}} |
+{{/coverage_rows}}
+
+- Decompilation: jadx {{jadx_version}}, exit code {{jadx_exit}}{{#jadx_partial}} (partial success: output present){{/jadx_partial}}; {{jadx_failed}} failed-method markers in all code, {{fp_failed}} in first-party code.
+- First-party split: {{fp_files}} of {{all_files}} Java files (prefixes {{fp_prefixes}}); {{generated}} build-generated files excluded from the app's own packages. Largest excluded groups: {{top_excluded}}.
+- Units: teacher {{teacher_units}} ({{teacher_mode}}), student {{student_units}} ({{student_mode}}); the two models may scan different units because their budgets differ. All student arms use the same units.
+- Judge: {{judge_calls}} confirm calls, {{judge_errors}} unparseable answers (counted as "no").
+
+## 7. Usage
+
+| Model | Purpose | Arm | Calls billed / cached | Input tokens | Output tokens | Cost (billed) |
+|---|---|---|---|---|---|---|
+{{#usage_rows}}
+| {{model}} | {{purpose}} | {{arm}} | {{calls}} | {{input}} | {{output}} | {{cost}} |
+{{/usage_rows}}
+
+{{usage_sentence}}
+
+## 8. Prompt versions
+
+| Prompt | sha256 |
+|---|---|
+{{#prompt_rows}}
+| `{{name}}` | `{{sha}}` |
+{{/prompt_rows}}
+
+{{prompts_sentence}} The scores in section 1 are for exactly these versions.
+
+## 9. Limitations
+
+{{#limitations}}
+- {{.}}
+{{/limitations}}

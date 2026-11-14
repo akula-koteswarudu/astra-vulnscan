@@ -1,14 +1,16 @@
 package com.vulnscan.pipeline;
 
-/** Post-scan stages: lessons; evaluation and report (built in later steps, plugged in here). */
+/** Post-scan stages: lessons, evaluation, report. */
 public class StandardLaterStages implements LaterStages {
 
     private final LessonStage lessons;
-    private final LaterStages rest;
+    private final EvaluateStage evaluate;
+    private final ReportStage report;
 
-    public StandardLaterStages(LessonStage lessons, LaterStages rest) {
+    public StandardLaterStages(LessonStage lessons, EvaluateStage evaluate, ReportStage report) {
         this.lessons = lessons;
-        this.rest = rest;
+        this.evaluate = evaluate;
+        this.report = report;
     }
 
     @Override
@@ -23,11 +25,11 @@ public class StandardLaterStages implements LaterStages {
 
     @Override
     public void evaluate(Experiment e) {
-        rest.evaluate(e);
+        evaluate.evaluate(e);
     }
 
     @Override
     public void report(Experiment e) {
-        rest.report(e);
+        report.report(e);
     }
 }

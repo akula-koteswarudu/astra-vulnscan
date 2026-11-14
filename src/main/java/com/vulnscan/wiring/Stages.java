@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 public class Stages {
 
     public LaterStages later(LoadedConfig cfg) {
-        return new com.vulnscan.pipeline.StandardLaterStages(new com.vulnscan.pipeline.LessonStage(), LaterStages.NOT_BUILT);
+        return new com.vulnscan.pipeline.StandardLaterStages(new com.vulnscan.pipeline.LessonStage(),
+                new com.vulnscan.pipeline.EvaluateStage(), new com.vulnscan.pipeline.ReportStage());
     }
 }

@@ -85,6 +85,24 @@ public class Experiment {
         progress.accept("done: " + store.dir().resolve("report.md"));
     }
 
+    /**
+     * Re-runs evaluation and the report from saved findings (no rescans), e.g. after a matcher or judge-prompt change.
+     * Overwrites 07_evaluate/ and report.md.
+     */
+    public void reevaluate() {
+        prepare();
+        for (String stage : List.of("evaluate", "report")) {
+            long start = System.currentTimeMillis();
+            store.log("stage_start", Map.of("stage", stage, "rerun", true));
+            if (stage.equals("evaluate")) {
+                later.evaluate(this);
+            } else {
+                later.report(this);
+            }
+            finish(stage, start);
+        }
+    }
+
     /** Decompile + ingest (always re-prepared on resume: the decompile cache makes it cheap; the ingest hash must match). */
     public PreparedApp prepare() {
         if (app != null) {
@@ -218,7 +236,7 @@ public class Experiment {
         store.markDone(name);
         store.log("stage_done", Map.of("stage", name, "ms", ms));
         manifest.putIn("stage_ms", name, ms);
-        manifest.put("prompts", prompts.used());
+        prompts.used().forEach((k, v) -> manifest.putIn("prompts", k, v)); // merge: a resumed run keeps earlier prompts
         store.writeJson("manifest.json", manifest.snapshot());
     }
 

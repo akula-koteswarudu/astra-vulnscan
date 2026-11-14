@@ -102,6 +102,9 @@ public class ScanPlanner {
                 return plan(modelName, spec, reserveGuidance, app, code, AppConfig.PlanningMode.CHUNKED).units();
             }
             case "app_context" -> {
+                if (unit.resources() == null && unit.dependencies() == null && unit.manifestSlice() != null) {
+                    return splitManifest(unit, app);
+                }
                 List<ScanUnit> parts = new ArrayList<>();
                 if (unit.manifestSlice() != null && (unit.resources() != null || unit.dependencies() != null)) {
                     parts.add(unit("app_context", unit.root() + "/manifest", List.of(), unit.manifestSlice(), null, null,
@@ -135,6 +138,23 @@ public class ScanPlanner {
                         .toList();
             }
         }
+    }
+
+    /** A manifest-only unit: two halves of the components (each with the app flags and permissions). */
+    private List<ScanUnit> splitManifest(ScanUnit unit, AppModel app) {
+        List<String> names = app.manifest().components().stream()
+                .filter(c -> unit.manifestSlice().contains(c.rawXml())).map(Component::name).toList();
+        if (names.size() < 2) {
+            return List.of();
+        }
+        int half = names.size() / 2;
+        List<ScanUnit> out = new ArrayList<>();
+        for (List<String> part : List.of(names.subList(0, half), names.subList(half, names.size()))) {
+            String slice = context.manifestSlice(app, part);
+            out.add(unit("app_context", unit.root() + "/" + (out.isEmpty() ? "a" : "b"), List.of(), slice, null, null,
+                    estimator.estimate(slice), unit.priority(), Map.of()));
+        }
+        return out;
     }
 
     UnitPlan plan(String modelName, ModelSpec spec, boolean reserveGuidance, AppModel app, CodeBase code,

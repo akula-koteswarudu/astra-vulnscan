@@ -14,6 +14,7 @@ import com.vulnscan.ingest.IngestorTest;
 import com.vulnscan.ingest.LayoutDetector;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
@@ -138,6 +139,23 @@ class ScanPlannerTest {
         AppModel app = ingest();
         assertThatThrownBy(() -> planner(AppConfig.PlanningMode.WHOLE).plan("s", model(1500, 300), true, app, new CodeBase(dir)))
                 .hasMessageContaining("mode whole");
+    }
+
+    @Test
+    void truncatedUnitsSplitIntoSmallerOnes() throws IOException {
+        AppModel app = ingest();
+        ScanPlanner p = planner(AppConfig.PlanningMode.CHUNKED);
+        UnitPlan plan = p.plan("s", model(1500, 300), true, app, new CodeBase(dir));
+        ScanUnit main = plan.units().stream().filter(u -> u.kind().equals("component")).findFirst().orElseThrow();
+        assertThat(p.split(main, "s", model(1500, 300), true, app, new CodeBase(dir))).hasSize(2).allSatisfy(u -> assertThat(u.files()).hasSize(1));
+        String slice = new UnitContextBuilder().manifestSlice(app, List.of("com.example.app.MainActivity", "com.example.app.Internal"));
+        ScanUnit manifestOnly = new ScanUnit("m", "app_context", "app-context/manifest", List.of(), slice, null, null, 100, 1);
+        List<ScanUnit> halves = p.split(manifestOnly, "s", model(1500, 300), true, app, new CodeBase(dir));
+        assertThat(halves).hasSize(2);
+        assertThat(halves.get(0).manifestSlice()).contains("Internal").doesNotContain("MainActivity");
+        assertThat(halves.get(1).manifestSlice()).contains("MainActivity");
+        ScanUnit whole = new ScanUnit("w", "whole", "app", List.of(), null, null, null, 1, 1);
+        assertThat(p.split(whole, "s", model(1500, 300), true, app, new CodeBase(dir))).isNotEmpty();
     }
 
     @Test

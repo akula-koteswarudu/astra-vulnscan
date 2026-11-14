@@ -346,7 +346,7 @@ public class LessonSanitizer {
 
     // ---- helpers -------------------------------------------------------------------------------------------
 
-    /** camelCase / dot / underscore / digit split, lower-cased: "InsecureShopProvider" -> [insecure, shop, provider]. */
+    /** camelCase / dot / underscore / digit split, lower-cased: "ShopCartProvider" -> [shop, cart, provider]. */
     static List<String> parts(String identifier) {
         String spaced = identifier.replaceAll("([a-z0-9])([A-Z])", "$1 $2").replaceAll("([A-Z]+)([A-Z][a-z])", "$1 $2");
         return Arrays.stream(spaced.split("[\\s_.$\\-/0-9]+")).filter(p -> !p.isEmpty()).map(p -> p.toLowerCase(Locale.ROOT)).toList();
