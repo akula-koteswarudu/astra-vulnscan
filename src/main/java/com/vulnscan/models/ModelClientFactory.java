@@ -9,9 +9,10 @@ import java.nio.file.Path;
 import java.util.Random;
 
 /**
- * Builds the decorated client for a model: Caching(UsageTracking(Retrying(RateLimited(Adapter)))).
- * Order matters: a cache hit skips everything (no quota, no retry); usage sees retries and the final result;
- * the limiter sits right next to the provider so every real attempt (including retries) is paced.
+ * Builds the decorated client for a model: UsageTracking(Caching(Retrying(RateLimited(Adapter)))).
+ * Order matters: usage is outermost so it also records cache hits (as cached, with their original usage); a cache hit
+ * skips retries and quota; the limiter sits next to the provider so every real attempt (including retries) is paced.
+ * (The plan put usage inside the cache, which made cached calls invisible in the report; see BUILD_LOG.)
  */
 public class ModelClientFactory {
 
@@ -45,11 +46,10 @@ public class ModelClientFactory {
         ModelsConfig.RateLimit rl = spec.rateLimit();
         LlmClient c = new RateLimitedClient(adapter, rl.rpm(), rl.itpm(), rl.otpm(), rl.tpm(), rl.tpd(), rl.rpd(), estimator, ticker);
         c = new RetryingClient(c, spec.retry().maxAttempts(), spec.retry().baseDelayS(), ticker, new Random());
-        c = new UsageTrackingClient(c, usage, name, spec.pricePerMtok());
         if (cacheEnabled) {
             c = new CachingClient(c, cacheDir.resolve("llm"), spec.provider(), spec.model());
         }
-        return c;
+        return new UsageTrackingClient(c, usage, name, spec.pricePerMtok());
     }
 
     public ModelSpec spec(String name) {

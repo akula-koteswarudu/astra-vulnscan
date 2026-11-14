@@ -1,6 +1,7 @@
 # Per-app config for InsecureShop. Anything not stated here comes from the built-in defaults
 # (src/main/resources/config-defaults.yaml); runs.* and arms.* come from the profile.
-profile: assignment                 # assignment | full
+profile: assignment
+runs: {student_runs: 3}           # 3 runs per student arm: mean and range instead of one noisy run                 # assignment | full
 models_file: configs/models.yaml
 matching_file: configs/matching.yaml
 app:

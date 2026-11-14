@@ -36,7 +36,7 @@ class ConfigLoaderTest {
         ConfigLoader repoLoader = new ConfigLoader(Validation.buildDefaultValidatorFactory().getValidator(), Path.of(""));
         LoadedConfig c = repoLoader.load(Path.of("configs/insecureshop.yaml"));
         assertThat(c.app().app().name()).isEqualTo("insecureshop");
-        assertThat(c.app().runs().studentRuns()).isEqualTo(1);
+        assertThat(c.app().runs().studentRuns()).isEqualTo(3); // set explicitly in insecureshop.yaml
         assertThat(c.models().spec("teacher").temperature()).isNull();
         assertThat(c.matching().locationScores().clazz()).isEqualTo(0.8);
         assertThat(c.configHash()).hasSize(64);
@@ -103,14 +103,14 @@ class ConfigLoaderTest {
     @Test
     void judgeMustDifferFromTeacherAndRolesMustExist() throws IOException {
         String models = Files.readString(dir.resolve("configs/models.yaml"))
-                .replace("model: claude-haiku-5-5", "model: claude-sonnet-5-5")
-                .replace("roles: {teacher: teacher, student: student, judge: judge_haiku}",
-                        "roles: {teacher: teacher, student: nobody, judge: judge_haiku}");
+                .replace("model: deepseek/deepseek-v4.1-flash", "model: claude-sonnet-5-5")
+                .replace("roles: {teacher: teacher, student: student_pollinations, judge: judge_pollinations}",
+                        "roles: {teacher: teacher, student: nobody, judge: judge_pollinations}");
         Files.writeString(dir.resolve("configs/models.yaml"), models);
         Path p = write("a.yaml", "app: {name: x, input: y}\n");
         assertThatThrownBy(() -> loader.load(p)).hasMessageContaining("undefined model 'nobody'");
 
-        Files.writeString(dir.resolve("configs/models.yaml"), models.replace("student: nobody", "student: student"));
+        Files.writeString(dir.resolve("configs/models.yaml"), models.replace("student: nobody", "student: student_pollinations"));
         assertThatThrownBy(() -> loader.load(p)).hasMessageContaining("judge must not be the teacher");
     }
 

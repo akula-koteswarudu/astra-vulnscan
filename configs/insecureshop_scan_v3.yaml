@@ -1,0 +1,11 @@
+# Hints experiment: same as insecureshop.yaml but with scan prompt v3
+# (v2 + generic MASVS-PLATFORM inter-component hints, added after seeing v1's misses on this app).
+profile: assignment
+runs: {student_runs: 3}           # 3 runs per student arm: mean and range instead of one noisy run
+app:
+  name: insecureshop
+  input: apps/InsecureShop.apk
+  input_sha256: a83298ae4a37fcab8101e8b41e513dd2199af71a94ea537d556a318e07d4d1bd
+  ground_truth: ground_truth/insecureshop.yaml
+scan:
+  prompt_version: v3

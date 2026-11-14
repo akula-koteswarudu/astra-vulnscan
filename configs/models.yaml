@@ -67,4 +67,37 @@ models:
     concurrency: 1
     sdk_max_retries: 0
     retry: {max_attempts: 4, base_delay_s: 2}
-roles: {teacher: teacher, student: student, judge: judge_haiku}   # judge: judge_haiku | judge_open
+  student_pollinations:              # current student: same open model as `student`, served by Pollinations (no tight per-minute cap)
+    provider: openai_compatible
+    base_url: https://gen.pollinations.ai/v1
+    model: qwen/qwen3.8-27b
+    api_key_env: POLLINATIONS_API_KEY
+    context_tokens: 262144
+    planning_budget_tokens: 120000   # whole first-party app (~20K Qwen tokens here) in one request
+    max_output_tokens: 8000          # whole-app answer measured at ~2.8K tokens
+    temperature: 0
+    json_mode: instruction
+    params: {reasoning_effort: none, seed: 42}   # reasoning off (with it on, it spent 8K tokens thinking and never answered); matches its Groq behaviour
+    price_per_mtok: {input: 0, output: 0}        # billed in Pollen (0.041 / 1.319 Pollen per M tokens); shown as $0
+    rate_limit: {rpm: 60, itpm: 1000000}         # not published for keyed access; conservative client-side pacing, 429s are retried
+    max_tokens_param: max_tokens
+    concurrency: 1
+    sdk_max_retries: 0
+    retry: {max_attempts: 4, base_delay_s: 5}
+  judge_pollinations:                # current judge: open-weight, different family from the student, never the teacher
+    provider: openai_compatible
+    base_url: https://gen.pollinations.ai/v1
+    model: deepseek/deepseek-v4.1-flash
+    api_key_env: POLLINATIONS_API_KEY
+    context_tokens: 1048576
+    max_output_tokens: 3000
+    temperature: 0
+    json_mode: instruction
+    params: {reasoning_effort: low, seed: 42}
+    price_per_mtok: {input: 0, output: 0}        # billed in Pollen (0.15 / 0.6 Pollen per M tokens)
+    rate_limit: {rpm: 60, itpm: 1000000}
+    max_tokens_param: max_tokens
+    concurrency: 1
+    sdk_max_retries: 0
+    retry: {max_attempts: 4, base_delay_s: 5}
+roles: {teacher: teacher, student: student_pollinations, judge: judge_pollinations}   # earlier runs: student (Groq), judge_haiku / judge_open

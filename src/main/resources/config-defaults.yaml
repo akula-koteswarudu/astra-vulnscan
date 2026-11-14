@@ -24,20 +24,20 @@ planning:
   token_estimate_chars_per_token: 4
   token_estimate_margin: 0.15
   prompt_overhead_tokens: 1000      # measured: scan system prompt ~870 tokens + markers
-  reserved_guidance_tokens: 1500
+  reserved_guidance_tokens: 4000   # room for all lessons (~3.2K tokens) in every student request
   max_units: null
   min_code_budget_tokens: 2000
   graph_builder: text_reference
   prioritizer_signals_file: null
 scan:
-  prompt_version: v1
+  prompt_version: v2              # v1 + one entry per distinct root cause
   evidence:
     fuzzy_threshold: 90
     min_evidence_chars: 25
 distill:
   prompt_version: v2              # v1 lessons averaged ~375 tokens: only 4 of 15 fitted the student's budget
   max_lessons: 15
-  max_lesson_tokens: 1500
+  max_lesson_tokens: 4000
   max_input_findings: 60
   lessons_from: null
   sanitizer:

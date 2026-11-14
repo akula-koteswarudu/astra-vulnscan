@@ -72,7 +72,7 @@ class ExperimentTest {
         Map<String, BiFunction<com.vulnscan.config.ModelsConfig.ModelSpec, String, LlmClient>> adapters = Map.of(
                 "anthropic", (spec, key) -> fake("teacher"), "openai_compatible", (spec, key) -> fake(spec.model()));
         ModelClientFactory models = new ModelClientFactory(cfg.models(), new ProviderRegistry(adapters),
-                new Secrets(Map.of("ANTHROPIC_API_KEY", "x", "GROQ_API_KEY", "x")), new TokenEstimator(4, 0.15),
+                new Secrets(Map.of("ANTHROPIC_API_KEY", "x", "GROQ_API_KEY", "x", "POLLINATIONS_API_KEY", "x")), new TokenEstimator(4, 0.15),
                 dir.resolve("cache"), true, Ticker.SYSTEM);
         RunStore store = resume == null ? RunStore.create(dir.resolve("runs"), "fixture", cfg.configHash(), Instant.now())
                 : RunStore.resume(resume, cfg.configHash());
@@ -125,6 +125,8 @@ class ExperimentTest {
         assertThat(m.modes()).hasSize(1); // no enrichment in this fixture -> no robustness mode
         assertThat(m.lift().lift()).isEqualTo(0.5); // baseline 0/2, with lessons 1/2
         String report = Files.readString(s.path("report.md"));
+        java.util.List<com.vulnscan.models.UsageTracker.Line> usage = ReportStage.usage(s.dir());
+        assertThat(usage).anySatisfy(l -> assertThat(l.billedCalls).isPositive());
         assertThat(report).contains("Lift: +50.0 points", "Intent data loaded into a WebView", "## 9. Limitations");
 
         // resume skips every completed stage (no new model calls) and reproduces the report

@@ -93,3 +93,15 @@ Format: `[step] status: notes`. Deviations are marked **DEVIATION**.
 - Judge (Haiku): 171 confirm + 12 screen calls, 0 unparseable, $0.05. Student with lessons: 22 calls (17 units + re-plans).
 - Anthropic spend to date ≈ $0.34: teacher scan $0.117, distill v1 $0.089 (lessons discarded), distill v2 $0.070, Haiku judge $0.050, smoke/probe calls < $0.01.
 - **Known issue (fix next phase):** the usage table in the report omits calls served from the response cache (here the teacher scan and the student baseline). Cause: the decorator order `Caching(UsageTracking(...))` from 6.1 means a cache hit never reaches the usage tracker, so "billed vs cached" cannot be counted. Fix: put usage tracking outside the cache.
+
+## Phase B (started 14 Nov, ~23:30): new core run without chunking, then a hints experiment
+
+### Decisions (user)
+- Student moved off Groq to **Pollinations** (`https://gen.pollinations.ai/v1`, OpenAI-compatible), same model `qwen/qwen3.8-27b`, so the whole first-party app fits in one request (~20K Qwen tokens; ~41 s; probe: 13 valid findings). `reasoning_effort: none` is required: with reasoning on, the model spent all 8,000 output tokens thinking and returned no answer; "none" also matches its behaviour on Groq. `seed: 42`. Pollinations publishes no per-minute limits for keyed access; conservative client pacing, 429s retried.
+- Judge: `deepseek/deepseek-v4.1-flash` on Pollinations (open-weight, different family from the student, never the teacher), so the plan's original judge rule holds again. Haiku and the Groq models stay defined so earlier runs remain reproducible.
+- Prompt numbering (published prompt files are never edited): `scan/v1` = the earlier Groq run; **`scan/v2` = v1 + "one entry per distinct root cause"** (fixes the bundling seen in the teacher's v1 WebView finding; its example was rewritten to a neutral crypto case so that it does not mirror the README items) → the new core run, `configs/insecureshop.yaml`; **`scan/v3` = v2 + three generic MASVS-PLATFORM inter-component hints** (follow data across components; implicit intents are interceptable; setResult can reflect the caller's intent/URI grants) → hints experiment, `configs/insecureshop_scan_v3.yaml`. v3's hints were added after seeing v1's misses on this app (in-sample; disclosed).
+- `runs.student_runs: 3` (mean and range per student arm); teacher stays at 1 run.
+- Lesson budget: `reserved_guidance_tokens` and `max_lesson_tokens` 4,000, so all lessons fit (the earlier run sent only 6 of 14).
+
+### Fix
+- **DEVIATION (decorator order, 6.1):** usage tracking is now the outermost decorator, `UsageTracking(Caching(Retrying(RateLimited(Adapter))))`, so cache hits are recorded as cached with their original usage. With the plan's order (`Caching(UsageTracking(…))`) a cache hit never reached the tracker and the report's usage table silently omitted cached stages.
