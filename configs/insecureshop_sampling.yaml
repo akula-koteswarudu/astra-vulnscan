@@ -9,3 +9,6 @@ app:
   input: apps/InsecureShop.apk
   input_sha256: a83298ae4a37fcab8101e8b41e513dd2199af71a94ea537d556a318e07d4d1bd
   ground_truth: ground_truth/insecureshop.yaml
+distill:
+  # Reuse the core run's lessons (no distill call), so core and sampling differ only in how the student samples.
+  lessons_from: runs/2026-11-14T1828_insecureshop_1ac12d7f/05_learn/lessons.json
