@@ -60,6 +60,15 @@ class LessonSanitizerTest {
                     }
                 }
                 """);
+        // bundled library code: names used here are library/platform API, not the app's
+        IngestorTest.write(dir, "sources/androidx/webkit/WebViewHelper.java",
+                "package androidx.webkit;\npublic class WebViewHelper { Object getData() { return webview.query(); } }\n");
+        IngestorTest.write(dir, "sources/com/zentrabank/mobile/Prefs.java", """
+                package com.zentrabank.mobile;
+                public class Prefs {
+                    public String getData() { kotlin.jvm.internal.Intrinsics.checkParameterIsNotNull(this, "onReceivedSslError"); return ""; }
+                }
+                """);
         IngestorTest.write(dir, "sources/com/zentrabank/mobile/ProductDetail.java",
                 "package com.zentrabank.mobile;\npublic class ProductDetail { public void show() {} }\n");
         app = IngestorTest.ingestorForTests().ingest(new DecompiledApp("id", new LayoutDetector().detect(dir), "jadx", "1",
@@ -119,6 +128,25 @@ class LessonSanitizerTest {
         assertThat(terms("an intent with action android.intent.action.VIEW")).isEmpty();
         assertThat(terms("loads file:// URLs as text/html")).isEmpty();
         assertThat(terms("says Hello")).isEmpty(); // single common word literal
+    }
+
+    @Test
+    void namesUsedInBundledLibraryCodeAreNotAppSpecific() {
+        assertThat(terms("call getData() and pass the result to the webview query")).isEmpty();
+        assertThat(terms("ProductDetail")).contains("ProductDetail"); // still caught: only the app uses it
+    }
+
+    @Test
+    void compilerGeneratedNameStringsAreNotLiterals() {
+        assertThat(app.stringLiterals()).doesNotContain("onReceivedSslError");
+        assertThat(terms("override onReceivedSslError")).isEmpty();
+    }
+
+    @Test
+    void slashSeparatedAlternativesAndStandardFilesAreNotPaths() {
+        assertThat(terms("use endsWith/contains/startsWith checks")).isEmpty();
+        assertThat(terms("a key in res/values/strings.xml or AndroidManifest.xml")).isEmpty();
+        assertThat(terms("see src/main/java/Foo.java")).isNotEmpty();
     }
 
     @Test

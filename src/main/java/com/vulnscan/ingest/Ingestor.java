@@ -100,7 +100,7 @@ public class Ingestor {
                 shortNames += method.length() <= 2 ? 1 : 0;
             }
             identifiers.addAll(JavaText.hostnames(text));
-            literals.addAll(JavaText.stringLiterals(text));
+            literals.addAll(appLiterals(text));
             callbacks.addAll(JavaText.overrideMethodNames(text));
             for (String imp : JavaText.imports(text)) {
                 if (PLATFORM_IMPORT_PREFIXES.stream().anyMatch(imp::startsWith)) {
@@ -168,6 +168,20 @@ public class Ingestor {
         } catch (JsonProcessingException e) {
             throw new IllegalStateException(e);
         }
+    }
+
+    /**
+     * String literals that are app data: not the Kotlin compiler's @Metadata strings (dropped by CodeView) and not the
+     * parameter/expression names jadx shows in Intrinsics.check...(x, "name") calls.
+     */
+    static java.util.List<String> appLiterals(String text) {
+        java.util.List<String> out = new ArrayList<>();
+        for (String line : CodeView.render(text).split("\n")) {
+            if (!line.contains("Intrinsics.")) {
+                out.addAll(JavaText.stringLiterals(line));
+            }
+        }
+        return out;
     }
 
     private static String simpleName(String fqcn) {

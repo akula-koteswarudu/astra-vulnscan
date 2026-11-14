@@ -2,7 +2,7 @@ package com.vulnscan.scan;
 
 import com.vulnscan.ingest.AppModel;
 import com.vulnscan.ingest.CodeBase;
-import com.vulnscan.planning.CodeView;
+import com.vulnscan.ingest.CodeView;
 import com.vulnscan.planning.ScanUnit;
 import com.vulnscan.prompts.Prompt;
 import java.util.ArrayList;

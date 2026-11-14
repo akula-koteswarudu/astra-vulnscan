@@ -9,6 +9,7 @@ import com.vulnscan.ingest.AppModel;
 import com.vulnscan.ingest.AppModel.Component;
 import com.vulnscan.ingest.AppModel.SourceFile;
 import com.vulnscan.ingest.CodeBase;
+import com.vulnscan.ingest.CodeView;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;

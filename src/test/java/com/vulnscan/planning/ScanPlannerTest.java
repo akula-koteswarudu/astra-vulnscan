@@ -8,6 +8,7 @@ import com.vulnscan.config.AppConfig;
 import com.vulnscan.config.ModelsConfig;
 import com.vulnscan.ingest.AppModel;
 import com.vulnscan.ingest.CodeBase;
+import com.vulnscan.ingest.CodeView;
 import com.vulnscan.ingest.DecompileStats;
 import com.vulnscan.ingest.DecompiledApp;
 import com.vulnscan.ingest.IngestorTest;

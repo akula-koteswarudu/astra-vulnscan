@@ -29,7 +29,9 @@ import java.util.regex.Pattern;
  *   <li>first-party string literals as exact matches (also short ones such as credentials);</li>
  *   <li>regexes for file names, paths and line references.</li>
  * </ul>
- * Exempt: framework callbacks declared with @Override and platform vocabulary; literals that are platform names,
+ * Exempt: framework callbacks declared with @Override, platform vocabulary, and names that also occur in the app's
+ * bundled library code (androidx and other third-party sources in the same APK: names used there are platform or
+ * library API, not this app's); literals that are platform names,
  * bare URI schemes, MIME types, single common words, or shorter than 6 characters and not credential-like.
  * Answer-key check: an abstract_example too similar to its source evidence (after masking names and literals) is
  * removed (redact) or the lesson is dropped (drop).
@@ -37,7 +39,10 @@ import java.util.regex.Pattern;
 public class LessonSanitizer {
 
     static final Pattern FILE_NAME = Pattern.compile("\\b[\\w$-]+\\.(?:java|kt|xml|smali)\\b");
-    static final Pattern PATH = Pattern.compile("(?:[\\w.-]+[/\\\\]){2,}[\\w.-]+");
+    /** A file path: two or more separators and a last segment with an extension ("a/b/c" alternatives are not paths). */
+    static final Pattern PATH = Pattern.compile("(?:[\\w.-]+[/\\\\]){2,}[\\w-]+\\.[A-Za-z]{1,5}\\b");
+    /** Names every Android project has; mentioning them is general knowledge, not a leak. */
+    static final Set<String> STANDARD_FILES = Set.of("AndroidManifest.xml", "strings.xml", "build.gradle");
     static final Pattern LINE_REF = Pattern.compile("(?i)\\bline\\s+\\d+\\b|\\bL\\d+\\b");
     private static final Pattern WORD = Pattern.compile("[A-Za-z_$][\\w$]*(?:\\.[A-Za-z_$][\\w$]*)*");
     private static final Pattern URI_SCHEME_ONLY = Pattern.compile("[a-z][a-z0-9+.-]*:(//)?");
@@ -58,8 +63,12 @@ public class LessonSanitizer {
         this.exampleSimilarityMax = exampleSimilarityMax;
         Set<String> exempt = new HashSet<>(app.frameworkCallbacks());
         exempt.addAll(app.platformVocabulary());
+        exempt.addAll(libraryVocabulary(app, code));
         Set<String> platformParts = new HashSet<>();
-        app.platformVocabulary().forEach(v -> platformParts.addAll(parts(v)));
+        for (String v : exempt) {
+            platformParts.add(v.toLowerCase(Locale.ROOT));
+            platformParts.addAll(parts(v));
+        }
 
         for (String id : app.identifiers()) {
             if (exempt.contains(id) || id.length() < 3) {
@@ -174,6 +183,9 @@ public class LessonSanitizer {
         for (Pattern p : List.of(FILE_NAME, PATH, LINE_REF)) {
             Matcher m = p.matcher(text);
             while (m.find()) {
+                if (p != LINE_REF && STANDARD_FILES.stream().anyMatch(f -> m.group().endsWith(f))) {
+                    continue;
+                }
                 out.add(new Violation(lessonId, field, m.group(), p == FILE_NAME ? "file_name" : p == PATH ? "path" : "line_reference", null));
             }
         }
@@ -208,7 +220,8 @@ public class LessonSanitizer {
         }
         String s = text;
         for (Pattern p : List.of(PATH, FILE_NAME)) {
-            s = p.matcher(s).replaceAll("<File>");
+            s = p.matcher(s).replaceAll(m -> STANDARD_FILES.stream().anyMatch(f -> m.group().endsWith(f))
+                    ? Matcher.quoteReplacement(m.group()) : "<File>");
         }
         s = LINE_REF.matcher(s).replaceAll("<line>");
         for (String lit : literals.stream().sorted((a, b) -> b.length() - a.length()).toList()) {
@@ -316,6 +329,30 @@ public class LessonSanitizer {
             return true;
         }
         return s.length() < 6 && !credentialLike.contains(lit);
+    }
+
+    /**
+     * Words declared or used in the app's non-first-party sources (the bundled libraries). Such names are library or
+     * platform API (WebView, getData, query, FileProvider) and must not be redacted from lessons.
+     */
+    static Set<String> libraryVocabulary(AppModel app, CodeBase code) {
+        Set<String> words = new HashSet<>();
+        List<String> prefixes = app.stats().firstPartyPrefixes();
+        for (AppModel.SourceFile f : app.sources()) {
+            boolean appPackage = prefixes.stream().anyMatch(p -> f.className().startsWith(p + "."));
+            if (f.isFirstParty() || appPackage) {
+                continue; // includes the app's own generated R / BuildConfig
+            }
+            Matcher m = WORD.matcher(com.vulnscan.ingest.CodeView.render(code.text(f.path())));
+            while (m.find()) {
+                for (String piece : m.group().split("\\.")) {
+                    if (piece.length() >= 3) {
+                        words.add(piece);
+                    }
+                }
+            }
+        }
+        return words;
     }
 
     /** Literals on a code line that also names a credential-like variable, field or key (e.g. password, token). */

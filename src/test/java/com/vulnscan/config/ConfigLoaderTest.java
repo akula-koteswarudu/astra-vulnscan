@@ -103,9 +103,9 @@ class ConfigLoaderTest {
     @Test
     void judgeMustDifferFromTeacherAndRolesMustExist() throws IOException {
         String models = Files.readString(dir.resolve("configs/models.yaml"))
-                .replace("model: openai/gpt-oss-120b", "model: claude-sonnet-5-5")
-                .replace("roles: {teacher: teacher, student: student, judge: judge}",
-                        "roles: {teacher: teacher, student: nobody, judge: judge}");
+                .replace("model: claude-haiku-5-5", "model: claude-sonnet-5-5")
+                .replace("roles: {teacher: teacher, student: student, judge: judge_haiku}",
+                        "roles: {teacher: teacher, student: nobody, judge: judge_haiku}");
         Files.writeString(dir.resolve("configs/models.yaml"), models);
         Path p = write("a.yaml", "app: {name: x, input: y}\n");
         assertThatThrownBy(() -> loader.load(p)).hasMessageContaining("undefined model 'nobody'");

@@ -1,4 +1,4 @@
-package com.vulnscan.planning;
+package com.vulnscan.ingest;
 
 import java.util.stream.Collectors;
 

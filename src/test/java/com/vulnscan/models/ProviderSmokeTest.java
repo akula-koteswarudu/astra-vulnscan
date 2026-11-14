@@ -90,4 +90,19 @@ class ProviderSmokeTest {
             }
         }
     }
+
+    @Test
+    void haikuHeadersAndJson() {
+        Secrets secrets = Secrets.load(Path.of(".env"));
+        var anthropic = AnthropicOkHttpClient.builder().apiKey(secrets.require("ANTHROPIC_API_KEY")).maxRetries(0).build();
+        var raw = anthropic.messages().withRawResponse().create(com.anthropic.models.messages.MessageCreateParams.builder()
+                .model("claude-haiku-5-5").maxTokens(300).addUserMessage("Answer with JSON only: {\"verdict\": \"match\"}")
+                .outputConfig(com.anthropic.models.messages.OutputConfig.builder()
+                        .effort(com.anthropic.models.messages.OutputConfig.Effort.LOW).build()).build());
+        raw.headers().names().stream().filter(n -> n.toLowerCase().contains("ratelimit") && n.endsWith("limit")).sorted()
+                .forEach(n -> System.out.println("HAIKU " + n + ": " + raw.headers().values(n)));
+        var msg = raw.parse();
+        System.out.println("HAIKU text=" + msg.content().stream().flatMap(b -> b.text().stream()).map(t -> t.text()).toList()
+                + " in=" + msg.usage().inputTokens() + " out=" + msg.usage().outputTokens());
+    }
 }

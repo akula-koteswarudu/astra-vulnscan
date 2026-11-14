@@ -36,7 +36,7 @@ models:
     concurrency: 1
     sdk_max_retries: 0
     retry: {max_attempts: 4, base_delay_s: 5}
-  judge:
+  judge_open:                        # free open-model judge; slow on the free tier (8K tokens/minute)
     provider: openai_compatible
     base_url: https://api.groq.com/openai/v1
     model: openai/gpt-oss-120b       # different family from the student; never the teacher
@@ -52,4 +52,19 @@ models:
     concurrency: 1
     sdk_max_retries: 0
     retry: {max_attempts: 4, base_delay_s: 5}
-roles: {teacher: teacher, student: student, judge: judge}
+  judge_haiku:                       # current judge (chosen for speed): a Claude model, but not the teacher
+    provider: anthropic
+    model: claude-haiku-5-5
+    api_key_env: ANTHROPIC_API_KEY
+    context_tokens: 1000000
+    max_output_tokens: 2000          # adaptive thinking at low effort + a short JSON verdict
+    temperature: null                # Haiku 5.5 rejects non-default sampling
+    params:
+      output_config: {effort: low}   # no `fallbacks`: Haiku 5.5 has no server-side fallback
+    price_per_mtok: {input: 0.10, output: 0.50}   # prompts up to 100K tokens
+    rate_limit: {rpm: 13000, itpm: 10000000, otpm: 2000000}   # from anthropic-ratelimit-* headers, 14 Nov 2026
+    max_tokens_param: max_tokens
+    concurrency: 1
+    sdk_max_retries: 0
+    retry: {max_attempts: 4, base_delay_s: 2}
+roles: {teacher: teacher, student: student, judge: judge_haiku}   # judge: judge_haiku | judge_open

@@ -35,7 +35,7 @@ scan:
     fuzzy_threshold: 90
     min_evidence_chars: 25
 distill:
-  prompt_version: v1
+  prompt_version: v2              # v1 lessons averaged ~375 tokens: only 4 of 15 fitted the student's budget
   max_lessons: 15
   max_lesson_tokens: 1500
   max_input_findings: 60
