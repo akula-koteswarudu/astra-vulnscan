@@ -1,0 +1,156 @@
+package com.vulnscan.scan;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+import com.vulnscan.ingest.CodeBase;
+import com.vulnscan.planning.ScanUnit;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.Map;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+
+class PostProcessorsTest {
+
+    @TempDir
+    Path dir;
+    EvidenceVerifier verifier;
+    ScanUnit unit;
+
+    static final String A = "sources/a/A.java";
+    static final String B = "sources/a/B.java";
+
+    @BeforeEach
+    void setUp() throws IOException {
+        Files.createDirectories(dir.resolve("sources/a"));
+        Files.writeString(dir.resolve(A), "class A {\n    void go() {\n        webView.loadUrl(getIntent().getStringExtra(\"url\"));\n    }\n}\n");
+        Files.writeString(dir.resolve(B), "class B {\n    void log(String password) {\n        Log.d(\"password\", password);\n    }\n}\n");
+        verifier = new EvidenceVerifier(new CodeBase(dir), 90, 25);
+        unit = new ScanUnit("u", "component", "A", List.of(A, B),
+                "<application android:debuggable=\"true\">\n</application>",
+                "resources/res/xml/paths.xml (FileProvider p.FP): <root-path name=\"root\" path=\"/\"/>",
+                "androidx.core:core 1.3.1\nnet.lib.upload 3.2.3\ncom.lib.other (version unknown)", 100, 1);
+    }
+
+    static RawFinding f(String file, String evidence, String kind) {
+        return new RawFinding("t", "c", "CWE-79", null, "high", 0.5, List.of(new RawFinding.RawLocation(file, null, null)), evidence, "r", kind);
+    }
+
+    @Test
+    void exactAndReindentedEvidenceIsVerifiedWithLine() {
+        var c = verifier.verify(f(A, "webView.loadUrl(getIntent().getStringExtra(\"url\"));", "code"), unit);
+        assertThat(c.status()).isEqualTo("verified_exact");
+        assertThat(c.line()).isEqualTo(3);
+        var reindented = verifier.verify(f(A, "void go() {\n  webView.loadUrl(getIntent().getStringExtra(\"url\"));", "code"), unit);
+        assertThat(reindented.status()).isEqualTo("verified_exact");
+        assertThat(reindented.line()).isEqualTo(2);
+        assertThat(reindented.endLine()).isEqualTo(3);
+    }
+
+    @Test
+    void wrongFileIsRelocated() {
+        var c = verifier.verify(f(A, "Log.d(\"password\", password);", "code"), unit);
+        assertThat(c.status()).isEqualTo("relocated");
+        assertThat(c.file()).isEqualTo(B);
+    }
+
+    @Test
+    void shortSnippetIsNotRelocatedOrFuzzy() {
+        assertThat(verifier.verify(f(A, "Log.d(", "code"), unit).status()).isEqualTo("unverified");
+        assertThat(verifier.verify(f(A, "loadUrl(x)", "code"), unit).status()).isEqualTo("unverified");
+    }
+
+    @Test
+    void nearMissIsFuzzyAndInventedIsUnverified() {
+        assertThat(verifier.verify(f(A, "webView.loadUrl(getIntent().getStringExtra(\"uri\"));", "code"), unit).status())
+                .isEqualTo("verified_fuzzy");
+        assertThat(verifier.verify(f(A, "Runtime.getRuntime().exec(userSuppliedCommand);", "code"), unit).status())
+                .isEqualTo("unverified");
+    }
+
+    @Test
+    void abbreviatedQuoteWithEllipsisIsFuzzy() {
+        var c = verifier.verify(f(A, "void go() { ... webView.loadUrl(getIntent()", "code"), unit);
+        assertThat(c.status()).isEqualTo("verified_fuzzy");
+    }
+
+    @Test
+    void manifestAndResourceEvidenceIsCheckedAgainstContext() {
+        assertThat(verifier.verify(f("AndroidManifest.xml", "android:debuggable=\"true\"", "manifest"), unit).status()).isEqualTo("verified_exact");
+        var res = verifier.verify(f("res/xml/paths.xml", "<root-path name=\"root\" path=\"/\"/>", "resource"), unit);
+        assertThat(res.status()).isEqualTo("verified_exact");
+        assertThat(res.file()).isEqualTo("resources/res/xml/paths.xml");
+    }
+
+    @Test
+    void dependencyEvidenceMustMatchInventory() {
+        var match = verifier.verify(f("x", "net.lib.upload 3.2.3", "dependency"), unit);
+        assertThat(match.status()).isEqualTo("inventory_match");
+        assertThat(match.needsAdvisoryCheck()).isTrue();
+        assertThat(match.file()).isEqualTo("dependency:net.lib.upload");
+        assertThat(verifier.verify(f("x", "net.lib.upload:3.2.3", "dependency"), unit).status()).isEqualTo("inventory_match");
+        assertThat(verifier.verify(f("x", "net.lib.upload 9.9.9", "dependency"), unit).status()).isEqualTo("inventory_unmatched");
+        assertThat(verifier.verify(f("x", "okhttp 2.0", "dependency"), unit).status()).isEqualTo("inventory_unmatched");
+    }
+
+    @Test
+    void normalizerCanonicalises() {
+        RawFinding raw = new RawFinding("t", null, "cwe 0079", "masvs-platform", "HIGH", 1.7,
+                List.of(new RawFinding.RawLocation("/sources/a/A.java", "null", "A$1.go()")), "e", null, null);
+        RawFinding n = new Normalizer().normalize(raw);
+        assertThat(n.cwe()).isEqualTo("CWE-79");
+        assertThat(n.severity()).isEqualTo("high");
+        assertThat(n.kind()).isEqualTo("code");
+        assertThat(n.confidence()).isEqualTo(1.0);
+        assertThat(n.owaspCategory()).isEqualTo("MASVS-PLATFORM");
+        assertThat(n.locations().get(0).file()).isEqualTo("sources/a/A.java");
+        assertThat(n.locations().get(0).component()).isNull();
+        assertThat(n.locations().get(0).symbol()).isEqualTo("A.go");
+        assertThat(n.vulnClass()).isEqualTo("t");
+    }
+
+    @Test
+    void splitterMakesOneFindingPerLocation() {
+        RawFinding raw = new RawFinding("t", "c", "CWE-1", null, "low", 0.5, List.of(new RawFinding.RawLocation(A, null, "A"),
+                new RawFinding.RawLocation(B, null, "B")), "e", "r", "code");
+        assertThat(new Splitter().split(raw)).extracting(x -> x.locations().get(0).file()).containsExactly(A, B);
+    }
+
+    static Finding finding(String id, String file, String symbol, String cwe, Integer line, double conf, String unitId, String status) {
+        return new Finding(id, "t", "c", cwe, null, "high", conf, new Finding.Location(file, null, symbol, line, line == null ? null : line + 1),
+                "e", "r", "code", status, false, new Finding.Provenance("m", "arm", "r", 0, List.of(unitId), "v1"));
+    }
+
+    @Test
+    void dedupMergesAcrossOverlappingUnits() {
+        Deduplicator d = new Deduplicator(Map.of("webview", List.of("CWE-79", "CWE-749")));
+        List<Finding> out = d.dedup(List.of(
+                finding("1", A, "A.go", "CWE-79", 3, 0.6, "u1", "verified_exact"),
+                finding("2", A, "A.go", "CWE-79", 3, 0.9, "u2", "verified_exact"),     // same cwe+file+symbol
+                finding("3", A, "A.other", "CWE-749", 4, 0.5, "u3", "verified_exact"), // overlapping lines, same group
+                finding("4", B, "B.log", "CWE-532", 3, 0.5, "u1", "verified_exact")));
+        assertThat(out).hasSize(2);
+        Finding merged = out.stream().filter(x -> x.location().file().equals(A)).findFirst().orElseThrow();
+        assertThat(merged.confidence()).isEqualTo(0.9);
+        assertThat(merged.provenance().unitIds()).containsExactly("u1", "u2", "u3");
+    }
+
+    @Test
+    void dedupPrefersTheVerifiedCopy() {
+        Deduplicator d = new Deduplicator(Map.of());
+        List<Finding> out = d.dedup(List.of(
+                finding("1", A, "A.go", "CWE-79", null, 0.99, "u1", "unverified"),
+                finding("2", A, "A.go", "CWE-79", 3, 0.5, "u2", "verified_exact")));
+        assertThat(out).singleElement().satisfies(x -> assertThat(x.evidenceStatus()).isEqualTo("verified_exact"));
+    }
+
+    @Test
+    void partialRatioBehavesLikeRapidfuzz() {
+        assertThat(TextMatch.partialRatio("hello world", "say hello world!")).isEqualTo(100.0);
+        assertThat(TextMatch.partialRatio("hello wurld", "say hello world!")).isGreaterThan(85.0).isLessThan(100.0);
+        assertThat(TextMatch.partialRatio("abc", "xyz xyz")).isLessThan(50.0);
+    }
+}

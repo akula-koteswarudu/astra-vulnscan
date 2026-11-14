@@ -6,7 +6,7 @@ import picocli.CommandLine.Command;
 /** Root command; subcommands are registered here. */
 @Component
 @Command(name = "vulnscan", mixinStandardHelpOptions = true,
-        subcommands = {GtFromReadmeCommand.class, TokensCommand.class}, version = "vulnscan 0.1.0",
+        subcommands = {RunCommand.class, ScanCommand.class, TokensCommand.class, GtFromReadmeCommand.class}, version = "vulnscan 0.1.0",
         description = "Static LLM vulnerability scanner for Android apps with a teacher-to-student lesson loop.")
 public class VulnscanCommand implements Runnable {
     @Override

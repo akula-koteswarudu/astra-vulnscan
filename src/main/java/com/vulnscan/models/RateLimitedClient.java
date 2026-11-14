@@ -8,11 +8,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Client-side sliding-window limiter (60 s) for requests/min and tokens/min, plus a daily counter that warns
- * near the daily limits. Token estimate before a call = input estimate (+ max_tokens when the provider counts
- * output against the same per-minute limit, like Groq's tpm); reconciled with the real usage afterwards.
- * Output tokens are limited separately when an output limit exists (Anthropic otpm).
- * A single request that can never fit the per-minute capacity fails fast instead of waiting forever.
+ * Client-side sliding-window limiter (60 s) for requests/min and three token windows, each used when its limit is set:
+ * input tokens (itpm), output tokens (otpm) and total tokens (tpm, input + max_tokens reserved up front, as Groq
+ * counts it). Estimates are reconciled with the real usage after the call. A daily counter warns near daily limits.
+ * A single request that can never fit a per-minute capacity fails fast instead of waiting forever.
  */
 public class RateLimitedClient implements LlmClient {
 
@@ -21,9 +20,9 @@ public class RateLimitedClient implements LlmClient {
 
     private final LlmClient inner;
     private final Integer rpm;
-    private final int inputPerMinute;
-    private final boolean outputSharesInput;
+    private final Integer inputPerMinute;
     private final Integer outputPerMinute;
+    private final Integer totalPerMinute;
     private final Integer tokensPerDay;
     private final Integer requestsPerDay;
     private final TokenEstimator estimator;
@@ -32,19 +31,20 @@ public class RateLimitedClient implements LlmClient {
     private final Deque<Entry> requests = new ArrayDeque<>();
     private final Deque<Entry> inputTokens = new ArrayDeque<>();
     private final Deque<Entry> outputTokens = new ArrayDeque<>();
+    private final Deque<Entry> totalTokens = new ArrayDeque<>();
     private long dayTokens;
     private long dayRequests;
 
     private record Entry(long at, long amount) {
     }
 
-    public RateLimitedClient(LlmClient inner, Integer rpm, int inputPerMinute, boolean outputSharesInput, Integer outputPerMinute,
+    public RateLimitedClient(LlmClient inner, Integer rpm, Integer inputPerMinute, Integer outputPerMinute, Integer totalPerMinute,
                              Integer tokensPerDay, Integer requestsPerDay, TokenEstimator estimator, Ticker ticker) {
         this.inner = inner;
         this.rpm = rpm;
         this.inputPerMinute = inputPerMinute;
-        this.outputSharesInput = outputSharesInput;
         this.outputPerMinute = outputPerMinute;
+        this.totalPerMinute = totalPerMinute;
         this.tokensPerDay = tokensPerDay;
         this.requestsPerDay = requestsPerDay;
         this.estimator = estimator;
@@ -53,20 +53,23 @@ public class RateLimitedClient implements LlmClient {
 
     @Override
     public LlmResponse complete(LlmRequest request) {
-        long inEstimate = estimator.estimate(request.promptChars()) + (outputSharesInput ? request.maxTokens() : 0);
-        if (inEstimate > inputPerMinute) {
-            throw LlmException.nonRetryable("request too large for the per-minute token limit: estimated " + inEstimate
-                    + " tokens (input" + (outputSharesInput ? " + max_tokens" : "") + ") > " + inputPerMinute
-                    + "; the planner should have chunked this unit smaller");
+        long inEstimate = estimator.estimate(request.promptChars());
+        long totalEstimate = inEstimate + request.maxTokens();
+        if (inputPerMinute != null && inEstimate > inputPerMinute) {
+            throw tooLarge("input", inEstimate, inputPerMinute);
+        }
+        if (totalPerMinute != null && totalEstimate > totalPerMinute) {
+            throw tooLarge("input + max_tokens", totalEstimate, totalPerMinute);
         }
         long outEstimate = outputPerMinute == null ? 0 : Math.min(request.maxTokens(), outputPerMinute);
-        Entry inReservation;
-        Entry outReservation;
+        Entry in;
+        Entry out;
+        Entry total;
         synchronized (this) {
             while (true) {
                 long now = ticker.nowMillis();
                 evict(now);
-                long wait = waitMillis(now, inEstimate, outEstimate);
+                long wait = waitMillis(now, inEstimate, outEstimate, totalEstimate);
                 if (wait <= 0) {
                     break;
                 }
@@ -75,23 +78,16 @@ public class RateLimitedClient implements LlmClient {
             }
             long now = ticker.nowMillis();
             requests.addLast(new Entry(now, 1));
-            inReservation = new Entry(now, inEstimate);
-            inputTokens.addLast(inReservation);
-            outReservation = new Entry(now, outEstimate);
-            if (outputPerMinute != null) {
-                outputTokens.addLast(outReservation);
-            }
+            in = add(inputTokens, inputPerMinute, now, inEstimate);
+            out = add(outputTokens, outputPerMinute, now, outEstimate);
+            total = add(totalTokens, totalPerMinute, now, totalEstimate);
         }
         LlmResponse r = inner.complete(request);
         synchronized (this) {
             // Replace estimates with real usage (same timestamp, so the window position is unchanged).
-            long realIn = r.inputTokens() + (outputSharesInput ? r.outputTokens() : 0);
-            if (inputTokens.remove(inReservation) && realIn > 0) {
-                inputTokens.addLast(new Entry(inReservation.at(), realIn));
-            }
-            if (outputPerMinute != null && outputTokens.remove(outReservation)) {
-                outputTokens.addLast(new Entry(outReservation.at(), r.outputTokens()));
-            }
+            reconcile(inputTokens, in, r.inputTokens());
+            reconcile(outputTokens, out, r.outputTokens());
+            reconcile(totalTokens, total, r.inputTokens() + r.outputTokens());
             dayTokens += r.inputTokens() + r.outputTokens();
             dayRequests++;
             warnNearDailyLimit();
@@ -99,14 +95,39 @@ public class RateLimitedClient implements LlmClient {
         return r;
     }
 
-    private long waitMillis(long now, long inEstimate, long outEstimate) {
+    private static LlmException tooLarge(String what, long estimate, int limit) {
+        return LlmException.nonRetryable("request too large for the per-minute token limit: estimated " + estimate
+                + " tokens (" + what + ") > " + limit + "; the planner should have chunked this unit smaller");
+    }
+
+    private static Entry add(Deque<Entry> window, Integer limit, long now, long amount) {
+        if (limit == null) {
+            return null;
+        }
+        Entry e = new Entry(now, amount);
+        window.addLast(e);
+        return e;
+    }
+
+    private static void reconcile(Deque<Entry> window, Entry reservation, long real) {
+        if (reservation != null && window.remove(reservation) && real > 0) {
+            window.addLast(new Entry(reservation.at(), real));
+        }
+    }
+
+    private long waitMillis(long now, long inEstimate, long outEstimate, long totalEstimate) {
         long wait = 0;
         if (rpm != null && requests.size() >= rpm) {
             wait = Math.max(wait, requests.peekFirst().at() + WINDOW_MS - now);
         }
-        wait = Math.max(wait, waitForCapacity(inputTokens, inputPerMinute, inEstimate, now));
+        if (inputPerMinute != null) {
+            wait = Math.max(wait, waitForCapacity(inputTokens, inputPerMinute, inEstimate, now));
+        }
         if (outputPerMinute != null) {
             wait = Math.max(wait, waitForCapacity(outputTokens, outputPerMinute, outEstimate, now));
+        }
+        if (totalPerMinute != null) {
+            wait = Math.max(wait, waitForCapacity(totalTokens, totalPerMinute, totalEstimate, now));
         }
         return wait;
     }
@@ -128,7 +149,7 @@ public class RateLimitedClient implements LlmClient {
     }
 
     private void evict(long now) {
-        for (Deque<Entry> d : java.util.List.of(requests, inputTokens, outputTokens)) {
+        for (Deque<Entry> d : java.util.List.of(requests, inputTokens, outputTokens, totalTokens)) {
             d.removeIf(e -> e.at() + WINDOW_MS <= now);
         }
     }

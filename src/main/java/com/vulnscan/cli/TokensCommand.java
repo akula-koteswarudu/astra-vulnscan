@@ -49,9 +49,10 @@ public class TokensCommand implements Callable<Integer> {
         UnitPlan.Budget b = plan.budget();
         System.out.printf("%nmodel %s: mode %s, %d units, effective budget %d tokens/request%n", plan.model(), plan.mode(),
                 plan.units().size(), b.effective());
-        System.out.printf("  budget = min(%d, 0.8 x per-minute %s) - overhead %d%s%s%n", b.contextOrPlanningBudget(),
-                b.perMinuteInputLimit(), b.promptOverhead(), b.outputSharesLimit() ? " - max_output " + b.maxOutput() : "",
-                b.reservedGuidance() > 0 ? " - reserved guidance " + b.reservedGuidance() : "");
+        System.out.printf("  per-request cap = min(%d%s%s) = %d; minus overhead %d%s%n", b.contextOrPlanningBudget(),
+                b.itpm() != null ? ", 0.8 x itpm " + b.itpm() : "",
+                b.tpm() != null ? ", 0.8 x tpm " + b.tpm() + " - max_output " + b.maxOutput() : "", b.perRequestCap(),
+                b.promptOverhead(), b.reservedGuidance() > 0 ? ", minus reserved guidance " + b.reservedGuidance() : "");
         int total = 0;
         for (ScanUnit u : plan.units()) {
             total += u.estTokens();

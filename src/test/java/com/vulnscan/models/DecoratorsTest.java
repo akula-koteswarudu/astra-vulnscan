@@ -146,7 +146,7 @@ class DecoratorsTest {
         // 4000 chars -> 1000 tokens + 100 max_tokens = 1100 per call; capacity 2000/min -> second call must wait.
         RateLimitedClient limited = new RateLimitedClient(new FakeLlmClient(r ->
                 new LlmResponse("ok", 1000, 100, LlmResponse.StopReason.END, null, "m", 1, false, true, 0)),
-                null, 2000, true, null, null, null, new TokenEstimator(4, 0.0), ticker);
+                null, null, null, 2000, null, null, new TokenEstimator(4, 0.0), ticker);
         String text = "x".repeat(4000 - 3);
         limited.complete(request(text, 0));
         assertThat(ticker.sleeps).isEmpty();
@@ -158,7 +158,7 @@ class DecoratorsTest {
     @Test
     void limiterRespectsRequestsPerMinute() {
         FakeTicker ticker = new FakeTicker();
-        RateLimitedClient limited = new RateLimitedClient(FakeLlmClient.constant("ok"), 2, 1_000_000, false, null, null, null,
+        RateLimitedClient limited = new RateLimitedClient(FakeLlmClient.constant("ok"), 2, 1_000_000, null, null, null, null,
                 new TokenEstimator(4, 0.0), ticker);
         limited.complete(request("a", 0));
         limited.complete(request("a", 0));
@@ -170,9 +170,23 @@ class DecoratorsTest {
     @Test
     void limiterFailsFastOnOversizeRequest() {
         FakeLlmClient inner = FakeLlmClient.constant("ok");
-        RateLimitedClient limited = new RateLimitedClient(inner, null, 1000, true, null, null, null, new TokenEstimator(4, 0.15), new FakeTicker());
+        RateLimitedClient limited = new RateLimitedClient(inner, null, null, null, 1000, null, null, new TokenEstimator(4, 0.15), new FakeTicker());
         assertThatThrownBy(() -> limited.complete(request("x".repeat(4000), 0)))
                 .isInstanceOf(LlmException.class).hasMessageContaining("too large");
         assertThat(inner.calls()).isZero();
+    }
+
+    @Test
+    void inputAndTotalLimitsAreBothEnforced() {
+        FakeTicker ticker = new FakeTicker();
+        // itpm 1500: two 1000-token prompts cannot share a minute even though tpm (10000) has room.
+        RateLimitedClient limited = new RateLimitedClient(new FakeLlmClient(r ->
+                new LlmResponse("ok", 1000, 10, LlmResponse.StopReason.END, null, "m", 1, false, true, 0)),
+                null, 1500, null, 10_000, null, null, new TokenEstimator(4, 0.0), ticker);
+        String text = "x".repeat(4000 - 3);
+        limited.complete(request(text, 0));
+        limited.complete(request(text, 0));
+        assertThat(ticker.sleeps).hasSize(1);
+        assertThatThrownBy(() -> limited.complete(request("x".repeat(8000), 0))).hasMessageContaining("(input)");
     }
 }

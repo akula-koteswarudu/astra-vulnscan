@@ -61,20 +61,15 @@ public record ModelsConfig(@NotEmpty Map<String, @Valid ModelSpec> models, @NotN
     }
 
     /**
-     * Per-minute limits. Groq: rpm, tpm (input + output counted together), tpd.
-     * Anthropic: rpm, itpm and otpm (input and output counted separately).
+     * Provider limits; any combination may be set and all are respected.
+     * tpm: input + output tokens per minute (Groq); itpm / otpm: input / output tokens per minute (Anthropic, and Groq's
+     * separate input limit); rpm / rpd / tpd: requests per minute, requests per day, tokens per day.
      */
     public record RateLimit(@Positive Integer rpm, @Positive Integer tpm, @Positive Integer tpd,
                             @Positive Integer itpm, @Positive Integer otpm, @Positive Integer rpd) {
 
-        /** Per-minute INPUT capacity used by the planner: itpm when set (Anthropic), else tpm (Groq). */
-        public Integer perMinuteInputLimit() {
-            return itpm != null ? itpm : tpm;
-        }
-
-        /** True when output tokens count against the same per-minute limit as input (Groq's tpm). */
-        public boolean outputSharesInputLimit() {
-            return itpm == null && tpm != null;
+        public boolean hasPerMinuteTokenLimit() {
+            return itpm != null || tpm != null;
         }
     }
 

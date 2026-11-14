@@ -7,11 +7,12 @@ public record UnitPlan(int schemaVersion, String model, String mode, Budget budg
                        List<Skipped> skipped) {
 
     /**
-     * effective = min(planningBudget or context, 0.8 * per-minute input limit) - promptOverhead
-     *             - maxOutput (only when output shares the per-minute limit) - reservedGuidance (student only).
+     * perRequestCap = min(planningBudget or context, 0.8 * itpm, 0.8 * tpm - maxOutput)  (terms only when the limit exists;
+     *                 tpm counts output too, so the answer's room comes out of it)
+     * effective     = perRequestCap - promptOverhead - reservedGuidance (student only).
      */
-    public record Budget(int contextOrPlanningBudget, Integer perMinuteInputLimit, int promptOverhead, int maxOutput,
-                         boolean outputSharesLimit, int reservedGuidance, int effective) {
+    public record Budget(int contextOrPlanningBudget, Integer itpm, Integer tpm, int maxOutput, int perRequestCap,
+                         int promptOverhead, int reservedGuidance, int effective) {
     }
 
     public record Skipped(String what, int estTokens, String reason) {

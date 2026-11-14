@@ -1,0 +1,86 @@
+package com.vulnscan.scan;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.TreeSet;
+
+/**
+ * Post-processor 4 (across all units of an arm run): merges findings that are the same issue reported twice
+ * (overlapping units, or two phrasings): same CWE + file + symbol, or same file + overlapping evidence lines + same
+ * CWE group. The merged finding keeps a verified version over an unverified one (then the highest confidence) and
+ * lists every unit it came from.
+ */
+public class Deduplicator {
+
+    private final Map<String, List<String>> cweGroups;
+
+    public Deduplicator(Map<String, List<String>> cweGroups) {
+        this.cweGroups = cweGroups;
+    }
+
+    public List<Finding> dedup(List<Finding> findings) {
+        List<Finding> sorted = new ArrayList<>(findings);
+        sorted.sort(Comparator.comparing((Finding f) -> !f.isVerified())
+                .thenComparing(Comparator.comparingDouble(Finding::confidence).reversed())
+                .thenComparing(Finding::id));
+        List<Finding> kept = new ArrayList<>();
+        for (Finding f : sorted) {
+            int match = -1;
+            for (int i = 0; i < kept.size(); i++) {
+                if (same(kept.get(i), f)) {
+                    match = i;
+                    break;
+                }
+            }
+            if (match < 0) {
+                kept.add(f);
+            } else {
+                kept.set(match, merge(kept.get(match), f));
+            }
+        }
+        kept.sort(Comparator.comparing(Finding::id));
+        return kept;
+    }
+
+    boolean same(Finding a, Finding b) {
+        if (!Objects.equals(a.location().file(), b.location().file())) {
+            return false;
+        }
+        if (a.cwe() != null && a.cwe().equals(b.cwe()) && Objects.equals(a.location().symbol(), b.location().symbol())) {
+            return true;
+        }
+        return linesOverlap(a.location(), b.location()) && sameGroup(a.cwe(), b.cwe());
+    }
+
+    private static boolean linesOverlap(Finding.Location a, Finding.Location b) {
+        if (a.line() == null || b.line() == null) {
+            return false;
+        }
+        int aEnd = a.endLine() == null ? a.line() : a.endLine();
+        int bEnd = b.endLine() == null ? b.line() : b.endLine();
+        return a.line() <= bEnd && b.line() <= aEnd;
+    }
+
+    boolean sameGroup(String a, String b) {
+        if (a == null || b == null) {
+            return false;
+        }
+        if (a.equals(b)) {
+            return true;
+        }
+        return cweGroups.values().stream().anyMatch(g -> g.contains(a) && g.contains(b));
+    }
+
+    private static Finding merge(Finding keep, Finding other) {
+        TreeSet<String> units = new TreeSet<>(keep.provenance().unitIds());
+        units.addAll(other.provenance().unitIds());
+        Finding.Provenance p = keep.provenance();
+        return new Finding(keep.id(), keep.title(), keep.vulnClass(), keep.cwe(), keep.owaspCategory(), keep.severity(),
+                Math.max(keep.confidence(), other.confidence()), keep.location(), keep.evidence(), keep.rationale(), keep.kind(),
+                keep.evidenceStatus(), keep.needsAdvisoryCheck(),
+                new Finding.Provenance(p.modelUsed(), p.arm(), p.runId(), p.repeatIndex(), List.copyOf(units), p.promptVersion()));
+    }
+}

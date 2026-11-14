@@ -62,26 +62,83 @@ public class ScanPlanner {
         }
         RateLimit rl = spec.rateLimit();
         int base = spec.planningBudgetTokens() != null ? spec.planningBudgetTokens() : spec.contextTokens();
-        Integer perMinute = rl.perMinuteInputLimit();
-        int cap = perMinute == null ? base : Math.min(base, (int) (PER_MINUTE_SHARE * perMinute));
-        boolean shares = rl.outputSharesInputLimit();
+        int cap = base;
+        if (rl.itpm() != null) {
+            cap = Math.min(cap, (int) (PER_MINUTE_SHARE * rl.itpm()));
+        }
+        if (rl.tpm() != null) {
+            cap = Math.min(cap, (int) (PER_MINUTE_SHARE * rl.tpm()) - spec.maxOutputTokens());
+        }
         int reserved = reserveGuidance ? config.reservedGuidanceTokens() : 0;
-        int effective = cap - config.promptOverheadTokens() - (shares ? spec.maxOutputTokens() : 0) - reserved;
-        UnitPlan.Budget b = new UnitPlan.Budget(base, perMinute, config.promptOverheadTokens(), spec.maxOutputTokens(),
-                shares, reserved, effective);
+        int effective = cap - config.promptOverheadTokens() - reserved;
+        UnitPlan.Budget b = new UnitPlan.Budget(base, rl.itpm(), rl.tpm(), spec.maxOutputTokens(), cap,
+                config.promptOverheadTokens(), reserved, effective);
         if (effective < config.minCodeBudgetTokens()) {
             throw new PlanningException("model '" + modelName + "' (" + spec.model() + ") leaves only " + effective
                     + " tokens per request for code (minimum planning.min_code_budget_tokens = " + config.minCodeBudgetTokens()
-                    + "): budget min(" + base + ", " + PER_MINUTE_SHARE + " x per-minute limit " + perMinute + ") = " + cap
-                    + " - prompt overhead " + config.promptOverheadTokens()
-                    + (shares ? " - max_output_tokens " + spec.maxOutputTokens() + " (output counts against the same per-minute limit)" : "")
-                    + (reserved > 0 ? " - reserved guidance " + reserved : "")
+                    + "): per-request cap = min(" + base
+                    + (rl.itpm() != null ? ", " + PER_MINUTE_SHARE + " x itpm " + rl.itpm() : "")
+                    + (rl.tpm() != null ? ", " + PER_MINUTE_SHARE + " x tpm " + rl.tpm() + " - max_output_tokens " + spec.maxOutputTokens()
+                            + " (output counts against tpm)" : "")
+                    + ") = " + cap + ", minus prompt overhead " + config.promptOverheadTokens()
+                    + (reserved > 0 ? " and reserved guidance " + reserved : "")
                     + ". Lower max_output_tokens / reserved_guidance_tokens, or use a model or tier with a higher limit.");
         }
         return b;
     }
 
     public UnitPlan plan(String modelName, ModelSpec spec, boolean reserveGuidance, AppModel app, CodeBase code) {
+        return plan(modelName, spec, reserveGuidance, app, code, config.mode());
+    }
+
+    /**
+     * Re-plans a unit whose answer was truncated even with a doubled output budget (plan 6.5): a whole-app unit
+     * becomes graph chunks; a multi-file chunk becomes one unit per file; an app-context unit is split into its parts.
+     * Returns an empty list when the unit cannot be split further.
+     */
+    public List<ScanUnit> split(ScanUnit unit, String modelName, ModelSpec spec, boolean reserveGuidance, AppModel app, CodeBase code) {
+        switch (unit.kind()) {
+            case "whole" -> {
+                return plan(modelName, spec, reserveGuidance, app, code, AppConfig.PlanningMode.CHUNKED).units();
+            }
+            case "app_context" -> {
+                List<ScanUnit> parts = new ArrayList<>();
+                if (unit.manifestSlice() != null && (unit.resources() != null || unit.dependencies() != null)) {
+                    parts.add(unit("app_context", unit.root() + "/manifest", List.of(), unit.manifestSlice(), null, null,
+                            estimator.estimate(unit.manifestSlice()), unit.priority(), Map.of()));
+                }
+                if (unit.resources() != null && (unit.manifestSlice() != null || unit.dependencies() != null)) {
+                    parts.add(unit("app_context", unit.root() + "/resources", List.of(), null, unit.resources(), null,
+                            estimator.estimate(unit.resources()), unit.priority(), Map.of()));
+                }
+                if (unit.dependencies() != null && (unit.manifestSlice() != null || unit.resources() != null)) {
+                    parts.add(unit("app_context", unit.root() + "/dependencies", List.of(), null, null, unit.dependencies(),
+                            estimator.estimate(unit.dependencies()), unit.priority(), Map.of()));
+                }
+                return parts;
+            }
+            default -> {
+                if (unit.files().size() < 2) {
+                    return List.of();
+                }
+                Map<String, SourceFile> byPath = new HashMap<>();
+                app.firstPartySources().forEach(f -> byPath.put(f.path(), f));
+                Map<String, Integer> tokens = new HashMap<>();
+                Map<String, Integer> prio = new HashMap<>();
+                for (String path : unit.files()) {
+                    tokens.put(path, estimator.estimate(CodeView.render(code.text(path)).length() + FILE_MARKER_CHARS + path.length()));
+                    prio.put(path, prioritizer.score(byPath.get(path), code.text(path), app.manifest()));
+                }
+                return unit.files().stream()
+                        .map(path -> codeUnit(app, unit.kind(), unit.root() + "/" + path.substring(path.lastIndexOf('/') + 1),
+                                List.of(path), tokens, prio, byPath))
+                        .toList();
+            }
+        }
+    }
+
+    UnitPlan plan(String modelName, ModelSpec spec, boolean reserveGuidance, AppModel app, CodeBase code,
+                  AppConfig.PlanningMode mode) {
         UnitPlan.Budget budget = budget(modelName, spec, reserveGuidance);
         int limit = budget.effective();
         List<SourceFile> files = app.firstPartySources();
@@ -101,7 +158,6 @@ public class ScanPlanner {
         int contextTokens = estimator.estimate(fullManifest) + estimator.estimate(resources) + estimator.estimate(deps);
         int wholeTokens = tokens.values().stream().mapToInt(Integer::intValue).sum() + contextTokens;
 
-        AppConfig.PlanningMode mode = config.mode();
         boolean whole = switch (mode) {
             case WHOLE -> {
                 if (wholeTokens > limit) {

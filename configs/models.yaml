@@ -30,7 +30,7 @@ models:
     json_mode: instruction           # instruction | json_object
     params: {}
     price_per_mtok: {input: 0, output: 0}   # free tier; tokens reported, cost shown as $0
-    rate_limit: {rpm: 30, tpm: 8000, rpd: 1000}   # x-ratelimit-limit-tokens 8000/min, -requests 1000/day (headers, 14 Nov 2026); rpm: Groq free-tier default
+    rate_limit: {rpm: 30, tpm: 8000, itpm: 7000, rpd: 1000}   # tpm 8000 and rpd 1000 from x-ratelimit headers; itpm 7000 from a 429 body (14 Nov 2026); rpm: free-tier default
     max_tokens_param: max_tokens
     concurrency: 1
     sdk_max_retries: 0
@@ -46,7 +46,7 @@ models:
     json_mode: instruction
     params: {reasoning_effort: low}
     price_per_mtok: {input: 0, output: 0}
-    rate_limit: {rpm: 30, tpm: 8000, rpd: 1000}   # x-ratelimit-limit-tokens 8000/min, -requests 1000/day (headers, 14 Nov 2026); rpm: Groq free-tier default
+    rate_limit: {rpm: 30, tpm: 8000, itpm: 7000, rpd: 1000}   # tpm 8000 and rpd 1000 from x-ratelimit headers; itpm 7000 from a 429 body (14 Nov 2026); rpm: free-tier default
     max_tokens_param: max_tokens
     concurrency: 1
     sdk_max_retries: 0

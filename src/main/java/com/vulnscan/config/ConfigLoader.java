@@ -141,8 +141,8 @@ public class ConfigLoader {
             if ("openai_compatible".equals(m.provider()) && (m.baseUrl() == null || m.baseUrl().isBlank())) {
                 errors.add(name + ".base_url is required for provider openai_compatible");
             }
-            if (m.rateLimit().perMinuteInputLimit() == null) {
-                errors.add(name + ".rate_limit needs tpm (Groq/OpenAI style) or itpm (Anthropic style)");
+            if (!m.rateLimit().hasPerMinuteTokenLimit()) {
+                errors.add(name + ".rate_limit needs tpm and/or itpm (tokens per minute)");
             }
             if (m.jsonMode() == ModelsConfig.JsonMode.JSON_SCHEMA) {
                 errors.add(name + ".json_mode json_schema is not built yet (use instruction or json_object)");

@@ -18,34 +18,32 @@ public class ModelClientFactory {
     private final ModelsConfig models;
     private final ProviderRegistry registry;
     private final Secrets secrets;
-    private final UsageTracker usage;
     private final TokenEstimator estimator;
     private final Path cacheDir;
     private final boolean cacheEnabled;
     private final Ticker ticker;
 
-    public ModelClientFactory(ModelsConfig models, ProviderRegistry registry, Secrets secrets, UsageTracker usage,
+    public ModelClientFactory(ModelsConfig models, ProviderRegistry registry, Secrets secrets,
                               TokenEstimator estimator, Path cacheDir, boolean cacheEnabled, Ticker ticker) {
         this.models = models;
         this.registry = registry;
         this.secrets = secrets;
-        this.usage = usage;
         this.estimator = estimator;
         this.cacheDir = cacheDir;
         this.cacheEnabled = cacheEnabled;
         this.ticker = ticker;
     }
 
-    public LlmClient forModel(String name) {
+    /** usage: the tracker of the stage using this client (each stage saves its own usage.json). */
+    public LlmClient forModel(String name, UsageTracker usage) {
         ModelSpec spec = models.spec(name);
-        return decorate(registry.create(spec, secrets.require(spec.apiKeyEnv())), name, spec);
+        return decorate(registry.create(spec, secrets.require(spec.apiKeyEnv())), name, spec, usage);
     }
 
     /** Also used by tests to wrap a fake adapter in the real decorator stack. */
-    public LlmClient decorate(LlmClient adapter, String name, ModelSpec spec) {
+    public LlmClient decorate(LlmClient adapter, String name, ModelSpec spec, UsageTracker usage) {
         ModelsConfig.RateLimit rl = spec.rateLimit();
-        LlmClient c = new RateLimitedClient(adapter, rl.rpm(), rl.perMinuteInputLimit(), rl.outputSharesInputLimit(), rl.otpm(),
-                rl.tpd(), rl.rpd(), estimator, ticker);
+        LlmClient c = new RateLimitedClient(adapter, rl.rpm(), rl.itpm(), rl.otpm(), rl.tpm(), rl.tpd(), rl.rpd(), estimator, ticker);
         c = new RetryingClient(c, spec.retry().maxAttempts(), spec.retry().baseDelayS(), ticker, new Random());
         c = new UsageTrackingClient(c, usage, name, spec.pricePerMtok());
         if (cacheEnabled) {

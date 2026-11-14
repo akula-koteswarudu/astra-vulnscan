@@ -124,6 +124,16 @@ class ScanPlannerTest {
     }
 
     @Test
+    void inputLimitAndTotalLimitBothCapTheRequest() {
+        ModelsConfig.ModelSpec both = new ModelsConfig.ModelSpec("openai_compatible", "u", "m", "K", 131072, null, 1500, 0.0, null, Map.of(),
+                new ModelsConfig.Price(0, 0), new ModelsConfig.RateLimit(30, 8000, null, 7000, null, null), "max_tokens", 1, 0,
+                new ModelsConfig.Retry(1, 1));
+        UnitPlan.Budget b = planner(AppConfig.PlanningMode.AUTO).budget("student", both, true);
+        assertThat(b.perRequestCap()).isEqualTo(Math.min(5600, 6400 - 1500));
+        assertThat(b.effective()).isEqualTo(4900 - 100 - 100);
+    }
+
+    @Test
     void forcedWholeThatDoesNotFitFails() throws IOException {
         AppModel app = ingest();
         assertThatThrownBy(() -> planner(AppConfig.PlanningMode.WHOLE).plan("s", model(1500, 300), true, app, new CodeBase(dir)))
