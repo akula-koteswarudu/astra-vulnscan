@@ -1,0 +1,9 @@
+.env
+runs/
+cache/
+*.apk
+.DS_Store
+.tools/
+target/
+.idea/
+*.iml

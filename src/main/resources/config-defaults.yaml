@@ -1,0 +1,55 @@
+# Built-in defaults. An app config (configs/<app>.yaml) is deep-merged over this file,
+# so a new app only needs to state what differs. runs.* and arms.* come from the profile.
+profile: assignment
+models_file: configs/models.yaml
+matching_file: configs/matching.yaml
+decompile:
+  jadx_path: .tools/jadx/bin/jadx
+  show_bad_code: true
+  timeout_s: 900
+  java_opts: "-Xmx3g"
+ingest:
+  extra_first_party_prefixes: []
+  library_prefixes: [androidx., android., kotlin., kotlinx., com.google.android., com.google.firebase., com.google.gson., com.google.common., okhttp3., okio., retrofit2., com.squareup., org.jetbrains., io.reactivex., com.facebook., com.bumptech.]
+  exclude_class_patterns: ['R', 'R$*', 'BuildConfig', 'BR', 'DataBinderMapperImpl', 'DataBindingInfo', '*.databinding.*']
+  strings_filter:
+    name_patterns: [key, secret, token, password, passwd, api, url, auth, credential, aws, pool, bucket, firebase, client_id]
+    extra_secret_regexes: []
+    min_entropy: 3.5
+    min_length: 12
+  dependency_inventory: true
+planning:
+  mode: auto
+  hop_limit: 1
+  token_estimate_chars_per_token: 4
+  token_estimate_margin: 0.15
+  prompt_overhead_tokens: 1500
+  reserved_guidance_tokens: 1500
+  max_units: null
+  min_code_budget_tokens: 2000
+  graph_builder: text_reference
+  prioritizer_signals_file: null
+scan:
+  prompt_version: v1
+  evidence:
+    fuzzy_threshold: 90
+    min_evidence_chars: 25
+distill:
+  prompt_version: v1
+  max_lessons: 15
+  max_lesson_tokens: 1500
+  max_input_findings: 60
+  lessons_from: null
+  sanitizer:
+    on_violation: redact
+    example_similarity_max: 0.6
+evaluate:
+  headline: readme
+  count_unverified: false
+  screen_batch_size: 15
+  audit_file: null
+cache:
+  llm: true
+  dir: cache
+output:
+  runs_dir: runs

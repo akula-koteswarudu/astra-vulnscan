@@ -1,0 +1,8 @@
+# Template for an unseen APK. Copy, set app.name and app.input, and run:
+#   vulnscan run --config configs/<your_app>.yaml
+# With no ground_truth, every number is reported as "agreement with teacher", not recall.
+profile: assignment
+app:
+  name: newapp
+  input: apps/NewApp.apk            # repo-relative .apk or decompiled directory
+  input_sha256: null                # optional: set to verify the file before decompiling

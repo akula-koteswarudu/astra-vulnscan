@@ -1,0 +1,54 @@
+# Model definitions. Adding a model = adding an entry here; adding a provider = one adapter + one registry line.
+# Rate limits: Groq values read from the Groq console / response headers on 14 Nov 2026 (free tier);
+# Anthropic values read from the rate-limit response headers at setup.
+models:
+  teacher:
+    provider: anthropic
+    model: claude-sonnet-5-5
+    api_key_env: ANTHROPIC_API_KEY
+    context_tokens: 1000000          # true window
+    planning_budget_tokens: 150000   # what we choose to send per request (cost control)
+    max_output_tokens: 32000         # covers adaptive thinking + JSON output; streamed
+    temperature: null                # null = omit (Sonnet 5.5 rejects non-default sampling)
+    params:                          # passthrough, provider-specific
+      output_config: {effort: high}
+      fallbacks: default             # server-side refusal fallback (beta server-side-fallback-2026-07-01)
+    price_per_mtok: {input: 2.0, output: 10.0}
+    rate_limit: {rpm: 50, itpm: 30000, otpm: 8000}     # placeholder until read from headers (step 6)
+    max_tokens_param: max_tokens
+    concurrency: 2
+    sdk_max_retries: 0               # our RetryingClient owns retries
+    retry: {max_attempts: 4, base_delay_s: 2}
+  student:
+    provider: openai_compatible
+    base_url: https://api.groq.com/openai/v1
+    model: qwen/qwen3.8-27b
+    api_key_env: GROQ_API_KEY
+    context_tokens: 131072
+    max_output_tokens: 2000          # small on purpose: Groq counts output against the 8K tokens/minute limit
+    temperature: 0
+    json_mode: instruction           # instruction | json_object
+    params: {}
+    price_per_mtok: {input: 0, output: 0}   # free tier; tokens reported, cost shown as $0
+    rate_limit: {rpm: 30, tpm: 8000, rpd: 1000}
+    max_tokens_param: max_tokens
+    concurrency: 1
+    sdk_max_retries: 0
+    retry: {max_attempts: 4, base_delay_s: 5}
+  judge:
+    provider: openai_compatible
+    base_url: https://api.groq.com/openai/v1
+    model: openai/gpt-oss-120b       # different family from the student; never the teacher
+    api_key_env: GROQ_API_KEY
+    context_tokens: 131072
+    max_output_tokens: 3000          # reasoning model: leaves room for reasoning + the JSON answer
+    temperature: 0
+    json_mode: instruction
+    params: {reasoning_effort: low}
+    price_per_mtok: {input: 0, output: 0}
+    rate_limit: {rpm: 30, tpm: 8000, rpd: 1000}
+    max_tokens_param: max_tokens
+    concurrency: 1
+    sdk_max_retries: 0
+    retry: {max_attempts: 4, base_delay_s: 5}
+roles: {teacher: teacher, student: student, judge: judge}
