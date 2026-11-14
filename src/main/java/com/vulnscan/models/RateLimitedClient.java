@@ -61,7 +61,11 @@ public class RateLimitedClient implements LlmClient {
         if (totalPerMinute != null && totalEstimate > totalPerMinute) {
             throw tooLarge("input + max_tokens", totalEstimate, totalPerMinute);
         }
-        long outEstimate = outputPerMinute == null ? 0 : Math.min(request.maxTokens(), outputPerMinute);
+        if (outputPerMinute != null && request.maxTokens() > outputPerMinute) {
+            // Providers check max_tokens against the output limit up front (Groq: "expected output tokens").
+            throw tooLarge("max_tokens", request.maxTokens(), outputPerMinute);
+        }
+        long outEstimate = outputPerMinute == null ? 0 : request.maxTokens();
         Entry in;
         Entry out;
         Entry total;

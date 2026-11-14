@@ -153,6 +153,23 @@ class ScannerTest {
     }
 
     @Test
+    void whenTheOutputLimitForbidsDoublingItReplansDirectly() throws IOException {
+        ModelsConfig.ModelSpec capped = new ModelsConfig.ModelSpec("openai_compatible", "u", "m", "K", 100000, null, 1000, 0.0, null,
+                Map.of(), new ModelsConfig.Price(0, 0), new ModelsConfig.RateLimit(30, 8000, null, 7000, 1000, null), "max_tokens", 1, 0,
+                new ModelsConfig.Retry(1, 1));
+        FakeLlmClient client = new FakeLlmClient(req -> req.metadata().unitId().equals("unit1")
+                ? FakeLlmClient.withStop("{\"findings\": [", LlmResponse.StopReason.MAX_TOKENS)
+                : FakeLlmClient.ok("{\"findings\": []}"));
+        ScanUnit a = new ScanUnit("partA", "component", "x/a", List.of(HELPER), unit.manifestSlice(), null, null, 100, 1);
+        PromptBuilder pb = new PromptBuilder(new PromptLibrary(Path.of("prompts")).get("scan", "v1"), app, code);
+        Scanner s = new Scanner(client, capped, "student", pb, new FindingParser(), new Normalizer(), new Splitter(),
+                new EvidenceVerifier(code, 90, 25), u -> List.of(a));
+        ScanResult r = s.scan(unit, null, new ScanRun("a", "r", 0));
+        assertThat(client.requests).extracting(req -> req.maxTokens()).containsExactly(1000, 1000); // no 2000 attempt
+        assertThat(r.subUnits()).hasSize(1);
+    }
+
+    @Test
     void stillTruncatedAndUnsplittableIsTruncatedNeverHalfParsed() throws IOException {
         FakeLlmClient client = new FakeLlmClient(req -> FakeLlmClient.withStop("{\"findings\": [" + finding(HELPER, EVIDENCE, "code"),
                 LlmResponse.StopReason.MAX_TOKENS));

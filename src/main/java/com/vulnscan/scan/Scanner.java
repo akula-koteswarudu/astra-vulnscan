@@ -68,8 +68,10 @@ public class Scanner {
         LlmResponse response;
         try {
             response = call(request, "scan", exchanges);
-            if (response.stopReason() == LlmResponse.StopReason.MAX_TOKENS) {
-                int doubled = Math.min(request.maxTokens() * 2, MAX_OUTPUT_CAP);
+            int doubled = Math.min(request.maxTokens() * 2, outputCap());
+            if (response.stopReason() == LlmResponse.StopReason.MAX_TOKENS && doubled <= request.maxTokens()) {
+                errors.add("truncated at " + request.maxTokens() + " tokens; the model's output limit does not allow a larger answer");
+            } else if (response.stopReason() == LlmResponse.StopReason.MAX_TOKENS) {
                 log.info("unit {} truncated at {} tokens; retrying with {}", unit.unitId(), request.maxTokens(), doubled);
                 try {
                     response = call(request.withMaxTokens(doubled), "scan_more_tokens", exchanges);
@@ -115,6 +117,12 @@ public class Scanner {
         errors.addAll(parsed.problems());
         List<Finding> findings = postProcess(parsed.findings(), unit, run, response.modelUsed());
         return result(unit, "ok", findings, parsed.badFindings(), null, errors, exchanges, List.of());
+    }
+
+    /** Largest max_tokens this model accepts: the per-minute output limit when there is one. */
+    private int outputCap() {
+        Integer otpm = spec.rateLimit().otpm();
+        return otpm == null ? MAX_OUTPUT_CAP : Math.min(MAX_OUTPUT_CAP, otpm);
     }
 
     private ScanResult replan(ScanUnit unit, String guidance, ScanRun run, int depth, List<String> errors,

@@ -177,6 +177,21 @@ class DecoratorsTest {
     }
 
     @Test
+    void maxTokensAboveTheOutputLimitFailsFast() {
+        FakeLlmClient inner = FakeLlmClient.constant("ok");
+        RateLimitedClient limited = new RateLimitedClient(inner, null, null, 50, null, null, null, new TokenEstimator(4, 0), new FakeTicker());
+        assertThatThrownBy(() -> limited.complete(request("x", 0))).hasMessageContaining("max_tokens"); // request() asks for 100
+        assertThat(inner.calls()).isZero();
+    }
+
+    @Test
+    void groqRequestTooLargeIsNotRetryable() {
+        assertThat(OpenAiCompatibleClient.isRetryable(429, "Request too large for model x on output tokens per minute")).isFalse();
+        assertThat(OpenAiCompatibleClient.isRetryable(429, "Rate limit reached for model x")).isTrue();
+        assertThat(OpenAiCompatibleClient.isRetryable(400, "bad")).isFalse();
+    }
+
+    @Test
     void inputAndTotalLimitsAreBothEnforced() {
         FakeTicker ticker = new FakeTicker();
         // itpm 1500: two 1000-token prompts cannot share a minute even though tpm (10000) has room.

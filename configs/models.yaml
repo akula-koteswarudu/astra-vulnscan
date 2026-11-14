@@ -25,12 +25,13 @@ models:
     model: qwen/qwen3.8-27b
     api_key_env: GROQ_API_KEY
     context_tokens: 131072
-    max_output_tokens: 1500          # small on purpose: Groq counts output against the 8K tokens/minute limit
+    planning_budget_tokens: 4900     # what we choose to send per request: keeps units small enough for the 1,000-token answer cap
+    max_output_tokens: 1000          # Groq free tier caps this model at 1,000 output tokens per minute (max_tokens above it is rejected)
     temperature: 0
     json_mode: instruction           # instruction | json_object
     params: {}
     price_per_mtok: {input: 0, output: 0}   # free tier; tokens reported, cost shown as $0
-    rate_limit: {rpm: 30, tpm: 8000, itpm: 7000, rpd: 1000}   # tpm 8000 and rpd 1000 from x-ratelimit headers; itpm 7000 from a 429 body (14 Nov 2026); rpm: free-tier default
+    rate_limit: {rpm: 30, tpm: 8000, itpm: 7000, otpm: 1000, rpd: 1000}   # tpm/rpd from x-ratelimit headers; itpm 7000 and otpm 1000 from 429 bodies and a max_tokens probe (14 Nov 2026); rpm: free-tier default
     max_tokens_param: max_tokens
     concurrency: 1
     sdk_max_retries: 0

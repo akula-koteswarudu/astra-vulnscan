@@ -64,4 +64,30 @@ class ProviderSmokeTest {
                     .forEach(n -> System.out.println("HEADER " + model + " " + n + ": " + r.headers().values(n)));
         }
     }
+
+    @Test
+    void probeGroqOutputLimits() {
+        Secrets secrets = Secrets.load(Path.of(".env"));
+        var groq = OpenAIOkHttpClient.builder().apiKey(secrets.require("GROQ_API_KEY")).baseUrl("https://api.groq.com/openai/v1")
+                .maxRetries(0).build();
+        for (String model : List.of("qwen/qwen3.8-27b", "openai/gpt-oss-120b")) {
+            for (int max : List.of(900, 1200, 4000)) {
+                try {
+                    groq.chat().completions().create(ChatCompletionCreateParams.builder().model(model).addUserMessage("Say OK.")
+                            .putAdditionalBodyProperty("max_tokens", com.openai.core.JsonValue.from(max)).build());
+                    System.out.println("PROBE " + model + " max_tokens=" + max + ": accepted");
+                } catch (com.openai.errors.OpenAIServiceException e) {
+                    String msg = String.valueOf(e.getMessage());
+                    int i = msg.indexOf("on ");
+                    System.out.println("PROBE " + model + " max_tokens=" + max + ": " + e.statusCode() + " "
+                            + msg.substring(Math.max(0, i), Math.min(msg.length(), i + 90)).replaceAll("org_\\w+", "org_…"));
+                }
+                try {
+                    Thread.sleep(3000);
+                } catch (InterruptedException ignored) {
+                    return;
+                }
+            }
+        }
+    }
 }

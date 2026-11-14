@@ -56,7 +56,8 @@ public class OpenAiCompatibleClient implements LlmClient {
             if (fromFailedJson != null) {
                 return fromFailedJson;
             }
-            throw new LlmException(spec.provider() + " " + status + ": " + errorMessage(e), LlmException.isRetryableStatus(status),
+            String message = errorMessage(e);
+            throw new LlmException(spec.provider() + " " + status + ": " + message, isRetryable(status, message),
                     status, LlmException.parseRetryAfter(e.headers().values("retry-after")), e);
         } catch (OpenAIIoException e) {
             throw new LlmException(spec.provider() + " connection error: " + e.getMessage(), true, 0, null, e);
@@ -101,6 +102,17 @@ public class OpenAiCompatibleClient implements LlmClient {
         Map<String, Object> params = request.params() == null ? Map.of() : request.params();
         params.forEach((k, v) -> b.putAdditionalBodyProperty(k, JsonValue.from(v)));
         return b.build();
+    }
+
+    /**
+     * 429 is normally retryable, except "Request too large": that single request exceeds a per-minute limit and
+     * waiting can never help (the caller must send less).
+     */
+    static boolean isRetryable(int status, String message) {
+        if (status == 429 && message != null && message.contains("Request too large")) {
+            return false;
+        }
+        return LlmException.isRetryableStatus(status);
     }
 
     /** Groq's invalid-JSON 400 -> a response carrying the failed generation (so the parser can repair it). */
