@@ -23,7 +23,7 @@ planning:
   hop_limit: 1
   token_estimate_chars_per_token: 4
   token_estimate_margin: 0.15
-  prompt_overhead_tokens: 1500
+  prompt_overhead_tokens: 1000      # measured: scan system prompt ~870 tokens + markers
   reserved_guidance_tokens: 1500
   max_units: null
   min_code_budget_tokens: 2000

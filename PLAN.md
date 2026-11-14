@@ -690,3 +690,45 @@ Note: androguard is a Python library, so `AndroguardGraphBuilder` stays a docume
 - Groq free tier (probed 14 Nov with the user's key): chat models available `openai/gpt-oss-120b`, `openai/gpt-oss-20b`, `qwen/qwen3.8-27b` (131K context each); limits returned per model: **8,000 tokens per minute**, 1,000 requests (per day). gpt-oss models are reasoning models: with `max_tokens: 20` they returned empty content (reasoning consumed it), so set `reasoning_effort` (e.g. low) and enough output tokens. Chosen: **student `qwen/qwen3.8-27b`**, **judge `openai/gpt-oss-120b`** (different families; strongest judge). Paid Groq tier is unavailable right now: build with student chunking; an alternative OpenAI-compatible host can be swapped in via config later.
 - Teacher: `claude-sonnet-5-5`; about $2.29 Anthropic credit. Keep teacher calls minimal (use the LLM cache, run the teacher once per app); ask the user before any run expected to cost more than $0.50.
 - Ground truth source: the InsecureShop README (copied into the repo as `ground_truth/insecureshop.README.md` for the converter test).
+
+### 13.5 Class design, principles and conventions
+
+**SOLID, and where each principle shows up (to be visible in code and in DESIGN.md):**
+| Principle | Where |
+|---|---|
+| Single responsibility | One class per job: `ManifestParser` only parses the manifest; `EvidenceVerifier` only verifies evidence; `Scanner` orchestrates a unit scan but delegates prompt building, parsing and post-processing; ingest knows nothing about LLMs; scanning knows nothing about ground truth. |
+| Open/closed | New provider = new `LlmClient` adapter + one registry entry; new resource check = new `ResourceExtractor`; new post-processing step = new `FindingProcessor`; new reference type = new `ReferenceSource`. Existing classes are not edited. |
+| Liskov substitution | Every decorator and adapter is a drop-in `LlmClient`; `FakeLlmClient` substitutes for real ones in tests; any `ReferenceSource` works with the same matcher. |
+| Interface segregation | Small, focused interfaces (one or two methods each, below); stages depend only on the interfaces they use. |
+| Dependency inversion | Domain code depends on interfaces (`LlmClient`, `Decompiler`, `DependencyGraphBuilder`, `ReferenceSource`, `Clock`, `Sleeper`); concrete classes are chosen only in the composition root (`wiring/`). |
+
+**Core interfaces (Java signatures; names may be adjusted but the shape is fixed):**
+```java
+public interface LlmClient { LlmResponse complete(LlmRequest request); String name(); }
+public interface Decompiler { DecompiledApp decompile(Path input); }
+public interface ResourceExtractor { void extract(DecompiledApp app, ResourcesBuilder out); }
+public interface DependencyGraphBuilder { DependencyGraph build(AppModel app); }
+public interface ChunkingStrategy { List<ScanUnit> plan(AppModel app, DependencyGraph graph, TokenBudget budget); }
+public interface FindingProcessor { List<Finding> process(List<Finding> findings, ScanUnit unit); }
+public interface ReferenceSource { List<ReferenceItem> items(); boolean isGroundTruth(); }
+public interface Stage { String name(); void run(RunContext ctx); }   // pipeline stage; RunContext gives typed access to the run store
+public interface Clock { Instant now(); }          // injected so rate limiting and run ids are testable
+public interface Sleeper { void sleep(Duration d); } // injected so retry/rate-limit tests run instantly
+```
+Records (immutable data): `LlmRequest`, `LlmResponse`, `AppModel`, `Manifest`, `Component`, `SourceFile`, `Resources`, `Dependency`, `ScanUnit`, `RawFinding`, `Finding`, `Lesson`, `ReferenceItem`, `JudgeDecision`, `Match`, `ArmMetrics`, config records. Behaviour lives in services, data lives in records.
+
+**Error handling:**
+- Small exception hierarchy under `VulnscanException` (unchecked): `ConfigException` (invalid/missing config: fail fast at startup), `DecompileException`, `IngestException`, `LlmException` with `RetryableLlmException` / `NonRetryableLlmException` / `RequestTooLargeException`, `StageException` (wraps a failed stage with its name).
+- Expected outcomes are values, not exceptions: a refused, truncated or unparseable unit is a `ScanResult` with a status; one bad unit never aborts the scan. Only conditions that make the run meaningless stop it (invalid config, decompile failure, budget below floor, `no_lessons`).
+- Error messages say what failed, why, and what to change (e.g. which config key).
+
+**Logging:** SLF4J (Spring Boot default Logback). Human-readable console at INFO (stage start/end, counts, cost); structured JSON lines to `runs/<id>/logs.jsonl` (stage, arm, unit_id, model, tokens, latency, status). Never log API keys, full prompts at INFO, or file contents; full prompts/responses go to the run's `raw/` files only.
+
+**Conventions:**
+- Immutability by default: records, `List.copyOf`, no setters in domain classes; collections exposed unmodifiable.
+- Constructor injection only; no field injection; no static mutable state; no singletons outside the composition root.
+- `Optional` for absent return values, never for fields or parameters; nulls not passed between domain classes.
+- Deterministic output: sort before writing; no timestamps inside data files except the run manifest.
+- Small classes and methods; names describe the domain (`EffectiveExportedResolver`, not `Helper`); comments explain WHY a non-obvious choice was made (e.g. the exported-default rule, the cache key including repeat_index), not what the code does.
+- Package dependency direction: `cli -> wiring -> pipeline -> {ingest, planning, scan, learn, matching, evaluate, report} -> models/config records`; domain packages never depend on `cli`, `wiring` or Spring (ArchUnit test).
+- Every component ships with its unit tests in the same step; fakes over mocks.

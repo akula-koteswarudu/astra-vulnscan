@@ -30,7 +30,23 @@ public class VulnscanApplication implements CommandLineRunner, ExitCodeGenerator
 
     @Override
     public void run(String... args) {
-        exitCode = new CommandLine(rootCommand, factory).execute(args);
+        exitCode = new CommandLine(rootCommand, factory)
+                .setExecutionExceptionHandler(VulnscanApplication::handle)
+                .execute(args);
+    }
+
+    /**
+     * Expected, user-facing failures (bad config, missing input, impossible plan) print one clear message;
+     * anything else prints the stack trace because it is a bug.
+     */
+    static int handle(Exception e, CommandLine cmd, CommandLine.ParseResult parseResult) {
+        if (e instanceof com.vulnscan.config.ConfigException || e instanceof com.vulnscan.planning.PlanningException
+                || e instanceof com.vulnscan.ingest.DecompileException || e instanceof UserFacingException) {
+            cmd.getErr().println("error: " + e.getMessage());
+            return 2;
+        }
+        e.printStackTrace(cmd.getErr());
+        return 1;
     }
 
     @Override

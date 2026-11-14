@@ -1,6 +1,6 @@
 # Model definitions. Adding a model = adding an entry here; adding a provider = one adapter + one registry line.
 # Rate limits: Groq values read from the Groq console / response headers on 14 Nov 2026 (free tier);
-# Anthropic values read from the rate-limit response headers at setup.
+# Anthropic values read from the rate-limit response headers at setup (step 6).
 models:
   teacher:
     provider: anthropic
@@ -14,7 +14,7 @@ models:
       output_config: {effort: high}
       fallbacks: default             # server-side refusal fallback (beta server-side-fallback-2026-07-01)
     price_per_mtok: {input: 2.0, output: 10.0}
-    rate_limit: {rpm: 50, itpm: 30000, otpm: 8000}     # placeholder until read from headers (step 6)
+    rate_limit: {rpm: 13000, itpm: 10000000, otpm: 2000000}   # from anthropic-ratelimit-* headers, 14 Nov 2026
     max_tokens_param: max_tokens
     concurrency: 2
     sdk_max_retries: 0               # our RetryingClient owns retries
@@ -25,12 +25,12 @@ models:
     model: qwen/qwen3.8-27b
     api_key_env: GROQ_API_KEY
     context_tokens: 131072
-    max_output_tokens: 2000          # small on purpose: Groq counts output against the 8K tokens/minute limit
+    max_output_tokens: 1500          # small on purpose: Groq counts output against the 8K tokens/minute limit
     temperature: 0
     json_mode: instruction           # instruction | json_object
     params: {}
     price_per_mtok: {input: 0, output: 0}   # free tier; tokens reported, cost shown as $0
-    rate_limit: {rpm: 30, tpm: 8000, rpd: 1000}
+    rate_limit: {rpm: 30, tpm: 8000, rpd: 1000}   # x-ratelimit-limit-tokens 8000/min, -requests 1000/day (headers, 14 Nov 2026); rpm: Groq free-tier default
     max_tokens_param: max_tokens
     concurrency: 1
     sdk_max_retries: 0
@@ -46,7 +46,7 @@ models:
     json_mode: instruction
     params: {reasoning_effort: low}
     price_per_mtok: {input: 0, output: 0}
-    rate_limit: {rpm: 30, tpm: 8000, rpd: 1000}
+    rate_limit: {rpm: 30, tpm: 8000, rpd: 1000}   # x-ratelimit-limit-tokens 8000/min, -requests 1000/day (headers, 14 Nov 2026); rpm: Groq free-tier default
     max_tokens_param: max_tokens
     concurrency: 1
     sdk_max_retries: 0

@@ -10,10 +10,14 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-class IngestorTest {
+public class IngestorTest {
 
     @TempDir
     Path dir;
+
+    public static Ingestor ingestorForTests() {
+        return ingestor();
+    }
 
     static Ingestor ingestor() {
         var cfg = new com.vulnscan.config.AppConfig.Ingest(List.of(), List.of("androidx.", "android.", "kotlin."),
@@ -25,7 +29,7 @@ class IngestorTest {
     }
 
     /** A small jadx-layout fixture app. */
-    static Path fixtureApp(Path dir) throws IOException {
+    public static Path fixtureApp(Path dir) throws IOException {
         write(dir, "resources/AndroidManifest.xml", """
                 <manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.example.app">
                   <uses-sdk android:minSdkVersion="21" android:targetSdkVersion="30"/>
@@ -63,7 +67,7 @@ class IngestorTest {
         return dir;
     }
 
-    static void write(Path dir, String rel, String text) throws IOException {
+    public static void write(Path dir, String rel, String text) throws IOException {
         Path p = dir.resolve(rel);
         Files.createDirectories(p.getParent());
         Files.writeString(p, text);
