@@ -1,0 +1,193 @@
+schema_version: 1
+source: "README \"Vulnerabilities\" section, copied verbatim"
+enrichment_note: "enrichment (accepted_cwes, kind, locations, static_visibility, note) is the author's own labelling from the decompiled code, written before any scan; the README layer (id, title, description) is verbatim"
+items:
+- id: GT-01
+  title: Hardcoded Credentials
+  description: Credentials are hardcoded somewhere that can be used to login to the application
+  enrichment:
+    accepted_cwes: [CWE-798, CWE-259]
+    kind: code
+    locations:
+    - {class: com.insecureshop.util.Util, method: getUserCreds, file: sources/com/insecureshop/util/Util.java}
+    static_visibility: full
+- id: GT-02
+  title: Insufficient URL Validation
+  description: Possible to load any arbitrary URL in webview via Deeplink.
+  enrichment:
+    accepted_cwes: [CWE-939, CWE-20, CWE-749, CWE-601]
+    kind: code
+    locations:
+    - {component: com.insecureshop.WebViewActivity, class: com.insecureshop.WebViewActivity, method: onCreate, file: sources/com/insecureshop/WebViewActivity.java}
+    static_visibility: full
+- id: GT-03
+  title: Weak Host Validation Check
+  description: Possible to bypass host validation check to load any arbitrary URL in webview.
+  enrichment:
+    accepted_cwes: [CWE-20, CWE-939, CWE-601]
+    kind: code
+    locations:
+    - {component: com.insecureshop.WebViewActivity, class: com.insecureshop.WebViewActivity, method: onCreate, file: sources/com/insecureshop/WebViewActivity.java}
+    static_visibility: full
+    note: "endsWith-based host check on the deep-link url parameter"
+- id: GT-04
+  title: Arbitrary Code Execution
+  description: Arbitrary Code Execution via third-party package contexts.
+  enrichment:
+    accepted_cwes: [CWE-94, CWE-470, CWE-829]
+    kind: code
+    locations:
+    - {class: com.insecureshop.LoginActivity, method: onLogin, file: sources/com/insecureshop/LoginActivity.java}
+    static_visibility: full
+    note: "createPackageContext + loadClass on other installed packages selected by name prefix"
+- id: GT-05
+  title: Access to Protected Components
+  description: The app takes an embedded Intent and passes it to method like startActivity. This allows any third party app to launch any protected component.
+  enrichment:
+    accepted_cwes: [CWE-926, CWE-940, CWE-284, CWE-610]
+    kind: code
+    locations:
+    - {component: com.insecureshop.WebView2Activity, class: com.insecureshop.WebView2Activity, method: onCreate, file: sources/com/insecureshop/WebView2Activity.java}
+    static_visibility: full
+    note: "Parcelable extra Intent passed to startActivity (intent redirection)"
+- id: GT-06
+  title: Unprotected Data URIs
+  description: The untrusted URI's passed via loadUrl method allows attackers to pass arbitrary URL in webview.
+  enrichment:
+    accepted_cwes: [CWE-939, CWE-20, CWE-749]
+    kind: code
+    locations:
+    - {component: com.insecureshop.WebView2Activity, class: com.insecureshop.WebView2Activity, method: onCreate, file: sources/com/insecureshop/WebView2Activity.java}
+    static_visibility: full
+    note: "intent data string / url extra / url query parameter passed to loadUrl"
+- id: GT-07
+  title: Theft of Arbitrary
+  description: Possible to steal files from app's local storage via ChooserActivity.
+  enrichment:
+    accepted_cwes: [CWE-22, CWE-200, CWE-73, CWE-926]
+    kind: code
+    locations:
+    - {component: com.insecureshop.ChooserActivity, class: com.insecureshop.ChooserActivity, method: onCreate, file: sources/com/insecureshop/ChooserActivity.java}
+    - {component: com.insecureshop.ChooserActivity, class: com.insecureshop.ChooserActivity, method: makeTempCopy, file: sources/com/insecureshop/ChooserActivity.java}
+    static_visibility: full
+    note: "attacker-supplied EXTRA_STREAM path copied to external storage"
+- id: GT-08
+  title: Using Components with Known Vulnerabilities
+  description: Identify the vulnerable components or libraries used in the app that can allow you to exfiltrate local files to remote domain.
+  enrichment:
+    accepted_cwes: [CWE-1104, CWE-1035, CWE-937, CWE-926]
+    kind: dependency
+    locations:
+    - {component: net.gotev.uploadservice.UploadService}
+    static_visibility: inventory_only
+    note: "author's reading: the exported upload-service library component (version 3.2.3 in the inventory); the 'known vulnerable' part relies on advisory knowledge"
+- id: GT-09
+  title: Insecure Broadcast Receiver
+  description: An exported activity registers a broadcast during onCreate method execution. An attacker can trigger this broadcast and provide arbitrary URL in 'web_url' parameter.
+  enrichment:
+    accepted_cwes: [CWE-925, CWE-926, CWE-939, CWE-20]
+    kind: code
+    locations:
+    - {component: com.insecureshop.AboutUsActivity, class: com.insecureshop.AboutUsActivity, method: onCreate, file: sources/com/insecureshop/AboutUsActivity.java}
+    - {class: com.insecureshop.CustomReceiver, method: onReceive, file: sources/com/insecureshop/CustomReceiver.java}
+    static_visibility: full
+    note: "dynamically registered receiver without permission; web_url extra opened in a WebView"
+- id: GT-10
+  title: AWS Cognito Misconfiguration
+  description: The misconfigured AWS cognito instance can be used to accesss AWS S3 bucket.
+  enrichment:
+    accepted_cwes: [CWE-284, CWE-798, CWE-732, CWE-200]
+    kind: resource
+    locations:
+    - {file: resources/res/values/strings.xml}
+    static_visibility: partial
+    note: "identity pool id is visible; the misconfigured permissions are server-side"
+- id: GT-11
+  title: Insecure use of FilePaths in FileProvider
+  description: The use of wide file sharing declaration can be used to access root directory via content Provider.
+  enrichment:
+    accepted_cwes: [CWE-22, CWE-200, CWE-552, CWE-732]
+    kind: resource
+    locations:
+    - {component: androidx.core.content.FileProvider, file: resources/res/xml/provider_paths.xml}
+    static_visibility: full
+- id: GT-12
+  title: Use of Implicit intent to send a broadcast with sensitive data
+  description: The use of Implicit intent can allow third-party apps to steal credentials.
+  enrichment:
+    accepted_cwes: [CWE-927, CWE-200]
+    kind: code
+    locations:
+    - {component: com.insecureshop.AboutUsActivity, class: com.insecureshop.AboutUsActivity, method: onSendData, file: sources/com/insecureshop/AboutUsActivity.java}
+    static_visibility: full
+- id: GT-13
+  title: Intercepting Implicit intent to load arbitrary URL
+  description: The use of Implicit intent can allow third-party apps to load any arbitrary URL in webview.
+  enrichment:
+    accepted_cwes: [CWE-927, CWE-939]
+    kind: code
+    locations:
+    - {class: com.insecureshop.SendingDataViaActionActivity, method: onSendData, file: sources/com/insecureshop/SendingDataViaActionActivity.java}
+    - {class: com.insecureshop.broadcast.ProductDetailBroadCast, method: onReceive, file: sources/com/insecureshop/broadcast/ProductDetailBroadCast.java}
+    static_visibility: full
+    note: "implicit startActivity with a custom action carrying a url extra"
+- id: GT-14
+  title: Insecure Implementation of SetResult in exported Activity
+  description: The insecure implementation used in ResultActivity can be used to access arbitrary content providers.
+  enrichment:
+    accepted_cwes: [CWE-926, CWE-927, CWE-284]
+    kind: code
+    locations:
+    - {component: com.insecureshop.ResultActivity, class: com.insecureshop.ResultActivity, method: onCreate, file: sources/com/insecureshop/ResultActivity.java}
+    static_visibility: full
+    note: "setResult with the incoming intent (URI grant flags reflected)"
+- id: GT-15
+  title: Insecure Content Provider
+  description: The content provider can be accessed by any third-party app to steal user credentials.
+  enrichment:
+    accepted_cwes: [CWE-926, CWE-200, CWE-284]
+    kind: code
+    locations:
+    - {component: com.insecureshop.contentProvider.InsecureShopProvider, class: com.insecureshop.contentProvider.InsecureShopProvider, method: query, file: sources/com/insecureshop/contentProvider/InsecureShopProvider.java}
+    static_visibility: full
+    note: "exported provider returning credentials; its read permission is declared with normal protection level"
+- id: GT-16
+  title: Lack of SSL Certificate Validation
+  description: The unsafe implementation of OnReceived SSL Error can be used to eavesdrop all the traffic loaded in webview.
+  enrichment:
+    accepted_cwes: [CWE-295]
+    kind: code
+    locations:
+    - {class: com.insecureshop.util.CustomWebViewClient, method: onReceivedSslError, file: sources/com/insecureshop/util/CustomWebViewClient.java}
+    static_visibility: full
+- id: GT-17
+  title: Insecure Webview Properties Enabled
+  description: Insecure Webview properties are enabled that can allow third-party apps to exfiltrate local data to remote domain.
+  enrichment:
+    accepted_cwes: [CWE-749, CWE-200, CWE-79]
+    kind: code
+    locations:
+    - {component: com.insecureshop.WebViewActivity, class: com.insecureshop.WebViewActivity, method: onCreate, file: sources/com/insecureshop/WebViewActivity.java}
+    - {component: com.insecureshop.WebView2Activity, class: com.insecureshop.WebView2Activity, method: onCreate, file: sources/com/insecureshop/WebView2Activity.java}
+    - {component: com.insecureshop.PrivateActivity, class: com.insecureshop.PrivateActivity, method: onCreate, file: sources/com/insecureshop/PrivateActivity.java}
+    static_visibility: full
+    note: "setAllowUniversalAccessFromFileURLs(true) with JavaScript enabled"
+- id: GT-18
+  title: Insecure Data Storage
+  description: The app stores user credentials locally without encrypting them.
+  enrichment:
+    accepted_cwes: [CWE-312, CWE-922]
+    kind: code
+    locations:
+    - {class: com.insecureshop.util.Prefs, method: setPassword, file: sources/com/insecureshop/util/Prefs.java}
+    static_visibility: full
+    note: "plaintext SharedPreferences"
+- id: GT-19
+  title: Insecure Logging
+  description: User credentials are leaked in logcat. Only attackers with physical access to the device can access this information.
+  enrichment:
+    accepted_cwes: [CWE-532]
+    kind: code
+    locations:
+    - {class: com.insecureshop.LoginActivity, method: onLogin, file: sources/com/insecureshop/LoginActivity.java}
+    static_visibility: full

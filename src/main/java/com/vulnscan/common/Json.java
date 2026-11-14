@@ -18,7 +18,8 @@ public final class Json {
 
     private static final ObjectMapper JSON = configure(JsonMapper.builder().build());
     private static final ObjectMapper YAML = configure(new ObjectMapper(
-            YAMLFactory.builder().disable(YAMLGenerator.Feature.WRITE_DOC_START_MARKER).build()));
+            YAMLFactory.builder().disable(YAMLGenerator.Feature.WRITE_DOC_START_MARKER)
+                    .disable(YAMLGenerator.Feature.SPLIT_LINES).enable(YAMLGenerator.Feature.MINIMIZE_QUOTES).build()));
 
     private Json() {
     }
