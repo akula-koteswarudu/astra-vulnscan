@@ -94,7 +94,8 @@ public class LessonDistiller {
         } catch (IllegalArgumentException first) {
             LlmRequest repair = request.withMessages(List.of(request.messages().get(0), LlmRequest.Message.assistant(r.text()),
                     LlmRequest.Message.user("Your previous answer could not be used: " + first.getMessage()
-                            + ". Reply again with only the corrected JSON object {\"lessons\": [...]}.")))
+                            + ". Reply again with only the corrected JSON object {\"lessons\": [...]}, where every lesson is complete"
+                            + " (no empty or placeholder lessons).")))
                     .withMetadata(new LlmRequest.Metadata("repair", "distill", runId, null, 0));
             try {
                 lessons = parse(call(repair, "repair", exchanges).text());
@@ -127,8 +128,19 @@ public class LessonDistiller {
                 throw new IllegalArgumentException("expected an object with a \"lessons\" array");
             }
             List<Lesson> out = new ArrayList<>();
+            int empty = 0;
             for (JsonNode n : arr) {
-                out.add(lenient.treeToValue(n, Lesson.class));
+                Lesson l = lenient.treeToValue(n, Lesson.class);
+                boolean blank = l.title() == null || l.title().isBlank() || l.whyExploitable() == null || l.whyExploitable().isBlank();
+                if (blank) {
+                    empty++;
+                }
+                out.add(l);
+            }
+            if (out.isEmpty() || empty > 0) {
+                // A degenerate answer (e.g. a "placeholder" lesson with empty fields) is treated like invalid JSON:
+                // it gets the one repair call instead of silently yielding fewer lessons.
+                throw new IllegalArgumentException(out.isEmpty() ? "no lessons" : empty + " lesson(s) have an empty title or why_exploitable");
             }
             return out;
         } catch (IllegalArgumentException e) {
