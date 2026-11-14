@@ -36,7 +36,7 @@ class ConfigLoaderTest {
         ConfigLoader repoLoader = new ConfigLoader(Validation.buildDefaultValidatorFactory().getValidator(), Path.of(""));
         LoadedConfig c = repoLoader.load(Path.of("configs/insecureshop.yaml"));
         assertThat(c.app().app().name()).isEqualTo("insecureshop");
-        assertThat(c.app().runs().studentRuns()).isEqualTo(3); // set explicitly in insecureshop.yaml
+        assertThat(c.app().runs().studentRuns()).isEqualTo(1); // deterministic core run
         assertThat(c.models().spec("teacher").temperature()).isNull();
         assertThat(c.matching().locationScores().clazz()).isEqualTo(0.8);
         assertThat(c.configHash()).hasSize(64);
@@ -112,6 +112,16 @@ class ConfigLoaderTest {
 
         Files.writeString(dir.resolve("configs/models.yaml"), models.replace("student: nobody", "student: student_pollinations"));
         assertThatThrownBy(() -> loader.load(p)).hasMessageContaining("judge must not be the teacher");
+    }
+
+    @Test
+    void appConfigCanOverrideARole() throws IOException {
+        Path p = write("a.yaml", "app: {name: x, input: y}\nroles: {student: student_pollinations_sampled}\n");
+        LoadedConfig c = loader.load(p);
+        assertThat(c.models().roles().student()).isEqualTo("student_pollinations_sampled");
+        assertThat(c.models().roles().judge()).isEqualTo("judge_pollinations");
+        Path bad = write("b.yaml", "app: {name: x, input: y}\nroles: {student: nobody}\n");
+        assertThatThrownBy(() -> loader.load(bad)).hasMessageContaining("undefined model 'nobody'");
     }
 
     @Test

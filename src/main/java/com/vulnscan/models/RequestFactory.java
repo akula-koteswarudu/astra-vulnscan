@@ -17,6 +17,19 @@ public final class RequestFactory {
     public static LlmRequest forModel(ModelSpec spec, String system, String user, Map<String, Object> schema,
                                       LlmRequest.Metadata metadata) {
         return new LlmRequest(system, List.of(LlmRequest.Message.user(user)), schema, spec.maxOutputTokens(),
-                spec.temperature(), spec.paramsOrEmpty(), metadata);
+                spec.temperature(), withRunSeed(spec.paramsOrEmpty(), metadata), metadata);
+    }
+
+    /**
+     * A numeric "seed" param advances with the run (repeat index 0, 1, 2 -> seed, seed+1, seed+2), so repeated runs with
+     * temperature > 0 are different samples, each reproducible. Run 1 keeps the configured seed.
+     */
+    static Map<String, Object> withRunSeed(Map<String, Object> params, LlmRequest.Metadata metadata) {
+        if (metadata == null || metadata.repeatIndex() == 0 || !(params.get("seed") instanceof Number seed)) {
+            return params;
+        }
+        Map<String, Object> copy = new java.util.LinkedHashMap<>(params);
+        copy.put("seed", seed.longValue() + metadata.repeatIndex());
+        return copy;
     }
 }

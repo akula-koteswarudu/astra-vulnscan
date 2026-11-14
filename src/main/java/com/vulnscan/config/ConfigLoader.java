@@ -54,7 +54,7 @@ public class ConfigLoader {
         validate(app, resolvedAppFile);
 
         Path modelsFile = resolve(app.modelsFile());
-        ModelsConfig models = bind(readTree(modelsFile), ModelsConfig.class, modelsFile);
+        ModelsConfig models = withRoleOverrides(bind(readTree(modelsFile), ModelsConfig.class, modelsFile), app.roles());
         validate(models, modelsFile);
 
         Path matchingFile = resolve(app.matchingFile());
@@ -72,6 +72,16 @@ public class ConfigLoader {
     public Path resolve(String path) {
         Path p = Path.of(path);
         return p.isAbsolute() ? p : baseDir.resolve(p).normalize();
+    }
+
+    /** The app config may pick other models for roles (e.g. a sampled student for one experiment). */
+    static ModelsConfig withRoleOverrides(ModelsConfig models, AppConfig.RoleOverrides o) {
+        if (o == null) {
+            return models;
+        }
+        ModelsConfig.Roles r = models.roles();
+        return new ModelsConfig(models.models(), new ModelsConfig.Roles(o.teacher() != null ? o.teacher() : r.teacher(),
+                o.student() != null ? o.student() : r.student(), o.judge() != null ? o.judge() : r.judge()));
     }
 
     // ---- profile -------------------------------------------------------------------------------------------

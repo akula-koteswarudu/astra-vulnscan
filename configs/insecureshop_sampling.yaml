@@ -1,0 +1,11 @@
+# Sampling experiment: same as the core run (scan prompt v2), but the student samples
+# (temperature 0.7, seed 42/43/44 for runs 1/2/3) and each student arm runs 3 times,
+# so the lift is measured against real run-to-run variation (mean and range).
+profile: assignment
+roles: {student: student_pollinations_sampled}
+runs: {student_runs: 3}
+app:
+  name: insecureshop
+  input: apps/InsecureShop.apk
+  input_sha256: a83298ae4a37fcab8101e8b41e513dd2199af71a94ea537d556a318e07d4d1bd
+  ground_truth: ground_truth/insecureshop.yaml

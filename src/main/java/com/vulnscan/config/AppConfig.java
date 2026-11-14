@@ -17,6 +17,7 @@ import java.util.List;
 public record AppConfig(
         @NotNull Profile profile,
         @NotBlank String modelsFile,
+        RoleOverrides roles,
         @NotBlank String matchingFile,
         @NotNull @Valid App app,
         @NotNull @Valid Decompile decompile,
@@ -29,6 +30,10 @@ public record AppConfig(
         @NotNull @Valid Evaluate evaluate,
         @NotNull @Valid Cache cache,
         @NotNull @Valid Output output) {
+
+    /** Optional: which model in models.yaml fills a role for this app/experiment (null = the models file's roles). */
+    public record RoleOverrides(String teacher, String student, String judge) {
+    }
 
     public enum Profile {
         @JsonProperty("assignment") ASSIGNMENT,

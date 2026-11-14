@@ -148,6 +148,26 @@ class ExperimentTest {
     }
 
     @Test
+    void aBrokenJudgeStopsTheEvaluationInsteadOfReportingZeroRecall() throws IOException {
+        LoadedConfig cfg = config(true);
+        Experiment e = experiment(cfg, null);
+        // replace the judge's answers with provider errors
+        Experiment broken = new Experiment(cfg, e.store(), e.manifest(), new PipelineFactory(Path.of("").toAbsolutePath()).appPreparer(cfg),
+                dir.resolve("app"), e.prompts(), new PipelineFactory(Path.of("").toAbsolutePath()).planner(cfg, e.prompts()),
+                new ModelClientFactory(cfg.models(), new ProviderRegistry(Map.of(
+                        "anthropic", (spec, key) -> fake("teacher"),
+                        "openai_compatible", (spec, key) -> spec.model().contains("deepseek")
+                                ? new FakeLlmClient(req -> { throw new com.vulnscan.models.LlmException("400 bad param", false, 400, null, null); })
+                                : fake(spec.model()))),
+                        new Secrets(Map.of("ANTHROPIC_API_KEY", "x", "GROQ_API_KEY", "x", "POLLINATIONS_API_KEY", "x")),
+                        new TokenEstimator(4, 0.15), dir.resolve("cache2"), true, Ticker.SYSTEM),
+                new ArmScanner(new Deduplicator(cfg.matching().cweGroups())),
+                new StandardLaterStages(new LessonStage(), new EvaluateStage(), new ReportStage()), msg -> { });
+        assertThatThrownBy(broken::run).isInstanceOf(UserFacingException.class).hasMessageContaining("judge is failing");
+        assertThat(e.store().exists("07_evaluate/metrics.json")).isFalse();
+    }
+
+    @Test
     void resumeRefusesADifferentConfig() throws IOException {
         LoadedConfig cfg = config(true);
         Experiment e = experiment(cfg, null);

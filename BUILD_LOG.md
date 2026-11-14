@@ -105,3 +105,14 @@ Format: `[step] status: notes`. Deviations are marked **DEVIATION**.
 
 ### Fix
 - **DEVIATION (decorator order, 6.1):** usage tracking is now the outermost decorator, `UsageTracking(Caching(Retrying(RateLimited(Adapter))))`, so cache hits are recorded as cached with their original usage. With the plan's order (`Caching(UsageTracking(…))`) a cache hit never reached the tracker and the report's usage table silently omitted cached stages.
+
+### First Phase B attempt (run `2026-11-14T1819_insecureshop_27fe7cb7`) — evaluation invalid, rerun
+- Teacher (scan v2) 16 findings, all verified ($0.117); distill v2 → 11 lessons, all 11 selected (2,610 tokens); student whole-app runs worked (~3.4K output tokens each).
+- The three student runs per arm were **byte-identical** (temperature 0 + fixed seed = deterministic), so repeated runs added nothing.
+- **Bug:** every judge call failed (`reasoning_effort: low` is rejected on Pollinations' DeepSeek route, which accepts only none / high / max) and the evaluation still wrote metrics, reporting 0/19 for every arm. The report is invalid. Fixes: judge uses `reasoning_effort: none`; **the evaluation now refuses to write metrics when more than 20% of judge calls fail** (test added). The hints run did not start: the planner's guard caught that scan prompt v3 (~1,083 tokens) exceeds the 1,000-token overhead; its config now sets 1,200.
+
+### Experiment design (user decision)
+- **Core (deterministic):** `configs/insecureshop.yaml`, scan v2, student temperature 0 + seed 42, 1 run per arm.
+- **Hints:** `configs/insecureshop_scan_v3.yaml`, scan v3, otherwise as the core run.
+- **Sampling:** `configs/insecureshop_sampling.yaml`, scan v2, student `student_pollinations_sampled` (temperature 0.7), seed advances per run (42, 43, 44), 3 runs per student arm → mean and range.
+- Additions: an app config may override which model fills a role (`roles:`), so an experiment can pick a different student without duplicating `models.yaml`; a numeric `seed` param advances with the run index (run 1 keeps the configured seed). Tests added (137 total).

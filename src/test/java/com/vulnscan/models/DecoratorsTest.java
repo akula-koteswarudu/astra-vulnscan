@@ -185,6 +185,15 @@ class DecoratorsTest {
     }
 
     @Test
+    void seedAdvancesWithTheRunButOnlyWhenConfigured() {
+        Map<String, Object> p = Map.of("seed", 42, "reasoning_effort", "none");
+        assertThat(RequestFactory.withRunSeed(p, new LlmRequest.Metadata("scan", "a", "r", "u", 0))).containsEntry("seed", 42);
+        assertThat(RequestFactory.withRunSeed(p, new LlmRequest.Metadata("scan", "a", "r", "u", 2))).containsEntry("seed", 44L)
+                .containsEntry("reasoning_effort", "none");
+        assertThat(RequestFactory.withRunSeed(Map.of(), new LlmRequest.Metadata("scan", "a", "r", "u", 2))).isEmpty();
+    }
+
+    @Test
     void groqRequestTooLargeIsNotRetryable() {
         assertThat(OpenAiCompatibleClient.isRetryable(429, "Request too large for model x on output tokens per minute")).isFalse();
         assertThat(OpenAiCompatibleClient.isRetryable(429, "Rate limit reached for model x")).isTrue();

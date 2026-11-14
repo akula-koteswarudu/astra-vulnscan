@@ -88,6 +88,7 @@ public class EvaluateStage {
             e.store().writeJson("07_evaluate/usage.json", usage.snapshot());
         }
 
+        checkJudgeHealth(results);
         List<Metrics.Mode> modes = results.stream().map(Evaluator.ModeResult::metrics).toList();
         Metrics.Lift lift = Evaluator.lift(modes.get(0));
         Metrics metrics = new Metrics(1, headline, modes.get(0).label(), groundTruth, modes, lift);
@@ -101,6 +102,29 @@ public class EvaluateStage {
         e.store().writeJson("07_evaluate/matches.json", matches);
         e.store().writeJson("07_evaluate/judge_decisions.json", decisions);
         e.progress().accept(summary(metrics));
+    }
+
+    /** Share of judge calls that may fail before the evaluation is refused (a broken judge must not look like 0% recall). */
+    static final double MAX_JUDGE_ERROR_RATE = 0.2;
+
+    static void checkJudgeHealth(List<Evaluator.ModeResult> results) {
+        int calls = 0;
+        int errors = 0;
+        String first = null;
+        for (Evaluator.ModeResult r : results) {
+            for (var d : r.decisions().values()) {
+                int screens = d.screened().isEmpty() ? 0 : 1;
+                calls += d.verdicts().size() + Math.max(screens, d.errors().isEmpty() ? 0 : 1);
+                errors += d.errors().size();
+                if (first == null && !d.errors().isEmpty()) {
+                    first = d.errors().get(0);
+                }
+            }
+        }
+        if (errors > 0 && (calls == 0 || errors > MAX_JUDGE_ERROR_RATE * Math.max(calls, errors))) {
+            throw new com.vulnscan.UserFacingException("the judge is failing (" + errors + " errors in about " + Math.max(calls, errors)
+                    + " calls); not writing metrics. First error: " + first);
+        }
     }
 
     static String summary(Metrics m) {

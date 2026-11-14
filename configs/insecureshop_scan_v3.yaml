@@ -1,7 +1,7 @@
 # Hints experiment: same as insecureshop.yaml but with scan prompt v3
 # (v2 + generic MASVS-PLATFORM inter-component hints, added after seeing v1's misses on this app).
 profile: assignment
-runs: {student_runs: 3}           # 3 runs per student arm: mean and range instead of one noisy run
+runs: {student_runs: 1}           # deterministic, like the core run
 app:
   name: insecureshop
   input: apps/InsecureShop.apk
@@ -9,3 +9,5 @@ app:
   ground_truth: ground_truth/insecureshop.yaml
 scan:
   prompt_version: v3
+planning:
+  prompt_overhead_tokens: 1200     # scan prompt v3 measures ~1,083 tokens
