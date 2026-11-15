@@ -223,3 +223,9 @@ Format: `[step] status: notes`. Deviations are marked **DEVIATION**.
 - Done-when test: `docker run --rm --env-file .env -v "$PWD/apps:/app/apps" -v "$PWD/runs:/app/runs" -v "$PWD/cache:/app/cache" vulnscan:0.1.0 run --config configs/insecureshop_scan_v4_perturb.yaml` ran the whole pipeline (decompile, teacher, 3+3 student runs, evaluate with the DeepSeek judge, report) into `runs/2026-11-15T1139_insecureshop_fec4c875`. All LLM calls were served from the mounted cache, so it cost $0.
 - Result is identical to the host run `runs/2026-11-15T1036_insecureshop_fec4c875`: lift +24.6 points (9/19 → 14/19 mean, strict, verified), enriched-reference lift +28.1. Run folders are written with the host user as owner (Docker Desktop file sharing), so no permission clean-up is needed.
 - No deviation from the plan.
+
+## Phase D started (15 Nov 2026): drafts and a place check
+
+- Dedup check over all 126 scored arm-runs: no case where merging places into `also_at` cost a credit (merged places were always the same code line). Many findings match several README items, but that comes from loosely worded README items (GT-02/03/06/13/17 all describe "arbitrary URL in a WebView"), not from dedup.
+- Place check on the headline run `2026-11-15T1036_insecureshop_fec4c875` (analysis script in the session scratchpad, no LLM calls): counting a credit only when the finding's file is one the enriched item names, baseline 8.0 → with lessons 12.0 (+4.0); +4.7 if a manifest finding counts for the exported content provider. The lift comes from GT-04, 07, 09 (0/3 → 3/3) and GT-14, not from the WebView cluster. This is a first version of plan step C19 "location-level recall" (not yet in the Java evaluator).
+- Drafts for review: `docs/DYNAMIC.md` (463 words + diagram), `docs/WRITEUP_DRAFT.md` (Google Doc sections).
