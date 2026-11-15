@@ -186,3 +186,19 @@ Format: `[step] status: notes`. Deviations are marked **DEVIATION**.
 - **Scan prompt v4** = v3 with one change in the guidance header: the lessons add to the student's own review, are not a checklist or a limit, review fully first, report issues the lessons do not mention. Motivation: on OVAA the lessons made the student lose its own deep-link items (over-focus hypothesis). The header only appears with lessons, so teacher and baseline prompts are identical to v3 (served from the cache); only the with-lessons arm reruns. Configs `insecureshop_scan_v4_perturb.yaml`, `ovaa_transfer_v4_perturb.yaml` (temperature 0, order-perturbed ×3, same lessons as v3).
 - v4 first results (before the fix below): InsecureShop baseline 9.3 → with lessons 14.0 (+4.7); OVAA 10.7 → 10.0 (−0.7). On OVAA, GT-04 ("opening arbitrary URLs via deep link") went 3/3 → 0/3 with lessons. Investigation: the with-lessons student **found it in all 3 runs** but quoted two real lines of `WebViewActivity.java` in reverse order (the setting first, then the `loadUrl` call: the pattern lesson L09 teaches), so the evidence checker marked the finding unverified and the headline dropped it.
 - **Evidence checker fix:** a multi-line quote whose lines all exist verbatim in the cited file, in any order, within 20 lines of each other is now `verified_fuzzy` (counts as verified). Invented lines, or real lines far apart, still fail. Tests added (155). All 11 experiments re-evaluated (findings rebuilt from saved answers).
+
+### Final results after the evidence fix (11 experiments; DeepSeek judge; README reference, strict, verified; mean of 3 where repeated)
+| Experiment | Teacher | Baseline | With lessons | Lift |
+|---|---|---|---|---|
+| InsecureShop v1 (Groq, chunked) | 14 | 12 | 13 | +1.0 |
+| InsecureShop v2 deterministic | 13 | 10 | 13 | +3.0 |
+| InsecureShop v2 sampled | 13 | 11, 12, 9 (10.7) | 12, 12, 9 (11.0) | +0.3 |
+| InsecureShop v3 deterministic | 15 | 9 | 14 | +5.0 |
+| InsecureShop v3 sampled | 15 | 9, 9, 10 (9.3) | 12, 12, 13 (12.3) | +3.0 |
+| InsecureShop v3 order-perturbed | 15 | 9, 10, 9 (9.3) | 14, 13, 12 (13.0) | +3.7 |
+| **InsecureShop v4 order-perturbed** | 15 | 9, 10, 9 (9.3) | **15, 14, 13 (14.0)** | **+4.7** |
+| OVAA v3 deterministic | 15/18 | 11 | 10 | −1.0 |
+| OVAA v3 sampled | 15/18 | 12, 10, 9 (10.3) | 10, 12, 11 (11.0) | +0.7 |
+| OVAA v3 order-perturbed | 15/18 | 11, 10, 11 (10.7) | 10, 11, 11 (10.7) | 0.0 |
+| **OVAA v4 order-perturbed** | 15/18 | 11, 10, 11 (10.7) | **12, 11, 10 (11.0)** | **+0.3** |
+- Reading: v4's "lessons add to your own review" header raised the in-sample lift (+3.7 → +4.7; every with-lessons run beats every baseline run; one run equals the teacher). On OVAA the with-lessons student is now at parity with its baseline (no harm, no measurable gain): the earlier OVAA losses were partly a measurement artefact (rearranged quotes rejected) and partly over-focus. Transfer of InsecureShop lessons to a different app remains unproven.
