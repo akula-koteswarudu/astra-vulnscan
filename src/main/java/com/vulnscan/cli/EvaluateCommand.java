@@ -13,7 +13,8 @@ import picocli.CommandLine.Option;
 
 /** vulnscan evaluate --config X --run runs/&lt;dir&gt;: re-run evaluation + report offline from saved findings. */
 @Component
-@Command(name = "evaluate", description = "Re-run evaluation and the report from a run folder's saved findings (no rescans).")
+@Command(name = "evaluate", description = "Re-verify evidence and re-run evaluation and the report from a run folder's saved findings "
+        + "(no rescans). The judge/matching config may differ from the run's; it is recorded in the manifest.")
 public class EvaluateCommand implements Callable<Integer> {
 
     @Option(names = "--config", required = true, description = "per-app config file (must match the run)")
@@ -35,7 +36,7 @@ public class EvaluateCommand implements Callable<Integer> {
     @Override
     public Integer call() {
         LoadedConfig cfg = loader.load(config);
-        Experiment e = factory.experiment(cfg, factory.resolve(run.toString()), stages.later(cfg), System.out::println);
+        Experiment e = factory.experimentForEvaluation(cfg, factory.resolve(run.toString()), stages.later(cfg), System.out::println);
         e.reevaluate();
         return 0;
     }

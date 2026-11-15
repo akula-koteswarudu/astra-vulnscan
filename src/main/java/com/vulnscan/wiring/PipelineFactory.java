@@ -104,6 +104,16 @@ public class PipelineFactory {
                 planner(cfg, prompts), modelClients(cfg), new ArmScanner(new Deduplicator(cfg.matching().cweGroups())), later, progress);
     }
 
+    /** An existing run opened for offline re-evaluation (no config-hash check; see RunStore.openForEvaluation). */
+    public Experiment experimentForEvaluation(LoadedConfig cfg, Path runDir, LaterStages later, Consumer<String> progress) {
+        RunStore store = RunStore.openForEvaluation(runDir);
+        @SuppressWarnings("unchecked")
+        Map<String, Object> existing = store.readJson("manifest.json", Map.class);
+        PromptLibrary prompts = prompts();
+        return new Experiment(cfg, store, RunManifest.from(existing), appPreparer(cfg), resolve(cfg.app().app().input()), prompts,
+                planner(cfg, prompts), modelClients(cfg), new ArmScanner(new Deduplicator(cfg.matching().cweGroups())), later, progress);
+    }
+
     private RunManifest newManifest(LoadedConfig cfg) {
         RunManifest m = new RunManifest();
         m.put("schema_version", 1);

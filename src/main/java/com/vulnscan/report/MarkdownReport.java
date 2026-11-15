@@ -94,7 +94,8 @@ public class MarkdownReport {
             List<String> cells = new ArrayList<>();
             for (String arm : ARM_ORDER) {
                 if (row.hitsStrict().containsKey(arm)) {
-                    cells.add(cell(row.hitsStrict().get(arm), row.hitsLenient().get(arm)));
+                    cells.add(cell(row.hitsStrict().get(arm), row.hitsLenient().get(arm),
+                            row.uncredited() == null ? null : row.uncredited().get(arm)));
                 }
             }
             items.add(Map.of("id", row.itemId(), "title", row.title().replace("|", "/"),
@@ -215,7 +216,7 @@ public class MarkdownReport {
                 ? ARM_ORDER.indexOf(a.arm()) - ARM_ORDER.indexOf(b.arm()) : a.run() - b.run()).toList();
     }
 
-    private static String cell(String strict, String lenient) {
+    private static String cell(String strict, String lenient, String uncredited) {
         if (strict == null) {
             return "";
         }
@@ -224,6 +225,9 @@ public class MarkdownReport {
         boolean single = s[1].equals("1");
         if (!s[0].equals("0")) {
             return single ? "✓" : "✓ " + strict;
+        }
+        if (uncredited != null && !uncredited.startsWith("0/")) {
+            return single ? "◐" : "◐ " + uncredited;
         }
         if (!l[0].equals("0")) {
             return single ? "~" : "~ " + lenient;

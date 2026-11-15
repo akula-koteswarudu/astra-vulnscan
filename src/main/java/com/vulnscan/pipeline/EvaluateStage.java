@@ -42,17 +42,17 @@ public class EvaluateStage {
         MatchingPipeline matching = new MatchingPipeline(new StructuredScorer(e.config().matching(), appNames),
                 new Judge(e.models().forModel(judgeName, usage), e.spec(judgeName), e.prompts().get("judge_screen", "v1"),
                         e.prompts().get("judge_confirm", "v1")),
-                e.config().matching().prefilterMinScore(), cfg.evaluate().screenBatchSize());
+                e.config().matching().prefilterMinScore(), cfg.evaluate().screenBatchSize(), e.spec(judgeName).concurrency());
         Evaluator evaluator = new Evaluator(matching);
 
         List<Evaluator.ArmRunInput> students = new ArrayList<>();
         for (Arm arm : List.of(Arm.STUDENT_BASELINE, Arm.STUDENT_WITH_LESSONS)) {
-            for (int k = 1; k <= cfg.runs().studentRuns(); k++) {
+            for (int k : e.runsOf(arm)) {
                 students.add(input(e, arm, k));
             }
         }
         List<Evaluator.ArmRunInput> teacher = new ArrayList<>();
-        for (int k = 1; k <= cfg.runs().teacherRuns(); k++) {
+        for (int k : e.runsOf(Arm.TEACHER)) {
             teacher.add(input(e, Arm.TEACHER, k));
         }
 

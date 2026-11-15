@@ -26,12 +26,19 @@ public class MatchingPipeline {
     private final Judge judge;
     private final double prefilterMin;
     private final int batchSize;
+    private final int concurrency;
 
     public MatchingPipeline(StructuredScorer scorer, Judge judge, double prefilterMin, int batchSize) {
+        this(scorer, judge, prefilterMin, batchSize, 1);
+    }
+
+    /** concurrency: confirm calls in flight at once (each pair is still its own, independent request). */
+    public MatchingPipeline(StructuredScorer scorer, Judge judge, double prefilterMin, int batchSize, int concurrency) {
         this.scorer = scorer;
         this.judge = judge;
         this.prefilterMin = prefilterMin;
         this.batchSize = batchSize;
+        this.concurrency = Math.max(1, concurrency);
     }
 
     /** All decisions for one (reference, finding set). */
@@ -83,7 +90,10 @@ public class MatchingPipeline {
         // 3. confirm (pairwise), candidates ordered by structured score then id
         Map<String, Finding> byId = new HashMap<>();
         findings.forEach(f -> byId.put(f.id(), f));
-        List<Judge.Verdict> verdicts = new ArrayList<>();
+        // Pairs in a fixed order (item order, then candidates by structured score and id); verdicts are collected in that
+        // same order whatever order the parallel calls finish in, so the saved decisions are deterministic.
+        List<java.util.concurrent.Callable<Judge.Verdict>> calls = new ArrayList<>();
+        java.util.concurrent.Semaphore permits = new java.util.concurrent.Semaphore(concurrency);
         for (ReferenceItem item : items) {
             boolean place = Judge.placeApplies(item, withEnrichment, scorer.hints(item));
             List<String> candidates = screenedByItem.get(item.id()).stream().distinct()
@@ -91,12 +101,30 @@ public class MatchingPipeline {
                     .toList();
             screenedByItem.put(item.id(), candidates);
             for (String fid : candidates) {
-                Judge.Verdict v = judge.confirm(item, byId.get(fid), withEnrichment, place, tag);
+                calls.add(() -> {
+                    permits.acquire();
+                    try {
+                        return judge.confirm(item, byId.get(fid), withEnrichment, place, tag);
+                    } finally {
+                        permits.release();
+                    }
+                });
+            }
+        }
+        List<Judge.Verdict> verdicts = new ArrayList<>();
+        try (java.util.concurrent.ExecutorService pool = java.util.concurrent.Executors.newVirtualThreadPerTaskExecutor()) {
+            for (java.util.concurrent.Future<Judge.Verdict> f : pool.invokeAll(calls)) {
+                Judge.Verdict v = f.get();
                 verdicts.add(v);
                 if (v.error() != null) {
                     errors.add(v.error());
                 }
             }
+        } catch (InterruptedException ex) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException("interrupted while judging", ex);
+        } catch (java.util.concurrent.ExecutionException ex) {
+            throw new IllegalStateException("judge call crashed: " + ex.getCause().getMessage(), ex.getCause());
         }
         return new Decisions(structured, screenedByItem, verdicts, dropped, errors);
     }
@@ -116,6 +144,20 @@ public class MatchingPipeline {
         for (int i = 0; i < a.length; i++) {
             if (a[i] >= 0) {
                 out.put(items.get(i).id(), findings.get(a[i]).id());
+            }
+        }
+        return out;
+    }
+
+    /**
+     * Items the judge said a (given) finding matches, but that the one-to-one assignment left without credit because
+     * that finding was credited to another item. Shown as "◐" in the per-item table.
+     */
+    public static List<String> uncredited(List<ReferenceItem> items, List<Finding> findings, Decisions d, Map<String, String> assignment) {
+        List<String> out = new ArrayList<>();
+        for (ReferenceItem i : items) {
+            if (!assignment.containsKey(i.id()) && findings.stream().anyMatch(f -> d.verdict(i.id(), f.id()).equals("match"))) {
+                out.add(i.id());
             }
         }
         return out;

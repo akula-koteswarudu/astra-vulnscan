@@ -44,6 +44,17 @@ class LessonDistillerTest {
     }
 
     @Test
+    void sameFindingsFromAnotherRunGiveTheSamePromptAndSourceIdsMapBack() {
+        FakeLlmClient c = FakeLlmClient.constant("{\"lessons\": [{\"title\": \"T\", \"why_exploitable\": \"W\", \"source_finding_ids\": [\"F2\"]}]}");
+        LessonDistiller d = distiller(c, 60);
+        LessonDistiller.Result a = d.distill(List.of(finding("run1-x", "CWE-1", "x", 0.5), finding("run1-y", "CWE-2", "y", 0.6)), "run1");
+        d.distill(List.of(finding("run2-y", "CWE-2", "y", 0.6), finding("run2-x", "CWE-1", "x", 0.5)), "run2");
+        assertThat(c.requests.get(0).messages()).isEqualTo(c.requests.get(1).messages());
+        assertThat(c.requests.get(0).messages().get(0).content()).doesNotContain("run1-");
+        assertThat(a.lessons().get(0).sourceFindingIds()).hasSize(1).first().asString().startsWith("run1-");
+    }
+
+    @Test
     void refusalAndPersistentFailureMeanNoLessons() {
         assertThatThrownBy(() -> distiller(new FakeLlmClient(r -> FakeLlmClient.withStop("", LlmResponse.StopReason.REFUSAL)), 60)
                 .distill(List.of(finding("f1", "CWE-1", "x", 0.5)), "run")).isInstanceOf(NoLessonsException.class);

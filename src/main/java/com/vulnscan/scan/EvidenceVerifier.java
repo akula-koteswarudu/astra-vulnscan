@@ -14,6 +14,9 @@ import java.util.regex.Pattern;
  *   <li>whitespace-normalised exact match in the cited file -> verified_exact (line computed);</li>
  *   <li>exact match in another file of the unit, or in the unit's manifest/resource text -> relocated (location corrected;
  *       needs at least min_evidence_chars), except that manifest/resource findings found in that text are verified_exact;</li>
+ *   <li>a quote that skipped lines (models drop decompiler noise such as Kotlin null checks) or abbreviated with "...":
+ *       every quoted line / fragment of at least 10 characters appears verbatim, in order, in the cited file, with at
+ *       most MAX_SKIPPED_LINES lines between consecutive quoted lines -> verified_fuzzy;</li>
  *   <li>fuzzy (partial ratio &gt;= threshold, at least min_evidence_chars) in the cited file -> verified_fuzzy;</li>
  *   <li>otherwise unverified.</li>
  * </ol>
@@ -22,6 +25,8 @@ public class EvidenceVerifier {
 
     public static final String MANIFEST_FILE = "AndroidManifest.xml";
     private static final Pattern ELLIPSIS = Pattern.compile("\\.\\.\\.|…");
+    /** Lines a model may leave out between two quoted lines (e.g. jadx's Intrinsics null checks). */
+    static final int MAX_SKIPPED_LINES = 3;
 
     private final CodeBase code;
     private final int fuzzyThreshold;
@@ -72,6 +77,12 @@ public class EvidenceVerifier {
         // An abbreviated quote ("a ... b"): every fragment must appear in order in the cited file.
         if (cited != null && ELLIPSIS.matcher(f.evidence()).find() && evidence.length() >= minEvidenceChars) {
             Check c = fragments(f.evidence(), cited);
+            if (c != null) {
+                return c;
+            }
+        }
+        if (cited != null && f.evidence().strip().contains("\n") && evidence.length() >= minEvidenceChars) {
+            Check c = linesWithGaps(f.evidence(), cited);
             if (c != null) {
                 return c;
             }
@@ -136,6 +147,43 @@ public class EvidenceVerifier {
             last = from - 1;
         }
         return first == null ? null : new Check("verified_fuzzy", path, n.lineAt(original, first), n.lineAt(original, last), false);
+    }
+
+    /** Each quoted line found verbatim (whitespace-normalised), in order, at most MAX_SKIPPED_LINES lines apart. */
+    private Check linesWithGaps(String rawEvidence, String path) {
+        List<String> quoted = new ArrayList<>();
+        for (String line : rawEvidence.split("\\R")) {
+            String q = TextMatch.normalize(line);
+            if (q.length() >= 10) {
+                quoted.add(q);
+            }
+        }
+        if (quoted.size() < 2) {
+            return null;
+        }
+        String[] fileLines = code.text(path).split("\\R", -1);
+        // Try every occurrence of the first quoted line as a starting point.
+        for (int start = 0; start < fileLines.length; start++) {
+            if (!TextMatch.normalize(fileLines[start]).contains(quoted.get(0))) {
+                continue;
+            }
+            int at = start;
+            boolean ok = true;
+            for (int k = 1; k < quoted.size() && ok; k++) {
+                ok = false;
+                for (int next = at + 1; next <= Math.min(fileLines.length - 1, at + 1 + MAX_SKIPPED_LINES); next++) {
+                    if (TextMatch.normalize(fileLines[next]).contains(quoted.get(k))) {
+                        at = next;
+                        ok = true;
+                        break;
+                    }
+                }
+            }
+            if (ok) {
+                return new Check("verified_fuzzy", path, start + 1, at + 1, false);
+            }
+        }
+        return null;
     }
 
     /** The unit file the model meant: exact path, else the unique unit file whose path ends with what was cited. */

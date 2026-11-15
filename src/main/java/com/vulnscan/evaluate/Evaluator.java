@@ -58,7 +58,7 @@ public class Evaluator {
             int n = items.size();
             rows.add(new Metrics.ArmRun(in.arm(), in.run(), in.model(), in.findings().size(), verified.size(),
                     ratio(strict.size(), n), ratio(lenient.size(), n), ratio(strictAll.size(), n), pStrict, pLenient,
-                    strict, lenient, in.unitStatus(), d.verdicts().size(), d.errors().size(), d.prefilterDropped()));
+                    strict, lenient, MatchingPipeline.uncredited(items, verified, d, strict), in.unitStatus(), d.verdicts().size(), d.errors().size(), d.prefilterDropped()));
             Map<String, Object> a = new LinkedHashMap<>();
             a.put("strict_verified", strict);
             a.put("lenient_verified", lenient);
@@ -73,6 +73,7 @@ public class Evaluator {
         for (ReferenceItem item : items) {
             Map<String, int[]> strict = new LinkedHashMap<>();
             Map<String, int[]> lenient = new LinkedHashMap<>();
+            Map<String, int[]> uncredited = new LinkedHashMap<>();
             for (Metrics.ArmRun r : rows) {
                 strict.computeIfAbsent(r.arm(), k -> new int[2]);
                 lenient.computeIfAbsent(r.arm(), k -> new int[2]);
@@ -84,8 +85,13 @@ public class Evaluator {
                 if (r.matchedLenient().containsKey(item.id())) {
                     lenient.get(r.arm())[0]++;
                 }
+                uncredited.computeIfAbsent(r.arm(), k -> new int[2])[1]++;
+                if (r.uncreditedStrict().contains(item.id())) {
+                    uncredited.get(r.arm())[0]++;
+                }
             }
-            out.add(new Metrics.ItemRow(item.id(), item.title(), item.staticVisibility(), fraction(strict), fraction(lenient)));
+            out.add(new Metrics.ItemRow(item.id(), item.title(), item.staticVisibility(), fraction(strict), fraction(lenient),
+                    fraction(uncredited)));
         }
         return out;
     }

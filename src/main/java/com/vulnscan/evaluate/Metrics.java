@@ -20,13 +20,13 @@ public record Metrics(int schemaVersion, String headlineMode, String label, bool
     public record ArmRun(String arm, int run, String model, int findingsTotal, int findingsVerified,
                          double recallStrict, double recallLenient, double recallStrictInclUnverified,
                          Double precisionStrict, Double precisionLenient,
-                         Map<String, String> matchedStrict, Map<String, String> matchedLenient,
+                         Map<String, String> matchedStrict, Map<String, String> matchedLenient, List<String> uncreditedStrict,
                          Map<String, Long> unitStatus, int judgeCalls, int judgeErrors, int prefilterDropped) {
     }
 
     /** Per item and arm: run hit counts (k of N), strict and lenient. */
     public record ItemRow(String itemId, String title, String staticVisibility, Map<String, String> hitsStrict,
-                          Map<String, String> hitsLenient) {
+                          Map<String, String> hitsLenient, Map<String, String> uncredited) {
     }
 
     /** Mean (and range) of the headline recall per arm; lift = with lessons minus baseline. Small N, not a significance test. */

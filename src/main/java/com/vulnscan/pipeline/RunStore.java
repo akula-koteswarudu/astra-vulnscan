@@ -59,6 +59,17 @@ public class RunStore {
         return new RunStore(dir);
     }
 
+    /**
+     * Opens a run for offline re-evaluation. No config-hash check: evaluation may use a different judge or matcher on
+     * the saved findings (plan 6.8: changing the matcher never needs a rescan). The evaluation config is recorded instead.
+     */
+    public static RunStore openForEvaluation(Path dir) {
+        if (!Files.isRegularFile(dir.resolve("manifest.json"))) {
+            throw new UserFacingException("not a run folder (no manifest.json): " + dir);
+        }
+        return new RunStore(dir);
+    }
+
     public Path dir() {
         return dir;
     }

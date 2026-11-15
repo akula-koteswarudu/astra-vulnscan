@@ -46,7 +46,7 @@ distill:
 evaluate:
   headline: readme
   count_unverified: false
-  screen_batch_size: 15
+  screen_batch_size: 100           # all findings of a run in one quick-look call (findings are ~100 tokens each)
   audit_file: null
 cache:
   llm: true

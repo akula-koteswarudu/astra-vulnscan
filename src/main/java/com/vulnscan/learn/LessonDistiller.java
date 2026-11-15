@@ -63,12 +63,22 @@ public class LessonDistiller {
         if (input.isEmpty()) {
             throw new NoLessonsException("the teacher has no verified findings to learn from");
         }
+        // Stable labels: findings ordered by content and called F1..Fn, so that identical teacher findings in another run
+        // (whose ids differ, because ids include the run) give a byte-identical prompt: same cache entry, same lessons.
+        List<Finding> ordered = input.stream().sorted(Comparator.comparing((Finding f) -> String.valueOf(f.location().file()))
+                .thenComparing(f -> String.valueOf(f.location().symbol())).thenComparing(Finding::title)
+                .thenComparing(Finding::evidence).thenComparing(f -> String.valueOf(f.cwe()))
+                .thenComparing(f -> String.valueOf(f.vulnClass())).thenComparing(f -> String.valueOf(f.rationale()))).toList();
+        Map<String, String> labelToId = new LinkedHashMap<>();
+        for (int i = 0; i < ordered.size(); i++) {
+            labelToId.put("F" + (i + 1), ordered.get(i).id());
+        }
         Map<String, Object> ctx = new HashMap<>();
         ctx.put("max_lessons", maxLessons);
         ctx.put("count", input.size());
         ctx.put("capped", cappedFrom != null);
         ctx.put("total", cappedFrom);
-        ctx.put("findings", render(input));
+        ctx.put("findings", render(ordered));
         LlmRequest request = RequestFactory.forModel(spec, prompt.system(), prompt.user(ctx), LESSONS_SCHEMA,
                 new LlmRequest.Metadata("distill", "distill", runId, null, 0));
 
@@ -105,7 +115,11 @@ public class LessonDistiller {
         }
         List<Lesson> numbered = new ArrayList<>();
         for (int i = 0; i < lessons.size(); i++) {
-            numbered.add(lessons.get(i).withId("L%02d".formatted(i + 1)));
+            Lesson l = lessons.get(i);
+            List<String> sources = l.sourceFindingIds() == null ? List.of()
+                    : l.sourceFindingIds().stream().map(labelToId::get).filter(java.util.Objects::nonNull).toList();
+            numbered.add(new Lesson("L%02d".formatted(i + 1), l.title(), l.appliesTo(), l.signals(), l.whyExploitable(),
+                    l.falsePositiveGuards(), l.cwe(), l.owaspCategory(), l.severityGuidance(), l.abstractExample(), sources));
         }
         return new Result(numbered, input.size(), cappedFrom, exchanges);
     }
@@ -166,10 +180,12 @@ public class LessonDistiller {
                 .toList();
     }
 
+    /** Findings in the given order, labelled F1..Fn (no run-dependent ids). */
     private static String render(List<Finding> findings) {
         StringBuilder sb = new StringBuilder();
-        for (Finding f : findings.stream().sorted(Comparator.comparing(Finding::id)).toList()) {
-            sb.append("- id: ").append(f.id()).append('\n')
+        for (int i = 0; i < findings.size(); i++) {
+            Finding f = findings.get(i);
+            sb.append("- id: F").append(i + 1).append('\n')
                     .append("  title: ").append(f.title()).append('\n')
                     .append("  class: ").append(f.vulnClass()).append(" | ").append(f.cwe()).append(" | ").append(f.owaspCategory())
                     .append(" | severity ").append(f.severity()).append(" | kind ").append(f.kind()).append('\n')

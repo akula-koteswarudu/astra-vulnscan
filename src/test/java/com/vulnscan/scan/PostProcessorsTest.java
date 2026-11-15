@@ -72,6 +72,20 @@ class PostProcessorsTest {
     }
 
     @Test
+    void quoteThatSkipsADecompilerLineIsVerifiedButInventedLinesAreNot() throws IOException {
+        Files.writeString(dir.resolve(A), "class A {\n    void go() {\n        Uri uri = Uri.fromFile(new File(extraPath));\n"
+                + "        Intrinsics.checkExpressionValueIsNotNull(uri, \"x\");\n        makeTempCopy(uri, getFilename(uri));\n    }\n}\n");
+        var ok = verifier.verify(f(A, "Uri uri = Uri.fromFile(new File(extraPath));\nmakeTempCopy(uri, getFilename(uri));", "code"), unit);
+        assertThat(ok.status()).isEqualTo("verified_fuzzy");
+        assertThat(ok.line()).isEqualTo(3);
+        assertThat(ok.endLine()).isEqualTo(5);
+        var invented = verifier.verify(f(A, "Uri uri = Uri.fromFile(new File(extraPath));\nRuntime.getRuntime().exec(cmdFromIntent);", "code"), unit);
+        assertThat(invented.status()).isEqualTo("unverified");
+        var reversed = verifier.verify(f(A, "makeTempCopy(uri, getFilename(uri));\nUri uri = Uri.fromFile(new File(extraPath));", "code"), unit);
+        assertThat(reversed.status()).isNotEqualTo("verified_fuzzy");
+    }
+
+    @Test
     void abbreviatedQuoteWithEllipsisIsFuzzy() {
         var c = verifier.verify(f(A, "void go() { ... webView.loadUrl(getIntent()", "code"), unit);
         assertThat(c.status()).isEqualTo("verified_fuzzy");

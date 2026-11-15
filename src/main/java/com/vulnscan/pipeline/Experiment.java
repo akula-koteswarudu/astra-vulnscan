@@ -90,7 +90,10 @@ public class Experiment {
      * Overwrites 07_evaluate/ and report.md.
      */
     public void reevaluate() {
-        prepare();
+        app = savedApp();
+        new Reverifier().reverify(this);
+        manifest.putIn("reevaluations", java.time.Instant.now().toString(), Map.of("config_hash", cfg.configHash(),
+                "judge", cfg.models().spec(cfg.models().roles().judge()).model()));
         for (String stage : List.of("evaluate", "report")) {
             long start = System.currentTimeMillis();
             store.log("stage_start", Map.of("stage", stage, "rerun", true));
@@ -101,6 +104,30 @@ public class Experiment {
             }
             finish(stage, start);
         }
+    }
+
+    /**
+     * The app as this run saw it: the saved app model and the decompiled folder recorded in 01_decompile/stats.json.
+     * Used for offline re-evaluation, so a run stays evaluable even if the ingest code changed since.
+     */
+    PreparedApp savedApp() {
+        AppModel model = store.readJson("02_ingest/app_model.json", AppModel.class);
+        @SuppressWarnings("unchecked")
+        Map<String, Object> stats = store.readJson("01_decompile/stats.json", Map.class);
+        Path root = Path.of(String.valueOf(stats.get("decompiled_dir")));
+        if (!java.nio.file.Files.isDirectory(root)) {
+            throw new UserFacingException("the decompiled folder of this run is gone: " + root + " (run decompile again with the same APK)");
+        }
+        return new PreparedApp(null, model, new com.vulnscan.ingest.CodeBase(root));
+    }
+
+    /** Arm runs present in this run folder (independent of the current config's run counts). */
+    public List<Integer> runsOf(Arm arm) {
+        List<Integer> out = new ArrayList<>();
+        for (int k = 1; store.exists(armDir(arm, k) + "findings.json"); k++) {
+            out.add(k);
+        }
+        return out;
     }
 
     /** Decompile + ingest (always re-prepared on resume: the decompile cache makes it cheap; the ingest hash must match). */

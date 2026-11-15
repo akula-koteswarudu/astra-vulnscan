@@ -157,6 +157,29 @@ class MatchingTest {
     }
 
     @Test
+    void oneFindingMatchingTwoItemsCountsOnceAndTheOtherIsMarkedUncredited() {
+        List<ReferenceItem> items = List.of(readmeItem("GT-01", "A", "a"), readmeItem("GT-02", "B", "b"));
+        Finding broad = finding("f", "broad", "CWE-1", "X.a", "verified_exact");
+        MatchingPipeline p = pipeline(judge(u -> "match"), List.of());
+        MatchingPipeline.Decisions d = p.decide(items, List.of(broad), false, "t");
+        Map<String, String> a = MatchingPipeline.assign(items, List.of(broad), d, false);
+        assertThat(a).hasSize(1);
+        assertThat(MatchingPipeline.uncredited(items, List.of(broad), d, a)).hasSize(1).doesNotContainAnyElementsOf(a.keySet());
+    }
+
+    @Test
+    void parallelConfirmGivesTheSameDecisionsInTheSameOrder() {
+        List<ReferenceItem> items = List.of(readmeItem("GT-01", "A", "a"), readmeItem("GT-02", "B", "b"), readmeItem("GT-03", "C", "c"));
+        List<Finding> fs = List.of(finding("f1", "x", "CWE-1", "X.a", "verified_exact"), finding("f2", "y", "CWE-2", "X.b", "verified_exact"));
+        PromptLibrary pl = new PromptLibrary(Path.of("prompts"));
+        MatchingPipeline serial = new MatchingPipeline(new StructuredScorer(CFG, List.of()),
+                new Judge(judge(u -> u.contains("Title: B") ? "partial" : "match"), JUDGE, pl.get("judge_screen", "v1"), pl.get("judge_confirm", "v1")), 0.3, 100, 1);
+        MatchingPipeline parallel = new MatchingPipeline(new StructuredScorer(CFG, List.of()),
+                new Judge(judge(u -> u.contains("Title: B") ? "partial" : "match"), JUDGE, pl.get("judge_screen", "v1"), pl.get("judge_confirm", "v1")), 0.3, 100, 4);
+        assertThat(parallel.decide(items, fs, false, "t").verdicts()).isEqualTo(serial.decide(items, fs, false, "t").verdicts());
+    }
+
+    @Test
     void edgeCasesZeroFindingsAndZeroItems() {
         Evaluator ev = new Evaluator(pipeline(judge(u -> "match"), List.of()));
         var src = new ReferenceSource() {
