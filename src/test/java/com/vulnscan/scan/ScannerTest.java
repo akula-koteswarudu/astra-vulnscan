@@ -179,6 +179,21 @@ class ScannerTest {
     }
 
     @Test
+    void perturbOrderShufflesFilesAndLessonsOnlyFromRunTwo() throws IOException {
+        PromptBuilder pb = new PromptBuilder(new PromptLibrary(Path.of("prompts")).get("scan", "v1"), app, code);
+        ScanUnit many = new ScanUnit("u", "whole", "app", List.of(HELPER, MAIN, "sources/com/example/app/R.java"), null, null, null, 1, 1);
+        String guidance = "- L01 A\n  Why: a\n- L02 B\n  Why: b\n- L03 C\n  Why: c\n- L04 D\n  Why: d";
+        String run1 = pb.user(many, guidance, 0, true);
+        assertThat(run1).isEqualTo(pb.user(many, guidance, 0, false));
+        String run2 = pb.user(many, guidance, 1, true);
+        assertThat(run2).isNotEqualTo(run1).isEqualTo(pb.user(many, guidance, 1, true)); // reproducible
+        for (String part : List.of("- L01 A", "- L04 D", "=== FILE: " + HELPER, "=== FILE: " + MAIN)) {
+            assertThat(run2).contains(part);
+        }
+        assertThat(run2.length()).isBetween(run1.length() - 5, run1.length() + 5); // same content, different order
+    }
+
+    @Test
     void guidanceGoesBeforeContextAndCodeAndSystemIsStable() throws IOException {
         FakeLlmClient client = FakeLlmClient.constant("{\"findings\": []}");
         Scanner s = scanner(client, u -> List.of());

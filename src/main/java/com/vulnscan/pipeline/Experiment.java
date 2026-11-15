@@ -212,7 +212,8 @@ public class Experiment {
                 new PromptBuilder(prompts.get("scan", cfg.app().scan().promptVersion()), app.model(), app.code()),
                 new FindingParser(), new Normalizer(), new Splitter(),
                 new EvidenceVerifier(app.code(), ev.fuzzyThreshold(), ev.minEvidenceChars()),
-                unit -> planner.split(unit, modelName, spec, arm.isStudent(), app.model(), app.code()));
+                unit -> planner.split(unit, modelName, spec, arm.isStudent(), app.model(), app.code()))
+                .withPerturbOrder(arm.isStudent() && cfg.app().scan().perturbOrder());
         String dir = armDir(arm, run);
         int total = plan.units().size();
         int[] done = {0};

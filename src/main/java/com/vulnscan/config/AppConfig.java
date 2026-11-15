@@ -84,7 +84,12 @@ public record AppConfig(
         @JsonProperty("androguard") ANDROGUARD
     }
 
-    public record Scan(@NotBlank String promptVersion, @NotNull @Valid Evidence evidence) {
+    /**
+     * perturbOrder: runs 2, 3, ... shuffle the order of code files and lessons (fixed seed per run, same order for both
+     * student arms); run 1 keeps the original order. Measures how stable a temperature-0 result is under content-neutral
+     * prompt changes.
+     */
+    public record Scan(@NotBlank String promptVersion, @NotNull @Valid Evidence evidence, boolean perturbOrder) {
     }
 
     public record Evidence(@Min(0) int fuzzyThreshold, @Min(0) int minEvidenceChars) {

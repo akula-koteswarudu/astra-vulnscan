@@ -38,8 +38,21 @@ public class PromptBuilder {
     }
 
     public String user(ScanUnit unit, String guidance) {
+        return user(unit, guidance, 0, false);
+    }
+
+    /**
+     * perturb && repeatIndex &gt; 0: the code files and the lessons appear in a shuffled order (seed = repeatIndex), with
+     * the same content. Run 1 (repeatIndex 0) always uses the original order.
+     */
+    public String user(ScanUnit unit, String guidance, int repeatIndex, boolean perturb) {
+        boolean shuffle = perturb && repeatIndex > 0;
         Map<String, Object> ctx = new HashMap<>();
-        ctx.put("guidance", guidance == null || guidance.isBlank() ? null : guidance.strip());
+        String g = guidance == null || guidance.isBlank() ? null : guidance.strip();
+        if (g != null && shuffle) {
+            g = shuffleLessons(g, repeatIndex);
+        }
+        ctx.put("guidance", g);
         ctx.put("package_name", app.packageName());
         ctx.put("min_sdk", app.manifest().minSdk());
         ctx.put("target_sdk", app.manifest().targetSdk());
@@ -47,12 +60,34 @@ public class PromptBuilder {
         ctx.put("resources", unit.resources());
         ctx.put("dependencies", unit.dependencies());
         List<Map<String, Object>> files = new ArrayList<>();
-        for (String path : unit.files()) {
+        List<String> paths = new ArrayList<>(unit.files());
+        if (shuffle) {
+            java.util.Collections.shuffle(paths, new java.util.Random(repeatIndex));
+        }
+        for (String path : paths) {
             files.add(Map.of("path", path, "text", CodeView.render(code.text(path))));
         }
         ctx.put("files", files);
         ctx.put("has_files", !files.isEmpty());
         return prompt.user(ctx);
+    }
+
+    /** Lessons are rendered as blocks starting with "- L"; shuffle the blocks, keep each block intact. */
+    static String shuffleLessons(String guidance, int seed) {
+        List<String> blocks = new ArrayList<>();
+        StringBuilder cur = new StringBuilder();
+        for (String line : guidance.split("\n", -1)) {
+            if (line.startsWith("- L") && cur.length() > 0) {
+                blocks.add(cur.toString().stripTrailing());
+                cur.setLength(0);
+            }
+            cur.append(line).append('\n');
+        }
+        if (cur.length() > 0) {
+            blocks.add(cur.toString().stripTrailing());
+        }
+        java.util.Collections.shuffle(blocks, new java.util.Random(seed));
+        return String.join("\n\n", blocks);
     }
 
     private static Map<String, Object> findingsSchema() {

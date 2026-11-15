@@ -1,0 +1,16 @@
+# Stability check at temperature 0: like insecureshop_scan_v3.yaml (deterministic student), 3 runs per student arm,
+# runs 2 and 3 shuffle the order of code files and lessons (same content). Reuses the v3 run's lessons.
+profile: assignment
+runs: {student_runs: 3}
+app:
+  name: insecureshop
+  input: apps/InsecureShop.apk
+  input_sha256: a83298ae4a37fcab8101e8b41e513dd2199af71a94ea537d556a318e07d4d1bd
+  ground_truth: ground_truth/insecureshop.yaml
+scan:
+  prompt_version: v3
+  perturb_order: true
+planning:
+  prompt_overhead_tokens: 1200
+distill:
+  lessons_from: runs/2026-11-14T1846_insecureshop_9f96bd98/05_learn/lessons.json

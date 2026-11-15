@@ -42,6 +42,13 @@ public class Scanner {
     private final Splitter splitter;
     private final EvidenceVerifier verifier;
     private final UnitSplitter unitSplitter;
+    private boolean perturbOrder;
+
+    /** Enables scan.perturb_order (see AppConfig.Scan). */
+    public Scanner withPerturbOrder(boolean on) {
+        this.perturbOrder = on;
+        return this;
+    }
 
     public Scanner(LlmClient client, ModelSpec spec, String modelName, PromptBuilder prompts, FindingParser parser,
                    Normalizer normalizer, Splitter splitter, EvidenceVerifier verifier, UnitSplitter unitSplitter) {
@@ -64,7 +71,7 @@ public class Scanner {
         List<ScanResult.Exchange> exchanges = new ArrayList<>();
         List<String> errors = new ArrayList<>();
         LlmRequest.Metadata meta = new LlmRequest.Metadata("scan", run.arm(), run.runId(), unit.unitId(), run.repeatIndex());
-        LlmRequest request = RequestFactory.forModel(spec, prompts.system(), prompts.user(unit, guidance),
+        LlmRequest request = RequestFactory.forModel(spec, prompts.system(), prompts.user(unit, guidance, run.repeatIndex(), perturbOrder),
                 PromptBuilder.FINDINGS_SCHEMA, meta);
 
         LlmResponse response;
