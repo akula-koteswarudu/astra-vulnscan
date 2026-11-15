@@ -23,6 +23,9 @@ public class EvaluateCommand implements Callable<Integer> {
     @Option(names = "--run", required = true, description = "run folder")
     Path run;
 
+    @Option(names = "--screen-orders", description = "override evaluate.screen_orders (quick look in content order + n-1 shuffles)")
+    Integer screenOrders;
+
     private final ConfigLoader loader;
     private final PipelineFactory factory;
     private final Stages stages;
@@ -35,7 +38,9 @@ public class EvaluateCommand implements Callable<Integer> {
 
     @Override
     public Integer call() {
-        LoadedConfig cfg = loader.load(config);
+        LoadedConfig loaded = loader.load(config);
+        LoadedConfig cfg = screenOrders == null ? loaded : new LoadedConfig(loaded.app().withScreenOrders(screenOrders), loaded.models(),
+                loaded.matching(), loaded.appFile(), loaded.configHash());
         Experiment e = factory.experimentForEvaluation(cfg, factory.resolve(run.toString()), stages.later(cfg), System.out::println);
         e.reevaluate();
         return 0;

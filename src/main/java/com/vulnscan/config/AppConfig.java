@@ -120,10 +120,22 @@ public record AppConfig(
     public record Arms(boolean checklistControl, boolean lessonsFocusStudentMisses) {
     }
 
+    /**
+     * screenOrders: how many orders the judge's quick look reads the findings in (1 = content order only; more =
+     * additional fixed shuffles, union of suggestions). The quick look reads a list, so its suggestions can depend on order.
+     */
     public record Evaluate(@NotNull Headline headline,
                            boolean countUnverified,
                            @Positive int screenBatchSize,
+                           @Positive int screenOrders,
                            String auditFile) {
+    }
+
+    /** A copy with a different number of quick-look orders (used by `vulnscan evaluate --screen-orders`). */
+    public AppConfig withScreenOrders(int n) {
+        Evaluate e = new Evaluate(evaluate.headline(), evaluate.countUnverified(), evaluate.screenBatchSize(), n, evaluate.auditFile());
+        return new AppConfig(profile, modelsFile, roles, matchingFile, app, decompile, ingest, planning, scan, distill, runs, arms, e,
+                cache, output);
     }
 
     public enum Headline {

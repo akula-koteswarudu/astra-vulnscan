@@ -58,7 +58,8 @@ public class Evaluator {
             int n = items.size();
             rows.add(new Metrics.ArmRun(in.arm(), in.run(), in.model(), in.findings().size(), verified.size(),
                     ratio(strict.size(), n), ratio(lenient.size(), n), ratio(strictAll.size(), n), pStrict, pLenient,
-                    strict, lenient, MatchingPipeline.uncredited(items, verified, d, strict), in.unitStatus(), d.verdicts().size(), d.errors().size(), d.prefilterDropped()));
+                    strict, lenient, MatchingPipeline.uncredited(items, verified, d, strict), in.unitStatus(), d.verdicts().size(), d.errors().size(), d.prefilterDropped(),
+                    d.screenExtraPairs()));
             Map<String, Object> a = new LinkedHashMap<>();
             a.put("strict_verified", strict);
             a.put("lenient_verified", lenient);

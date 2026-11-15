@@ -180,6 +180,35 @@ class MatchingTest {
     }
 
     @Test
+    void quickLookUsesContentOrderSoIdsDoNotChangeThePrompt() {
+        List<ReferenceItem> items = List.of(readmeItem("GT-01", "A", "a"));
+        FakeLlmClient c1 = judge(u -> "match");
+        FakeLlmClient c2 = judge(u -> "match");
+        pipeline(c1, List.of()).decide(items, List.of(finding("zz1", "alpha", "CWE-1", "X.a", "verified_exact"),
+                finding("aa2", "beta", "CWE-2", "X.b", "verified_exact")), false, "t");
+        pipeline(c2, List.of()).decide(items, List.of(finding("aa1", "beta", "CWE-2", "X.b", "verified_exact"),
+                finding("zz2", "alpha", "CWE-1", "X.a", "verified_exact")), false, "t");
+        assertThat(c1.requests.get(0).messages()).isEqualTo(c2.requests.get(0).messages());
+    }
+
+    @Test
+    void extraQuickLookOrdersAddCandidatesAsAUnionAndAreCounted() {
+        List<ReferenceItem> items = List.of(readmeItem("GT-01", "A", "a"));
+        // a deliberately order-sensitive screen: it only ever suggests the item for the FIRST finding in the list
+        FakeLlmClient c = new FakeLlmClient(req -> req.metadata().purpose().equals("judge_screen")
+                ? FakeLlmClient.ok("{\"results\": [{\"finding\": \"F1\", \"items\": [\"GT-01\"]}]}")
+                : FakeLlmClient.ok("{\"verdict\": \"match\", \"reason\": \"r\"}"));
+        List<Finding> fs = List.of(finding("f1", "a1", "CWE-1", "X.a", "verified_exact"), finding("f2", "a2", "CWE-1", "X.b", "verified_exact"),
+                finding("f3", "a3", "CWE-1", "X.c", "verified_exact"), finding("f4", "a4", "CWE-1", "X.d", "verified_exact"));
+        MatchingPipeline.Decisions one = pipeline(c, List.of()).decide(items, fs, false, "t");
+        assertThat(one.screened().get("GT-01")).hasSize(1);
+        assertThat(one.screenExtraPairs()).isZero();
+        MatchingPipeline.Decisions three = pipeline(c, List.of()).withScreenOrders(3).decide(items, fs, false, "t");
+        assertThat(three.screened().get("GT-01")).hasSizeGreaterThan(1);
+        assertThat(three.screenExtraPairs()).isEqualTo(three.screened().get("GT-01").size() - 1);
+    }
+
+    @Test
     void edgeCasesZeroFindingsAndZeroItems() {
         Evaluator ev = new Evaluator(pipeline(judge(u -> "match"), List.of()));
         var src = new ReferenceSource() {

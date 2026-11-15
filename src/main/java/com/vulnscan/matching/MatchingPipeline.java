@@ -27,9 +27,16 @@ public class MatchingPipeline {
     private final double prefilterMin;
     private final int batchSize;
     private final int concurrency;
+    private int screenOrders = 1;
 
     public MatchingPipeline(StructuredScorer scorer, Judge judge, double prefilterMin, int batchSize) {
         this(scorer, judge, prefilterMin, batchSize, 1);
+    }
+
+    /** How many orders the quick look reads the findings in (see AppConfig.Evaluate). */
+    public MatchingPipeline withScreenOrders(int n) {
+        this.screenOrders = Math.max(1, n);
+        return this;
     }
 
     /** concurrency: confirm calls in flight at once (each pair is still its own, independent request). */
@@ -42,8 +49,9 @@ public class MatchingPipeline {
     }
 
     /** All decisions for one (reference, finding set). */
+    /** screenExtraPairs: (item, finding) pairs suggested only by the extra quick-look orders (the measured order effect). */
     public record Decisions(Map<String, Map<String, Double>> structured, Map<String, List<String>> screened,
-                            List<Judge.Verdict> verdicts, int prefilterDropped, List<String> errors) {
+                            List<Judge.Verdict> verdicts, int prefilterDropped, List<String> errors, int screenExtraPairs) {
 
         public String verdict(String itemId, String findingId) {
             return verdicts.stream().filter(v -> v.itemId().equals(itemId) && v.findingId().equals(findingId))
@@ -73,19 +81,38 @@ public class MatchingPipeline {
 
         // 2. screen (listwise)
         List<String> errors = new ArrayList<>();
-        List<Finding> ordered = findings.stream().sorted(Comparator.comparing(Finding::id)).toList();
+        // Order 0: content order (the same findings give the same prompt in every run folder). Orders 1..n-1: fixed
+        // shuffles. The quick look only proposes candidates, so suggestions are combined as a union.
+        List<Finding> contentOrder = findings.stream().sorted(CONTENT_ORDER).toList();
         Map<String, List<String>> screenedByItem = new LinkedHashMap<>();
         items.forEach(i -> screenedByItem.put(i.id(), new ArrayList<>()));
-        for (int start = 0; start < ordered.size(); start += batchSize) {
-            List<Finding> batch = ordered.subList(start, Math.min(ordered.size(), start + batchSize));
-            Judge.ScreenResult r = judge.screen(items, batch, withEnrichment, tag);
-            errors.addAll(r.errors());
-            r.itemsByFinding().forEach((fid, itemIds) -> itemIds.forEach(iid -> {
-                if (screenedByItem.containsKey(iid) && allowed.contains(iid + "|" + fid)) {
-                    screenedByItem.get(iid).add(fid);
+        java.util.Set<String> fromFirstOrder = new java.util.HashSet<>();
+        java.util.Set<String> all = new java.util.HashSet<>();
+        for (int order = 0; order < screenOrders; order++) {
+            List<Finding> ordered = new ArrayList<>(contentOrder);
+            if (order > 0) {
+                java.util.Collections.shuffle(ordered, new java.util.Random(order));
+            }
+            for (int start = 0; start < ordered.size(); start += batchSize) {
+                List<Finding> batch = ordered.subList(start, Math.min(ordered.size(), start + batchSize));
+                Judge.ScreenResult r = judge.screen(items, batch, withEnrichment, tag);
+                errors.addAll(r.errors());
+                for (Map.Entry<String, List<String>> e : r.itemsByFinding().entrySet()) {
+                    for (String iid : e.getValue()) {
+                        String pair = iid + "|" + e.getKey();
+                        if (screenedByItem.containsKey(iid) && allowed.contains(pair)) {
+                            if (order == 0) {
+                                fromFirstOrder.add(pair);
+                            }
+                            if (all.add(pair)) {
+                                screenedByItem.get(iid).add(e.getKey());
+                            }
+                        }
+                    }
                 }
-            }));
+            }
         }
+        int extraPairs = (int) all.stream().filter(p -> !fromFirstOrder.contains(p)).count();
 
         // 3. confirm (pairwise), candidates ordered by structured score then id
         Map<String, Finding> byId = new HashMap<>();
@@ -126,7 +153,7 @@ public class MatchingPipeline {
         } catch (java.util.concurrent.ExecutionException ex) {
             throw new IllegalStateException("judge call crashed: " + ex.getCause().getMessage(), ex.getCause());
         }
-        return new Decisions(structured, screenedByItem, verdicts, dropped, errors);
+        return new Decisions(structured, screenedByItem, verdicts, dropped, errors, extraPairs);
     }
 
     /** One-to-one assignment over the given findings; lenient also accepts "partial". item id -> finding id. */
@@ -148,6 +175,11 @@ public class MatchingPipeline {
         }
         return out;
     }
+
+    /** Findings ordered by what they say (not by id, which depends on the run): file, symbol, title, evidence, CWE. */
+    static final Comparator<Finding> CONTENT_ORDER = Comparator.comparing((Finding f) -> String.valueOf(f.location().file()))
+            .thenComparing(f -> String.valueOf(f.location().symbol())).thenComparing(Finding::title)
+            .thenComparing(Finding::evidence).thenComparing(f -> String.valueOf(f.cwe()));
 
     /**
      * Items the judge said a (given) finding matches, but that the one-to-one assignment left without credit because

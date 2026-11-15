@@ -21,7 +21,8 @@ public record Metrics(int schemaVersion, String headlineMode, String label, bool
                          double recallStrict, double recallLenient, double recallStrictInclUnverified,
                          Double precisionStrict, Double precisionLenient,
                          Map<String, String> matchedStrict, Map<String, String> matchedLenient, List<String> uncreditedStrict,
-                         Map<String, Long> unitStatus, int judgeCalls, int judgeErrors, int prefilterDropped) {
+                         Map<String, Long> unitStatus, int judgeCalls, int judgeErrors, int prefilterDropped,
+                         int screenExtraPairs) {
     }
 
     /** Per item and arm: run hit counts (k of N), strict and lenient. */

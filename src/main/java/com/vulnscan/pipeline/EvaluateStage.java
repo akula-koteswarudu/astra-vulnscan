@@ -42,7 +42,8 @@ public class EvaluateStage {
         MatchingPipeline matching = new MatchingPipeline(new StructuredScorer(e.config().matching(), appNames),
                 new Judge(e.models().forModel(judgeName, usage), e.spec(judgeName), e.prompts().get("judge_screen", "v1"),
                         e.prompts().get("judge_confirm", "v1")),
-                e.config().matching().prefilterMinScore(), cfg.evaluate().screenBatchSize(), e.spec(judgeName).concurrency());
+                e.config().matching().prefilterMinScore(), cfg.evaluate().screenBatchSize(), e.spec(judgeName).concurrency())
+                .withScreenOrders(cfg.evaluate().screenOrders());
         Evaluator evaluator = new Evaluator(matching);
 
         List<Evaluator.ArmRunInput> students = new ArrayList<>();
@@ -132,7 +133,9 @@ public class EvaluateStage {
         String perArm = head.armRuns().stream()
                 .map(r -> r.arm() + " run " + r.run() + " " + Math.round(r.recallStrict() * head.items()) + "/" + head.items())
                 .collect(Collectors.joining(", "));
+        int extra = m.modes().stream().flatMap(x -> x.armRuns().stream()).mapToInt(Metrics.ArmRun::screenExtraPairs).sum();
         return "evaluate (" + head.mode() + ", " + head.label() + ", strict, verified): " + perArm
+                + "; quick-look pairs found only by extra orders: " + extra
                 + (m.lift().lift() == null ? "" : String.format("; lift %+.1f points", 100 * m.lift().lift()));
     }
 
