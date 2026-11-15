@@ -178,4 +178,10 @@ class ExperimentTest {
         assertThatThrownBy(() -> RunStore.resume(e.store().dir(), "0".repeat(64))).isInstanceOf(UserFacingException.class)
                 .hasMessageContaining("different configuration");
     }
+
+    @Test
+    void unknownArmIsAOneLineUserError() {
+        org.assertj.core.api.Assertions.assertThatThrownBy(() -> Arm.of("studnet"))
+                .isInstanceOf(UserFacingException.class).hasMessageContaining("known: teacher");
+    }
 }

@@ -40,13 +40,13 @@ public class PromptLibrary {
     private Prompt load(String type, String version) {
         Path file = dir.resolve(type).resolve(version + ".md");
         if (!Files.isRegularFile(file)) {
-            throw new IllegalArgumentException("prompt not found: " + file);
+            throw new com.vulnscan.UserFacingException("prompt not found: " + file);
         }
         String text = Files2.read(file);
         int s = text.indexOf(SYSTEM_MARK);
         int u = text.indexOf(USER_MARK);
         if (s < 0 || u < s) {
-            throw new IllegalArgumentException(file + " must contain '" + SYSTEM_MARK + "' followed by '" + USER_MARK + "'");
+            throw new com.vulnscan.UserFacingException(file + " must contain '" + SYSTEM_MARK + "' followed by '" + USER_MARK + "'");
         }
         String system = text.substring(s + SYSTEM_MARK.length(), u).strip();
         String user = text.substring(u + USER_MARK.length());

@@ -92,7 +92,7 @@ public class ConfigLoader {
         ObjectNode runs = merged.with("runs");
         ObjectNode arms = merged.with("arms");
         int studentRuns = "full".equals(profile) ? 3 : 1;
-        boolean checklist = "full".equals(profile);
+        boolean checklist = false; // the plan's full profile also adds a checklist arm; not built, so off until it exists
         setIfAbsent(runs, appTree.path("runs"), "teacher_runs", 1);
         setIfAbsent(runs, appTree.path("runs"), "student_runs", studentRuns);
         setIfAbsent(arms, appTree.path("arms"), "checklist_control", checklist);
@@ -166,6 +166,15 @@ public class ConfigLoader {
         }
         if (app.distill().sanitizer().onViolation() == AppConfig.OnViolation.REWRITE) {
             errors.add("distill.sanitizer.on_violation rewrite is not built yet (use redact or drop)");
+        }
+        if (app.planning().hopLimit() != 1) {
+            errors.add("planning.hop_limit other than 1 is not built yet (the text graph adds direct neighbours only)");
+        }
+        if (app.evaluate().countUnverified()) {
+            errors.add("evaluate.count_unverified is not built as a headline switch (the report always shows an 'incl. unverified' column)");
+        }
+        if (app.evaluate().auditFile() != null) {
+            errors.add("evaluate.audit_file is not built yet (use 'vulnscan audit export' and 'vulnscan audit score')");
         }
         if (app.arms().checklistControl()) {
             errors.add("arms.checklist_control (the full profile's checklist arm) is not built yet");

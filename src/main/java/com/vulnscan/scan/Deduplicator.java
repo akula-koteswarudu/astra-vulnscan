@@ -82,7 +82,9 @@ public class Deduplicator {
         if (!Objects.equals(a.location().file(), b.location().file())) {
             return false;
         }
-        if (a.cwe() != null && a.cwe().equals(b.cwe()) && Objects.equals(a.location().symbol(), b.location().symbol())) {
+        boolean noFile = a.location().file() == null;
+        boolean componentsClash = noFile && !Objects.equals(a.location().component(), b.location().component());
+        if (!componentsClash && a.cwe() != null && a.cwe().equals(b.cwe()) && Objects.equals(a.location().symbol(), b.location().symbol())) {
             return true;
         }
         if (linesOverlap(a.location(), b.location()) && sameGroup(a.cwe(), b.cwe())) {

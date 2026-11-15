@@ -208,4 +208,10 @@ class LessonSanitizerTest {
         LessonSelector.Selection tight = new LessonSelector(15, oneLesson, new TokenEstimator(4, 0)).select(List.of(a, b, c), sev, support);
         assertThat(tight.selected()).extracting(Lesson::id).containsExactly("L03");
     }
+
+    @Test
+    void redactionReplacesWholeLiteralsOnly() {
+        String out = sanitizer(OnViolation.REDACT).redactText("compare with hunter22 but not hunter22x");
+        assertThat(out).contains("<String>").contains("hunter22x");
+    }
 }

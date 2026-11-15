@@ -224,7 +224,7 @@ public class Experiment {
                     store.writeJson(dir + "raw/" + r.unitId() + ".json", rawRecord(r));
                     synchronized (done) {
                         done[0]++;
-                        progress.accept(String.format("  [%d/%d] unit %s: %s, %d finding(s)%s", done[0], total, r.unitId(),
+                        progress.accept(String.format("  [%d/%d] unit %s: %s, %d raw finding(s)%s", done[0], total, r.unitId(),
                                 r.status(), r.findings().size(), r.anyCached() ? " (cached)" : ""));
                     }
                     store.log("unit_done", Map.of("arm", arm.id, "run", run, "unit", r.unitId(), "status", r.status()));

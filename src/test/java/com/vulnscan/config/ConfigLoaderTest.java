@@ -78,9 +78,20 @@ class ConfigLoaderTest {
     }
 
     @Test
-    void fullProfileAsksForUnbuiltChecklistArm() throws IOException {
-        Path p = write("a.yaml", "profile: full\napp: {name: x, input: y}\n");
+    void fullProfileGivesThreeStudentRunsAndLeavesTheUnbuiltChecklistArmOff() throws IOException {
+        LoadedConfig c = loader.load(write("a.yaml", "profile: full\napp: {name: x, input: y}\n"));
+        assertThat(c.app().runs().studentRuns()).isEqualTo(3);
+        assertThat(c.app().arms().checklistControl()).isFalse();
+        Path p = write("b.yaml", "profile: full\napp: {name: x, input: y}\narms: {checklist_control: true}\n");
         assertThatThrownBy(() -> loader.load(p)).hasMessageContaining("checklist_control");
+    }
+
+    @Test
+    void optionsThatNothingReadsAreRejectedUnlessDefault() throws IOException {
+        Path p = write("a.yaml", "app: {name: x, input: y}\nplanning: {hop_limit: 2}\n"
+                + "evaluate: {count_unverified: true, audit_file: labels.csv}\n");
+        assertThatThrownBy(() -> loader.load(p))
+                .hasMessageContaining("hop_limit").hasMessageContaining("count_unverified").hasMessageContaining("audit_file");
     }
 
     @Test

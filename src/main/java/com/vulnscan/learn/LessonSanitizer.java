@@ -226,7 +226,9 @@ public class LessonSanitizer {
         s = LINE_REF.matcher(s).replaceAll("<line>");
         for (String lit : literals.stream().sorted((a, b) -> b.length() - a.length()).toList()) {
             if (containsLiteral(s, lit)) {
-                s = s.replace(lit, "<String>");
+                s = lit.chars().allMatch(c -> Character.isLetterOrDigit(c) || c == '_')
+                        ? Pattern.compile("(?<![\\w$])" + Pattern.quote(lit) + "(?![\\w$])").matcher(s).replaceAll("<String>")
+                        : s.replace(lit, "<String>");
             }
         }
         for (Map.Entry<String, Pattern> e : tier1Patterns.entrySet()) {

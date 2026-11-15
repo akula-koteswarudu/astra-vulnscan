@@ -246,6 +246,10 @@ class MatchingTest {
         TeacherFindingsReference ref = new TeacherFindingsReference(List.of(t));
         assertThat(ref.isGroundTruth()).isFalse();
         assertThat(ref.items().get(0).locations().get(0).clazz()).isEqualTo("WebActivity");
+        TeacherFindingsReference qualified = new TeacherFindingsReference(List.of(
+                finding("t2", "WebView", "CWE-749", "com.example.app.WebActivity.onCreate", "verified_exact")));
+        assertThat(qualified.items().get(0).locations().get(0).clazz()).isEqualTo("com.example.app.WebActivity");
+        assertThat(qualified.items().get(0).locations().get(0).method()).isEqualTo("onCreate");
         Evaluator ev = new Evaluator(pipeline(judge(u -> "match"), List.of()));
         Metrics.Mode m = ev.evaluate(ref, List.of(new Evaluator.ArmRunInput("student_baseline", 1, "m",
                 List.of(finding("s1", "WebView", "CWE-749", "WebActivity.onCreate", "verified_exact")), Map.of())), false).metrics();

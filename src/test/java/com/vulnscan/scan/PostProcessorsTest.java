@@ -230,6 +230,16 @@ class PostProcessorsTest {
     }
 
     @Test
+    void findingsWithoutAFileMergeOnlyForTheSameComponent() {
+        Deduplicator d = new Deduplicator(Map.of());
+        Finding a = new Finding("1", "t", "c", "CWE-926", null, "low", 0.5, new Finding.Location(null, "x.A", null, null, null),
+                "e1", "r", "manifest", "verified_exact", false, new Finding.Provenance("m", "arm", "r", 0, List.of("u1"), "v1"));
+        Finding b = new Finding("2", "t", "c", "CWE-926", null, "low", 0.5, new Finding.Location(null, "x.B", null, null, null),
+                "e2", "r", "manifest", "verified_exact", false, new Finding.Provenance("m", "arm", "r", 0, List.of("u2"), "v1"));
+        assertThat(d.dedup(List.of(a, b))).hasSize(2);
+    }
+
+    @Test
     void wholeManifestTagNeedsAgreeingCwes() {
         Deduplicator d = new Deduplicator(Map.of());
         String tag = "<provider android:authorities=\"a.b\" android:exported=\"true\">";

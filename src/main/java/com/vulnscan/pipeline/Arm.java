@@ -20,6 +20,6 @@ public enum Arm {
 
     public static Arm of(String id) {
         return Arrays.stream(values()).filter(a -> a.id.equals(id)).findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("unknown arm '" + id + "' (known: teacher, student_baseline, student_with_lessons)"));
+                .orElseThrow(() -> new com.vulnscan.UserFacingException("unknown arm '" + id + "' (known: teacher, student_baseline, student_with_lessons)"));
     }
 }

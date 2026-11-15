@@ -15,9 +15,10 @@ public class TeacherFindingsReference implements ReferenceSource {
     public TeacherFindingsReference(List<Finding> verifiedTeacherFindings) {
         int i = 1;
         for (Finding f : verifiedTeacherFindings) {
-            String clazz = f.location().symbol() == null ? null : f.location().symbol().split("\\.")[0];
-            String method = f.location().symbol() != null && f.location().symbol().contains(".")
-                    ? f.location().symbol().substring(f.location().symbol().indexOf('.') + 1) : null;
+            String symbol = f.location().symbol();
+            int dot = symbol == null ? -1 : symbol.lastIndexOf('.');
+            String clazz = symbol == null ? null : dot < 0 ? symbol : symbol.substring(0, dot);
+            String method = dot < 0 ? null : symbol.substring(dot + 1);
             items.add(new ReferenceItem("T-%02d".formatted(i++), f.title(), f.rationale(),
                     f.cwe() == null ? null : List.of(f.cwe()),
                     List.of(new ReferenceItem.Place(f.location().component(), clazz, method, f.location().file())),

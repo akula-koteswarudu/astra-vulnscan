@@ -87,6 +87,10 @@ public class JadxDecompiler implements Decompiler {
             }
             DecompileStats stats = countMarkers(tmp, result.exitCode(), partial, duration);
             Files2.writeJson(tmp.resolve(STATS_FILE), new CachedStats(version, stats));
+            if (Files.exists(target)) {
+                // a cache hit returned earlier, so this is a leftover without stats (e.g. an interrupted copy): replace it
+                Files2.deleteRecursively(target);
+            }
             Files.move(tmp, target, StandardCopyOption.ATOMIC_MOVE);
             return new DecompiledApp(sha, layoutDetector.detect(target), "jadx", version, stats, false);
         } catch (IOException e) {

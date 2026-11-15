@@ -66,6 +66,7 @@ public class MarkdownReport {
         c.put("app", in.app());
         c.put("run_id", in.runId());
         c.put("profile", in.profile());
+        c.put("student_runs", m.lift() == null ? "?" : m.lift().recallByArm().values().stream().mapToInt(Metrics.Stat::runs).max().orElse(1));
         c.put("teacher_reference", !gt);
         c.put("ground_truth", gt);
         c.put("metric_label", gt ? "Recall" : "Agreement with teacher");
