@@ -31,6 +31,7 @@ planning:
   prioritizer_signals_file: null
 scan:
   prompt_version: v2              # v1 + one entry per distinct root cause
+  dedup: lossless                  # lossless: merge duplicates keeping every location | off: no merging (ablation)
   perturb_order: false             # true: runs 2+ shuffle file and lesson order (stability check at temperature 0)
   evidence:
     fuzzy_threshold: 90

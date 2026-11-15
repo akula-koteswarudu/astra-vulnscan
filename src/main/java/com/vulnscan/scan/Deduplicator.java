@@ -17,12 +17,24 @@ import java.util.TreeSet;
 public class Deduplicator {
 
     private final Map<String, List<String>> cweGroups;
+    private final boolean enabled;
 
     public Deduplicator(Map<String, List<String>> cweGroups) {
+        this(cweGroups, true);
+    }
+
+    /** enabled = false: no merging at all (scan.dedup: off, for an ablation); findings are only sorted. */
+    public Deduplicator(Map<String, List<String>> cweGroups, boolean enabled) {
         this.cweGroups = cweGroups;
+        this.enabled = enabled;
     }
 
     public List<Finding> dedup(List<Finding> findings) {
+        if (!enabled) {
+            List<Finding> all = new ArrayList<>(findings);
+            all.sort(Comparator.comparing(Finding::id));
+            return all;
+        }
         List<Finding> sorted = new ArrayList<>(findings);
         sorted.sort(Comparator.comparingInt((Finding f) -> statusRank(f.evidenceStatus()))
                 .thenComparing(Comparator.comparingDouble(Finding::confidence).reversed())
@@ -88,13 +100,23 @@ public class Deduplicator {
         return cweGroups.values().stream().anyMatch(g -> g.contains(a) && g.contains(b));
     }
 
+    /** Lossless: the kept copy gets every location of the other copy in alsoAt; nothing is discarded. */
     private static Finding merge(Finding keep, Finding other) {
         TreeSet<String> units = new TreeSet<>(keep.provenance().unitIds());
         units.addAll(other.provenance().unitIds());
         Finding.Provenance p = keep.provenance();
+        List<Finding.Location> also = new ArrayList<>(keep.alsoAt() == null ? List.of() : keep.alsoAt());
+        for (Finding.Location l : other.allLocations()) {
+            if (!l.equals(keep.location()) && !also.contains(l)) {
+                also.add(l);
+            }
+        }
+        also.sort(Comparator.comparing((Finding.Location l) -> String.valueOf(l.file())).thenComparing(l -> String.valueOf(l.symbol()))
+                .thenComparing(l -> String.valueOf(l.line())));
         return new Finding(keep.id(), keep.title(), keep.vulnClass(), keep.cwe(), keep.owaspCategory(), keep.severity(),
                 Math.max(keep.confidence(), other.confidence()), keep.location(), keep.evidence(), keep.rationale(), keep.kind(),
                 keep.evidenceStatus(), keep.needsAdvisoryCheck(),
-                new Finding.Provenance(p.modelUsed(), p.arm(), p.runId(), p.repeatIndex(), List.copyOf(units), p.promptVersion()));
+                new Finding.Provenance(p.modelUsed(), p.arm(), p.runId(), p.repeatIndex(), List.copyOf(units), p.promptVersion()),
+                List.copyOf(also));
     }
 }

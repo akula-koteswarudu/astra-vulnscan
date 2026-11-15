@@ -167,6 +167,18 @@ class PostProcessorsTest {
     }
 
     @Test
+    void mergeIsLosslessAndCanBeSwitchedOff() {
+        Finding a = finding("1", A, "A.onCreate", "CWE-926", 3, 0.6, "u1", "verified_exact");
+        Finding b = new Finding("2", "t", "c", "CWE-926", null, "high", 0.6, new Finding.Location(A, null, "Recv.onReceive", 3, 4), "e", "r",
+                "code", "relocated", false, new Finding.Provenance("m", "arm", "r", 0, List.of("u1"), "v1"));
+        Finding merged = new Deduplicator(Map.of()).dedup(List.of(b, a)).get(0);
+        assertThat(merged.location().symbol()).isEqualTo("A.onCreate");
+        assertThat(merged.alsoAt()).extracting(Finding.Location::symbol).containsExactly("Recv.onReceive");
+        assertThat(merged.allLocations()).hasSize(2);
+        assertThat(new Deduplicator(Map.of(), false).dedup(List.of(b, a))).hasSize(2);
+    }
+
+    @Test
     void dedupPrefersTheVerifiedCopy() {
         Deduplicator d = new Deduplicator(Map.of());
         List<Finding> out = d.dedup(List.of(

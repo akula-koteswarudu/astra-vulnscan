@@ -183,6 +183,10 @@ public class Judge {
         if (f.location().component() != null) {
             where = "component " + f.location().component() + ", " + where;
         }
+        if (f.alsoAt() != null && !f.alsoAt().isEmpty()) {
+            where += " (also at: " + f.alsoAt().stream().map(l -> l.symbol() != null ? l.symbol() : String.valueOf(l.file()))
+                    .distinct().collect(java.util.stream.Collectors.joining("; ")) + ")";
+        }
         int evidenceMax = compact ? 200 : 600;
         int rationaleMax = compact ? 200 : 500;
         String evidence = f.evidence().strip().replaceAll("\\s+", " ");

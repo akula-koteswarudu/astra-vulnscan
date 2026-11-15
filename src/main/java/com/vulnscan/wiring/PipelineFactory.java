@@ -101,7 +101,7 @@ public class PipelineFactory {
         }
         PromptLibrary prompts = prompts();
         return new Experiment(cfg, store, manifest, appPreparer(cfg), resolve(cfg.app().app().input()), prompts,
-                planner(cfg, prompts), modelClients(cfg), new ArmScanner(new Deduplicator(cfg.matching().cweGroups())), later, progress);
+                planner(cfg, prompts), modelClients(cfg), new ArmScanner(new Deduplicator(cfg.matching().cweGroups(), cfg.app().scan().dedup() == AppConfig.Dedup.LOSSLESS)), later, progress);
     }
 
     /** An existing run opened for offline re-evaluation (no config-hash check; see RunStore.openForEvaluation). */
@@ -111,7 +111,7 @@ public class PipelineFactory {
         Map<String, Object> existing = store.readJson("manifest.json", Map.class);
         PromptLibrary prompts = prompts();
         return new Experiment(cfg, store, RunManifest.from(existing), appPreparer(cfg), resolve(cfg.app().app().input()), prompts,
-                planner(cfg, prompts), modelClients(cfg), new ArmScanner(new Deduplicator(cfg.matching().cweGroups())), later, progress);
+                planner(cfg, prompts), modelClients(cfg), new ArmScanner(new Deduplicator(cfg.matching().cweGroups(), cfg.app().scan().dedup() == AppConfig.Dedup.LOSSLESS)), later, progress);
     }
 
     private RunManifest newManifest(LoadedConfig cfg) {

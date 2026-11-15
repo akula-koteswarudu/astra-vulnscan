@@ -89,7 +89,13 @@ public record AppConfig(
      * student arms); run 1 keeps the original order. Measures how stable a temperature-0 result is under content-neutral
      * prompt changes.
      */
-    public record Scan(@NotBlank String promptVersion, @NotNull @Valid Evidence evidence, boolean perturbOrder) {
+    public record Scan(@NotBlank String promptVersion, @NotNull @Valid Evidence evidence, boolean perturbOrder, @NotNull Dedup dedup) {
+    }
+
+    /** lossless: merge duplicates, keeping every location (default); off: no merging (ablation). */
+    public enum Dedup {
+        @JsonProperty("lossless") LOSSLESS,
+        @JsonProperty("off") OFF
     }
 
     public record Evidence(@Min(0) int fuzzyThreshold, @Min(0) int minEvidenceChars) {

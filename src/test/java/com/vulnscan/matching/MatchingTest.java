@@ -92,6 +92,17 @@ class MatchingTest {
     }
 
     @Test
+    void mergedLocationsAreSeenByTheScorerAndTheJudge() {
+        Finding f = new Finding("f", "Dynamic receiver", "c", "CWE-926", null, "high", 0.8,
+                new Finding.Location("sources/a/Recv.java", null, "Recv.onReceive", 3, 3), "e", "r", "code", "verified_exact", false,
+                new Finding.Provenance("m", "a", "r", 0, List.of("u"), "v1"),
+                List.of(new Finding.Location("sources/a/AboutUsActivity.java", null, "AboutUsActivity.onCreate", 5, 5)));
+        StructuredScorer s = new StructuredScorer(CFG, List.of("AboutUsActivity"));
+        assertThat(s.score(readmeItem("GT-09", "Receiver", "registered in AboutUsActivity onCreate"), f).location()).isEqualTo(0.8);
+        assertThat(Judge.describeFinding(f, false)).contains("also at: AboutUsActivity.onCreate");
+    }
+
+    @Test
     void descriptionHintsAreExactAppNames() {
         StructuredScorer s = new StructuredScorer(CFG, List.of("ChooserActivity", "Util", "web_url"));
         ReferenceItem item = readmeItem("GT-7", "Theft", "Steal files via ChooserActivity using the 'web_url' parameter.");

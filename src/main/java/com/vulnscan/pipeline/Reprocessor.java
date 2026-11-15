@@ -42,7 +42,7 @@ public class Reprocessor {
         PreparedApp app = e.app();
         EvidenceVerifier verifier = new EvidenceVerifier(app.code(), ev.fuzzyThreshold(), ev.minEvidenceChars());
         String promptVersion = runPromptVersion(e);
-        Deduplicator dedup = new Deduplicator(e.config().matching().cweGroups());
+        Deduplicator dedup = new Deduplicator(e.config().matching().cweGroups(), e.config().app().scan().dedup() == AppConfig.Dedup.LOSSLESS);
         ScanUnit wholeApp = wholeApp(app.model());
         for (Arm arm : Arm.values()) {
             List<Integer> runs = e.runsOf(arm);

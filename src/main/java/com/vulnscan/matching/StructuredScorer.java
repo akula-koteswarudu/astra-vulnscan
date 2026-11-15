@@ -31,11 +31,14 @@ public class StructuredScorer {
     public Score score(ReferenceItem item, Finding f) {
         Double location = null;
         if (item.locations() != null && !item.locations().isEmpty()) {
-            location = item.locations().stream().mapToDouble(p -> placeScore(p, f)).max().orElse(0);
+            location = item.locations().stream()
+                    .mapToDouble(p -> f.allLocations().stream().mapToDouble(l -> placeScore(p, f.atLocation(l))).max().orElse(0))
+                    .max().orElse(0);
         }
         List<String> hints = hints(item);
         if (!hints.isEmpty()) {
-            double hintScore = hints.stream().anyMatch(h -> mentions(f, h)) ? cfg.locationScores().clazz() : 0;
+            double hintScore = hints.stream().anyMatch(h -> f.allLocations().stream().anyMatch(l -> mentions(f.atLocation(l), h)))
+                    ? cfg.locationScores().clazz() : 0;
             location = location == null ? hintScore : Math.max(location, hintScore);
         }
         Double cwe = null;
