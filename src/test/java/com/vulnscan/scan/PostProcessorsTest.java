@@ -81,8 +81,23 @@ class PostProcessorsTest {
         assertThat(ok.endLine()).isEqualTo(5);
         var invented = verifier.verify(f(A, "Uri uri = Uri.fromFile(new File(extraPath));\nRuntime.getRuntime().exec(cmdFromIntent);", "code"), unit);
         assertThat(invented.status()).isEqualTo("unverified");
+        // real lines in a different order (e.g. "setting, then the call") are accepted within a small span
         var reversed = verifier.verify(f(A, "makeTempCopy(uri, getFilename(uri));\nUri uri = Uri.fromFile(new File(extraPath));", "code"), unit);
-        assertThat(reversed.status()).isNotEqualTo("verified_fuzzy");
+        assertThat(reversed.status()).isEqualTo("verified_fuzzy");
+        assertThat(reversed.line()).isEqualTo(3);
+        assertThat(reversed.endLine()).isEqualTo(5);
+    }
+
+    @Test
+    void rearrangedLinesFarApartAreNotAccepted() throws IOException {
+        StringBuilder far = new StringBuilder("class A {\n    void go() { settings.setAllowFileAccessFromFileURLs(true); }\n");
+        for (int i = 0; i < 40; i++) {
+            far.append("    int filler").append(i).append(" = 0;\n");
+        }
+        far.append("    void later() { webView.loadUrl(getIntent().getStringExtra(\"url\")); }\n}\n");
+        Files.writeString(dir.resolve(A), far.toString());
+        var c = verifier.verify(f(A, "webView.loadUrl(getIntent().getStringExtra(\"url\"));\nsettings.setAllowFileAccessFromFileURLs(true);", "code"), unit);
+        assertThat(c.status()).isEqualTo("unverified");
     }
 
     @Test

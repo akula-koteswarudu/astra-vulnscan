@@ -17,6 +17,9 @@ import java.util.regex.Pattern;
  *   <li>a quote that skipped lines (models drop decompiler noise such as Kotlin null checks) or abbreviated with "...":
  *       every quoted line / fragment of at least 10 characters appears verbatim, in order, in the cited file, with at
  *       most MAX_SKIPPED_LINES lines between consecutive quoted lines -> verified_fuzzy;</li>
+ *   <li>a quote whose real lines were rearranged (e.g. "setting, then the call that uses it"): every quoted line /
+ *       fragment of at least 10 characters appears verbatim in the cited file, in any order, all within
+ *       MAX_REARRANGED_SPAN lines -> verified_fuzzy;</li>
  *   <li>fuzzy (partial ratio &gt;= threshold, at least min_evidence_chars) in the cited file -> verified_fuzzy;</li>
  *   <li>otherwise unverified.</li>
  * </ol>
@@ -27,6 +30,8 @@ public class EvidenceVerifier {
     private static final Pattern ELLIPSIS = Pattern.compile("\\.\\.\\.|…");
     /** Lines a model may leave out between two quoted lines (e.g. jadx's Intrinsics null checks). */
     static final int MAX_SKIPPED_LINES = 3;
+    /** A quote whose real lines the model rearranged: all lines must lie within this many lines of each other. */
+    static final int MAX_REARRANGED_SPAN = 20;
 
     private final CodeBase code;
     private final int fuzzyThreshold;
@@ -83,6 +88,12 @@ public class EvidenceVerifier {
         }
         if (cited != null && f.evidence().strip().contains("\n") && evidence.length() >= minEvidenceChars) {
             Check c = linesWithGaps(f.evidence(), cited);
+            if (c != null) {
+                return c;
+            }
+        }
+        if (cited != null && evidence.length() >= minEvidenceChars) {
+            Check c = rearranged(f.evidence(), cited);
             if (c != null) {
                 return c;
             }
@@ -184,6 +195,60 @@ public class EvidenceVerifier {
             }
         }
         return null;
+    }
+
+    /** Every quoted line or "..." fragment (>= 10 chars) occurs verbatim in the file, any order, within a small span. */
+    private Check rearranged(String rawEvidence, String path) {
+        List<String> quoted = new ArrayList<>();
+        for (String line : rawEvidence.split("\\R")) {
+            for (String part : ELLIPSIS.split(line)) {
+                String q = TextMatch.normalize(part);
+                if (q.length() >= 10) {
+                    quoted.add(q);
+                }
+            }
+        }
+        if (quoted.size() < 2) {
+            return null;
+        }
+        String[] fileLines = code.text(path).split("\\R", -1);
+        List<List<Integer>> where = new ArrayList<>();
+        for (String q : quoted) {
+            List<Integer> hits = new ArrayList<>();
+            for (int i = 0; i < fileLines.length; i++) {
+                if (TextMatch.normalize(fileLines[i]).contains(q)) {
+                    hits.add(i);
+                }
+            }
+            if (hits.isEmpty()) {
+                return null; // an invented line: never accepted
+            }
+            where.add(hits);
+        }
+        // Smallest window containing one occurrence of every quoted line (tiny lists: brute force over the first line's hits).
+        int bestLo = -1;
+        int bestHi = -1;
+        for (int anchor : where.get(0)) {
+            int lo = anchor;
+            int hi = anchor;
+            boolean ok = true;
+            for (List<Integer> hits : where.subList(1, where.size())) {
+                int best = -1;
+                for (int h : hits) {
+                    if (best < 0 || Math.abs(h - anchor) < Math.abs(best - anchor)) {
+                        best = h;
+                    }
+                }
+                lo = Math.min(lo, best);
+                hi = Math.max(hi, best);
+                ok &= hi - lo <= MAX_REARRANGED_SPAN;
+            }
+            if (ok && (bestLo < 0 || hi - lo < bestHi - bestLo)) {
+                bestLo = lo;
+                bestHi = hi;
+            }
+        }
+        return bestLo < 0 ? null : new Check("verified_fuzzy", path, bestLo + 1, bestHi + 1, false);
     }
 
     /** The unit file the model meant: exact path, else the unique unit file whose path ends with what was cited. */
