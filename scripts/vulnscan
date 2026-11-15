@@ -1,8 +1,12 @@
 #!/usr/bin/env bash
 # Runs the CLI with the project-local JDK. Build first: ./mvnw -q -DskipTests package
+# Runs from a private copy of the jar, so rebuilding during a long run cannot break the running process.
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 # shellcheck disable=SC1091
 source "$ROOT/scripts/env.sh"
 cd "$ROOT"
-exec java -jar "$ROOT/target/vulnscan.jar" "$@"
+JAR="$(mktemp "${TMPDIR:-/tmp}/vulnscan-XXXXXX").jar"
+cp "$ROOT/target/vulnscan.jar" "$JAR"
+trap 'rm -f "$JAR"' EXIT
+java -jar "$JAR" "$@"

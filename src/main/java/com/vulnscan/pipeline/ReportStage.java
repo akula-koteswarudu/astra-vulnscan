@@ -104,9 +104,7 @@ public class ReportStage {
         @SuppressWarnings("unchecked")
         Map<String, String> prompts = new TreeMap<>((Map<String, String>) manifest.getOrDefault("prompts", Map.of()));
 
-        String audit = cfg.evaluate().auditFile() == null
-                ? "Not run yet: `vulnscan audit export` / `vulnscan audit score` (hand labels of every judge decision) come in the next phase."
-                : "See 07_evaluate/audit/.";
+        String audit = auditSentence(s);
         MarkdownReport.Inputs in = new MarkdownReport.Inputs(cfg.app().name(), s.runId(), cfg.profile().name().toLowerCase(), metrics,
                 lessons, violations, policy, droppedSanitiser, droppedCaps, usage(s.dir()), coverage, decompile, prompts,
                 teacherPlan.mode(), teacherPlan.units().size(), studentPlan.mode(), studentPlan.units().size(), audit, LIMITATIONS,
@@ -114,6 +112,21 @@ public class ReportStage {
         s.writeText("report.md", new MarkdownReport().render(in));
         s.writeText("report.html", new com.vulnscan.report.HtmlReport().render(in));
         e.progress().accept("report: " + s.path("report.html") + " (and report.md)");
+    }
+
+    static String auditSentence(RunStore s) {
+        if (!s.exists("07_evaluate/audit/score.json")) {
+            return "Not run yet for this run: `vulnscan audit export` writes blind rows to label, `vulnscan audit score` measures agreement.";
+        }
+        Map<String, Object> f = read(s.path("07_evaluate/audit/score.json"), new TypeReference<>() { });
+        Map<?, ?> sc = (Map<?, ?>) f.get("score");
+        Object kappa = sc.get("cohens_kappa");
+        return String.format("%s labelled rows (README mode): raw agreement with the judge %.0f%%, %.0f%% when partial counts as match, "
+                        + "Cohen's kappa %s; %s screened-out pair(s) labelled match (matches the quick look missed); %s disagreement(s), listed in "
+                        + "07_evaluate/audit/score.json. Labels file: %s.",
+                sc.get("labelled"), 100 * ((Number) sc.get("raw_agreement")).doubleValue(), 100 * ((Number) sc.get("collapsed_agreement")).doubleValue(),
+                kappa == null ? "n/a" : String.format("%.2f", ((Number) kappa).doubleValue()), sc.get("screened_out_labelled_match"),
+                ((List<?>) sc.get("disagreements")).size(), f.get("labels_file"));
     }
 
     /** Every usage.json in the run folder, in path order (scan arms, lessons, evaluation). */
