@@ -1,0 +1,23 @@
+# Core experiment as run with scan prompt v2 (then the default), deterministic, 1 run per arm.
+# Per-app config for InsecureShop. Anything not stated here comes from the built-in defaults
+# (src/main/resources/config-defaults.yaml); runs.* and arms.* come from the profile.
+profile: assignment                 # assignment | full
+runs: {student_runs: 1}             # deterministic core run (temperature 0, seed 42): one run is the result
+models_file: configs/models.yaml
+matching_file: configs/matching.yaml
+app:
+  name: insecureshop
+  input: apps/InsecureShop.apk      # repo-relative; .apk or a decompiled directory (jadx or apktool layout)
+  input_sha256: a83298ae4a37fcab8101e8b41e513dd2199af71a94ea537d556a318e07d4d1bd
+  ground_truth: ground_truth/insecureshop.yaml
+decompile:
+  jadx_path: .tools/jadx/bin/jadx
+  show_bad_code: true
+  timeout_s: 900
+  java_opts: "-Xmx3g"
+scan:
+  prompt_version: v2
+planning:
+  mode: auto                        # auto | whole | chunked
+evaluate:
+  headline: readme                  # readme | enriched

@@ -202,3 +202,9 @@ Format: `[step] status: notes`. Deviations are marked **DEVIATION**.
 | OVAA v3 order-perturbed | 15/18 | 11, 10, 11 (10.7) | 10, 11, 11 (10.7) | 0.0 |
 | **OVAA v4 order-perturbed** | 15/18 | 11, 10, 11 (10.7) | **12, 11, 10 (11.0)** | **+0.3** |
 - Reading: v4's "lessons add to your own review" header raised the in-sample lift (+3.7 → +4.7; every with-lessons run beats every baseline run; one run equals the teacher). On OVAA the with-lessons student is now at parity with its baseline (no harm, no measurable gain): the earlier OVAA losses were partly a measurement artefact (rearranged quotes rejected) and partly over-focus. Transfer of InsecureShop lessons to a different app remains unproven.
+
+### Defaults and Dockerfile (step 16)
+- **Scan prompt v4 is now the default** (`scan.prompt_version: v4`, `prompt_overhead_tokens` 1,200). Experiment configs that used the previous default pin their version (`insecureshop_sampling.yaml` → v2; new `insecureshop_scan_v2.yaml` reproduces the v2 core run), so earlier runs stay reproducible.
+- **Dockerfile** (multi-stage): build stage = Temurin 21.0.13+9 JDK (pinned by tag + digest, same JDK as `.tools/jdk`), Maven via the checksum-pinned wrapper, dependencies cached in a layer, tests run during the build (they need no network); jadx stage = jadx 1.5.6 release zip with sha256 check; runtime = Temurin 21.0.13+9 JRE (tag + digest), non-root user, jadx placed at `/app/.tools/jadx` so configs work unchanged; keys only via `--env-file`; `apps/`, `runs/`, `cache/` as volumes. `.dockerignore` keeps `.env`, `.git`, `.tools`, runs, caches and APKs out of the build context.
+- **Not verified yet:** Docker is not installed on this machine, and the plan allows Docker Desktop only after asking the user. Done-when (`docker build` + `docker run` reproduces a run) is pending that decision.
+- Commits from now on need the repo's git identity set by the user (a privacy plugin blocks commands that carry the email address).

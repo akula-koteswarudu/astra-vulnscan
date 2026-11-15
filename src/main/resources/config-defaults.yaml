@@ -23,14 +23,14 @@ planning:
   hop_limit: 1
   token_estimate_chars_per_token: 4
   token_estimate_margin: 0.15
-  prompt_overhead_tokens: 1000      # measured: scan system prompt ~870 tokens + markers
+  prompt_overhead_tokens: 1200      # measured: scan system prompt v4 ~1,090 tokens + markers
   reserved_guidance_tokens: 4000   # room for all lessons (~3.2K tokens) in every student request
   max_units: null
   min_code_budget_tokens: 2000
   graph_builder: text_reference
   prioritizer_signals_file: null
 scan:
-  prompt_version: v2              # v1 + one entry per distinct root cause
+  prompt_version: v4              # v1 + root-cause splitting (v2) + inter-component hints (v3) + 'lessons add to your own review' (v4)
   dedup: lossless                  # lossless: merge duplicates keeping every location | off: no merging (ablation)
   perturb_order: false             # true: runs 2+ shuffle file and lesson order (stability check at temperature 0)
   evidence:

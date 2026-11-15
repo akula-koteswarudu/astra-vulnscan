@@ -1,0 +1,12 @@
+# Never send local state or secrets into the build context.
+.env
+.git
+.tools
+target
+runs
+cache
+apps
+*.apk
+.idea
+*.iml
+.DS_Store
