@@ -16,7 +16,7 @@ Run `{{run_id}}` · profile `{{profile}}` · generated from the run folder (ever
 | {{arm}} | {{model}} | **{{recall_strict}}** | {{recall_lenient}} | {{recall_unverified}} |{{#ground_truth}} {{precision}} |{{/ground_truth}} {{findings}} |
 {{/core_rows}}
 
-{{lift_sentence}}
+**{{lift_sentence}}**
 
 Strict = the judge said "match"; lenient also counts "partial". One-to-one assignment (Hungarian): each reference item is matched by at most one finding and vice versa. {{#ground_truth}}Precision counts findings that match any item (many-to-one) over verified findings; unmatched findings are "unmatched", not necessarily false positives (the README list may be incomplete).{{/ground_truth}}
 

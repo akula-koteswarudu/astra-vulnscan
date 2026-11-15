@@ -112,7 +112,8 @@ public class ReportStage {
                 teacherPlan.mode(), teacherPlan.units().size(), studentPlan.mode(), studentPlan.units().size(), audit, LIMITATIONS,
                 "Prompts were written from the OWASP MASVS categories, not from the ground-truth list, but they were developed and debugged on this app.");
         s.writeText("report.md", new MarkdownReport().render(in));
-        e.progress().accept("report: " + s.path("report.md"));
+        s.writeText("report.html", new com.vulnscan.report.HtmlReport().render(in));
+        e.progress().accept("report: " + s.path("report.html") + " (and report.md)");
     }
 
     /** Every usage.json in the run folder, in path order (scan arms, lessons, evaluation). */

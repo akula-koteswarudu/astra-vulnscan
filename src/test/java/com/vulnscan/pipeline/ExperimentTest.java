@@ -117,7 +117,7 @@ class ExperimentTest {
                 "03_plan/units_teacher.json", "03_plan/units_student.json", "04_scan/teacher/run_1/findings.json",
                 "04_scan/student_baseline/run_1/results.json", "04_scan/student_with_lessons/run_1/findings.json",
                 "05_learn/lessons.json", "05_learn/rejected_lessons.json", "07_evaluate/metrics.json", "07_evaluate/matches.json",
-                "07_evaluate/judge_decisions.json", "report.md")) {
+                "07_evaluate/judge_decisions.json", "report.md", "report.html")) {
             assertThat(s.exists(f)).as(f).isTrue();
         }
         Metrics m = s.readJson("07_evaluate/metrics.json", Metrics.class);
@@ -128,6 +128,9 @@ class ExperimentTest {
         java.util.List<com.vulnscan.models.UsageTracker.Line> usage = ReportStage.usage(s.dir());
         assertThat(usage).anySatisfy(l -> assertThat(l.billedCalls).isPositive());
         assertThat(report).contains("Lift: +50.0 points", "Intent data loaded into a WebView", "## 9. Limitations");
+        String html = Files.readString(s.path("report.html"));
+        assertThat(html).startsWith("<!doctype html>").contains("Lift: +50.0 points", "Intent data loaded into a WebView", "class=\"c hit\"")
+                .doesNotContain("{{");
 
         // resume skips every completed stage (no new model calls) and reproduces the report
         Experiment again = experiment(cfg, s.dir());

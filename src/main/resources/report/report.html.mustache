@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Scan report: {{app}}</title>
+<style>
+  :root {
+    --bg: #f7f7f5; --panel: #ffffff; --text: #1d1d1b; --muted: #6b6b66; --line: #e3e2dd;
+    --accent: #3b5bdb; --teacher: #868e96;
+    --hit: #2b8a3e; --hit-bg: #d3f9d8; --partial: #b07d00; --partial-bg: #fff3bf;
+    --unc: #5f3dc4; --unc-bg: #e5dbff; --miss: #868e96; --miss-bg: #f1f3f5;
+    --code-bg: #f1f0ec;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #161615; --panel: #1f1f1d; --text: #ecebe6; --muted: #a3a29b; --line: #34332f;
+      --accent: #7c95f5; --teacher: #a5adb5;
+      --hit: #8ce99a; --hit-bg: #1f3b26; --partial: #ffd43b; --partial-bg: #3d3416;
+      --unc: #b197fc; --unc-bg: #2f2552; --miss: #909296; --miss-bg: #2a2a28;
+      --code-bg: #262623;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  main { max-width: 1040px; margin: 0 auto; padding: 24px 16px 64px; }
+  h1 { font-size: 26px; margin: 0 0 4px; }
+  h2 { font-size: 19px; margin: 36px 0 12px; padding-bottom: 6px; border-bottom: 1px solid var(--line); }
+  h3 { font-size: 15px; margin: 20px 0 8px; }
+  .muted { color: var(--muted); }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px; margin: 12px 0; }
+  .banner { border-left: 4px solid var(--partial); }
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+  .kpi .v { font-size: 26px; font-weight: 650; }
+  .kpi .l { color: var(--muted); font-size: 13px; }
+  .bar-row { display: grid; grid-template-columns: minmax(120px, 210px) 1fr 70px; gap: 10px; align-items: center; margin: 8px 0; }
+  .bar { position: relative; height: 18px; background: var(--miss-bg); border-radius: 4px; overflow: hidden; }
+  .bar .len { position: absolute; inset: 0 auto 0 0; background: var(--accent); opacity: .25; }
+  .bar .str { position: absolute; inset: 0 auto 0 0; background: var(--accent); }
+  .bar.teacher .str, .bar.teacher .len { background: var(--teacher); }
+  .bar-row .val { font-variant-numeric: tabular-nums; text-align: right; font-size: 13px; }
+  .scroll { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; font-size: 14px; }
+  th, td { text-align: left; padding: 7px 9px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; font-size: 13px; }
+  td.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  td.c { text-align: center; font-weight: 650; border-radius: 4px; white-space: nowrap; }
+  td.hit { color: var(--hit); background: var(--hit-bg); }
+  td.partial { color: var(--partial); background: var(--partial-bg); }
+  td.uncredited { color: var(--unc); background: var(--unc-bg); }
+  td.miss { color: var(--miss); background: var(--miss-bg); }
+  .legend span { display: inline-block; padding: 1px 8px; border-radius: 4px; margin-right: 6px; font-size: 13px; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px; }
+  .card h4 { margin: 0 0 6px; font-size: 15px; }
+  .tag { display: inline-block; font-size: 12px; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 0 8px; }
+  .card ul { margin: 6px 0; padding-left: 18px; }
+  pre, code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12.5px; }
+  pre { background: var(--code-bg); padding: 10px; border-radius: 6px; overflow-x: auto; white-space: pre-wrap; }
+  details { margin: 10px 0; }
+  summary { cursor: pointer; font-weight: 600; }
+  ul.plain { padding-left: 18px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Scan report: {{app}}</h1>
+  <div class="muted">Run <code>{{run_id}}</code> · profile <code>{{profile}}</code> · every number is read from this run folder</div>
+
+  {{#teacher_reference}}
+  <div class="panel banner"><strong>No ground truth for this app.</strong> The teacher's verified findings are the reference, so every number is <em>agreement with teacher</em>, not recall. The lessons come from the same findings, so the comparison favours the with-lessons arm. Teacher ceiling and precision are omitted.</div>
+  {{/teacher_reference}}
+
+  <h2>1. Core result</h2>
+  <p>{{headline_sentence}}</p>
+  <div class="panel">
+    {{#bars}}
+    <div class="bar-row">
+      <div>{{label}}</div>
+      <div class="bar {{#teacher}}teacher{{/teacher}}" title="strict {{strict}}% · lenient {{lenient}}%">
+        <div class="len" style="width: {{lenient}}%"></div><div class="str" style="width: {{strict}}%"></div>
+      </div>
+      <div class="val">{{value}}</div>
+    </div>
+    {{/bars}}
+    <div class="muted" style="font-size: 13px; margin-top: 6px;">Solid: strict recall (judge said "match"). Faded extension: lenient (also "partial").</div>
+  </div>
+  <div class="panel"><strong>{{lift_sentence}}</strong></div>
+
+  <div class="scroll"><table>
+    <tr><th>Arm</th><th>Model</th><th>{{metric_label}} (strict, verified)</th><th>Lenient</th><th>Incl. unverified</th>{{#ground_truth}}<th>Precision</th>{{/ground_truth}}<th>Findings (verified / total)</th></tr>
+    {{#core_rows}}
+    <tr><td>{{arm}}</td><td><code>{{model}}</code></td><td class="num"><strong>{{recall_strict}}</strong></td><td class="num">{{recall_lenient}}</td><td class="num">{{recall_unverified}}</td>{{#ground_truth}}<td class="num">{{precision}}</td>{{/ground_truth}}<td class="num">{{findings}}</td></tr>
+    {{/core_rows}}
+  </table></div>
+  <p class="muted" style="font-size: 13px;">One-to-one assignment (Hungarian): each reference item is credited to at most one finding and each finding counts for at most one item. Precision counts findings that match any item over verified findings; unmatched findings are not necessarily false positives.</p>
+
+  <h3>Per item ({{reference_name}})</h3>
+  <div class="legend muted"><span style="background: var(--hit-bg); color: var(--hit);">✓ match</span><span style="background: var(--unc-bg); color: var(--unc);">◐ matched, credited elsewhere</span><span style="background: var(--partial-bg); color: var(--partial);">~ partial</span><span style="background: var(--miss-bg); color: var(--miss);">· not found</span></div>
+  <div class="scroll"><table>
+    <tr><th>Item</th><th>Title</th><th>Static visibility</th>{{#arm_headers}}<th>{{.}}</th>{{/arm_headers}}</tr>
+    {{#grid}}
+    <tr><td>{{id}}</td><td>{{title}}</td><td class="muted">{{visibility}}</td>{{#cells}}<td class="c {{cls}}">{{text}}</td>{{/cells}}</tr>
+    {{/grid}}
+  </table></div>
+
+  <h2>2. Lessons</h2>
+  <p>{{lessons_sentence}}</p>
+  <div class="cards">
+    {{#lesson_cards}}
+    <div class="panel card">
+      <h4>{{id}} · {{title}}</h4>
+      <span class="tag">{{tags}}</span>
+      <div style="margin-top: 8px;"><strong>Look for</strong><ul>{{#signals}}<li>{{.}}</li>{{/signals}}</ul></div>
+      <div><strong>Why</strong> {{why}}</div>
+      <div style="margin-top: 6px;"><strong>Not a finding when</strong><ul>{{#guards}}<li>{{.}}</li>{{/guards}}</ul></div>
+      {{#example}}<pre>{{example}}</pre>{{/example}}
+    </div>
+    {{/lesson_cards}}
+  </div>
+  <details><summary>Guidance block exactly as the student saw it</summary><pre>{{guidance}}</pre></details>
+  <p>Sanitiser ({{sanitiser_policy}}): {{sanitiser_sentence}}</p>
+  {{#has_violations}}
+  <details><summary>Sanitiser actions</summary><div class="scroll"><table>
+    <tr><th>Lesson</th><th>Field</th><th>Rule</th><th>Term</th><th>Action</th></tr>
+    {{#violations}}<tr><td>{{lesson}}</td><td>{{field}}</td><td>{{rule}}</td><td><code>{{term}}</code></td><td>{{action}}</td></tr>{{/violations}}
+  </table></div></details>
+  {{/has_violations}}
+
+  <h2>3. Robustness check: README-only vs enriched reference</h2>
+  {{#has_robustness}}
+  <div class="scroll"><table>
+    <tr><th>Arm</th><th>{{robust_a}}</th><th>{{robust_b}}</th></tr>
+    {{#robust_rows}}<tr><td>{{arm}}</td><td class="num">{{a}}</td><td class="num">{{b}}</td></tr>{{/robust_rows}}
+  </table></div>
+  <p>{{robust_sentence}}</p>
+  {{/has_robustness}}
+  {{^has_robustness}}<p class="muted">Not computed (no enriched ground truth for this app).</p>{{/has_robustness}}
+
+  <h2>4. Judge audit</h2>
+  <p>{{audit_sentence}}</p>
+
+  <h2>5. Coverage and quality</h2>
+  <div class="scroll"><table>
+    <tr><th>Arm</th><th>Units</th><th>Unit status</th><th>Evidence status</th><th>Bad findings dropped</th></tr>
+    {{#coverage_rows}}<tr><td>{{arm}}</td><td class="num">{{units}}</td><td>{{status}}</td><td>{{evidence}}</td><td class="num">{{bad}}</td></tr>{{/coverage_rows}}
+  </table></div>
+  <ul class="plain">
+    <li>Decompilation: jadx {{jadx_version}}, exit code {{jadx_exit}}{{#jadx_partial}} (partial success: output present){{/jadx_partial}}; {{jadx_failed}} failed-method markers in all code, {{fp_failed}} in first-party code.</li>
+    <li>First-party split: {{fp_files}} of {{all_files}} Java files (prefixes {{fp_prefixes}}); {{generated}} build-generated files excluded. Largest excluded groups: {{top_excluded}}.</li>
+    <li>Units: teacher {{teacher_units}} ({{teacher_mode}}), student {{student_units}} ({{student_mode}}).</li>
+    <li>Judge: {{judge_calls}} confirm calls, {{judge_errors}} unparseable answers.</li>
+  </ul>
+
+  <h2>6. Usage</h2>
+  <details><summary>Calls and tokens per model and stage</summary><div class="scroll"><table>
+    <tr><th>Model</th><th>Purpose</th><th>Arm</th><th>Calls billed / cached</th><th>Input tokens</th><th>Output tokens</th><th>Cost</th></tr>
+    {{#usage_rows}}<tr><td>{{model}}</td><td>{{purpose}}</td><td>{{arm}}</td><td class="num">{{calls}}</td><td class="num">{{input}}</td><td class="num">{{output}}</td><td class="num">{{cost}}</td></tr>{{/usage_rows}}
+  </table></div></details>
+  <p>{{usage_sentence}}</p>
+
+  <h2>7. Prompt versions</h2>
+  <div class="scroll"><table>
+    <tr><th>Prompt</th><th>sha256</th></tr>
+    {{#prompt_rows}}<tr><td><code>{{name}}</code></td><td><code>{{sha}}</code></td></tr>{{/prompt_rows}}
+  </table></div>
+  <p class="muted">{{prompts_sentence}} The scores above are for exactly these versions.</p>
+
+  <h2>8. Limitations</h2>
+  <ul class="plain">{{#limitations}}<li>{{.}}</li>{{/limitations}}</ul>
+</main>
+</body>
+</html>

@@ -54,6 +54,11 @@ public class MarkdownReport {
     }
 
     public String render(Inputs in) {
+        return template.execute(context(in)).replaceAll("\n{3,}", "\n\n");
+    }
+
+    /** Everything the templates need, as plain values (shared by the Markdown and the HTML report). */
+    public static Map<String, Object> context(Inputs in) {
         Metrics m = in.metrics();
         Metrics.Mode head = m.modes().get(0);
         boolean gt = m.groundTruth();
@@ -189,7 +194,50 @@ public class MarkdownReport {
                 .map(e -> Map.of("name", e.getKey(), "sha", e.getValue().substring(0, 12))).toList());
         c.put("prompts_sentence", in.promptsSentence());
         c.put("limitations", in.limitations());
-        return template.execute(c).replaceAll("\n{3,}", "\n\n");
+        htmlExtras(c, in, head);
+        return c;
+    }
+
+    /** Structured values only the HTML report uses: recall bars, coloured grid cells, lesson cards. */
+    private static void htmlExtras(Map<String, Object> c, Inputs in, Metrics.Mode head) {
+        List<Map<String, Object>> bars = new ArrayList<>();
+        for (Metrics.ArmRun r : ordered(head.armRuns())) {
+            bars.add(Map.of("label", ARM_LABEL.getOrDefault(r.arm(), r.arm()) + (r.run() > 1 || head.armRuns().stream()
+                            .filter(x -> x.arm().equals(r.arm())).count() > 1 ? " · run " + r.run() : ""),
+                    "strict", (int) Math.round(r.recallStrict() * 100), "lenient", (int) Math.round(r.recallLenient() * 100),
+                    "value", frac(r.recallStrict(), head.items()), "teacher", r.arm().equals("teacher")));
+        }
+        c.put("bars", bars);
+        List<Map<String, Object>> grid = new ArrayList<>();
+        for (Metrics.ItemRow row : head.perItem()) {
+            List<Map<String, Object>> cells = new ArrayList<>();
+            for (String arm : ARM_ORDER) {
+                if (row.hitsStrict().containsKey(arm)) {
+                    String text = cell(row.hitsStrict().get(arm), row.hitsLenient().get(arm), row.uncredited() == null ? null : row.uncredited().get(arm));
+                    String cls = text.startsWith("✓") ? "hit" : text.startsWith("◐") ? "uncredited" : text.startsWith("~") ? "partial" : "miss";
+                    cells.add(Map.of("text", text, "cls", cls));
+                }
+            }
+            grid.add(Map.of("id", row.itemId(), "title", row.title(), "visibility", row.staticVisibility() == null ? "" : row.staticVisibility(),
+                    "cells", cells));
+        }
+        c.put("grid", grid);
+        List<Map<String, Object>> cards = new ArrayList<>();
+        for (com.vulnscan.learn.Lesson l : in.lessons().lessons()) {
+            if (!in.lessons().selectedIds().contains(l.id())) {
+                continue;
+            }
+            Map<String, Object> card = new LinkedHashMap<>();
+            card.put("id", l.id());
+            card.put("title", l.title());
+            card.put("tags", ((l.cwe() == null ? "" : l.cwe()) + " " + (l.owaspCategory() == null ? "" : l.owaspCategory())).strip());
+            card.put("signals", l.signals() == null ? List.of() : l.signals());
+            card.put("why", l.whyExploitable());
+            card.put("guards", l.falsePositiveGuards() == null ? List.of() : l.falsePositiveGuards());
+            card.put("example", l.abstractExample() == null || l.abstractExample().isBlank() ? null : l.abstractExample());
+            cards.add(card);
+        }
+        c.put("lesson_cards", cards);
     }
 
     private static String liftSentence(Metrics m, Metrics.Mode head) {
@@ -200,7 +248,7 @@ public class MarkdownReport {
             return "No lift computed (an arm is missing).";
         }
         String what = m.groundTruth() ? "recall" : "agreement with teacher";
-        String s = String.format("**Lift: %+.1f points** of %s (%s → %s, strict, verified).", 100 * lift.lift(), what,
+        String s = String.format("Lift: %+.1f points of %s (%s → %s, strict, verified).", 100 * lift.lift(), what,
                 frac(base.mean(), head.items()), frac(with.mean(), head.items()));
         if (base.runs() > 1 || with.runs() > 1) {
             s += String.format(" Mean of %d runs per arm; ranges %s–%s and %s–%s.", base.runs(), pct(base.min()), pct(base.max()),
