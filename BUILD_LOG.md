@@ -167,3 +167,16 @@ Format: `[step] status: notes`. Deviations are marked **DEVIATION**.
 - Result of the order experiment (all 9 experiments re-evaluated with 1 and 3 quick-look orders): the extra orders proposed 5–22 more candidate pairs per experiment, but the careful look rejected almost all of them: final recall changed in only 2 arm runs out of 27 (v1 with lessons 13 → 14; v3 perturb baseline run 3 9 → 10). The order effect exists in the shortlist but barely reaches the results. Content order (1 order) stays the default.
 - **Correction:** the 14-vs-13 difference for the identical v3 student answer was NOT the quick-look order. Diffing the saved findings showed the **duplicate merge** kept different copies: with equal evidence status and confidence, the tie was broken by finding id, which depends on the run folder (one run kept the receiver finding at `AboutUsActivity.onCreate`, the other at `CustomReceiver.onReceive`). Fix: the kept copy is chosen by evidence quality (exact/inventory > fuzzy > relocated > unverified), then confidence, then content; never by id. Test added (152).
 - `evaluate` now **rebuilds findings from the saved raw answers** (`Reprocessor`: parse, normalise, split, verify, merge with the current rules; no model calls; scan-time file kept as `findings.scan.json`) instead of only re-verifying, so post-processing fixes apply to existing runs. Re-planned units are regenerated deterministically and matched by id.
+
+### Clean re-evaluation of all experiments (content-order quick look, deterministic merge, findings rebuilt from raw answers; DeepSeek judge; README, strict)
+| Experiment | Teacher | Baseline | With lessons | Lift (mean) |
+|---|---|---|---|---|
+| v1 Groq chunked | 14 | 12 | 13 | +1 |
+| v2 deterministic | 13 | 10 | 13 | +3 |
+| v2 sampled ×3 | 13 | 11, 12, 9 (10.7) | 12, 12, 9 (11.0) | +0.3 |
+| v3 deterministic | 15 | 9 | 14 | +5 |
+| v3 sampled ×3 | 15 | 9, 9, 10 (9.3) | 12, 12, 13 (12.3) | +3.0 |
+| v3 order-perturbed ×3 (T=0) | 15 | 9, 10, 9 (9.3) | 14, 13, 12 (13.0) | +3.7 |
+| OVAA deterministic (InsecureShop lessons) | 15/18 | 11 | 9 | −2 |
+| OVAA sampled ×3 | 15/18 | 12, 10, 8 (10.0) | 10, 11, 11 (10.7) | +0.7 |
+| OVAA order-perturbed ×3 (T=0) | 15/18 | 11, 10, 11 (10.7) | 9, 10, 10 (9.7) | −1.0 |
