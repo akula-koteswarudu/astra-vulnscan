@@ -157,3 +157,7 @@ Format: `[step] status: notes`. Deviations are marked **DEVIATION**.
 
 ### Order-perturbation experiment (user idea: keep temperature 0)
 - Seeds do nothing at temperature 0 (greedy decoding), so instead of sampling, runs 2 and 3 shuffle the order of code files and lessons (`scan.perturb_order: true`; fixed seed per run, same order for both student arms; run 1 = original order). Content is identical; this measures how stable a temperature-0 lift is under content-neutral prompt changes. Configs `insecureshop_scan_v3_perturb.yaml`, `ovaa_transfer_perturb.yaml`. Test added (149).
+- Results (temperature 0, runs 2–3 order-perturbed; README, strict):
+  - InsecureShop v3 (`2026-11-15T0902_insecureshop_38ce5357`): baseline 9, 10, 9 (9.3) → with lessons 13, 13, 11 (12.3): **+3.0**, ranges separated. Same as the sampled runs (+3.0). The single deterministic run's +5 was the top of the range.
+  - OVAA v3, InsecureShop lessons (`2026-11-15T0910_ovaa_f52012e4`): baseline 11, 10, 11 (10.7) → with lessons 9, 10, 10 (9.7): **−1.0**. Sampled: +0.7. No positive transfer either way.
+- Side observation: run 1 of the InsecureShop perturb run is the same student answer as the original v3 run (served from the cache) but was judged 13/19 instead of 14/19. Cause: the judge's quick look lists findings ordered by finding id, and ids include the run id, so the same findings appear in a different order in another run folder and the shortlist can differ slightly. To fix: order the quick-look batch by finding content (as the distill prompt now does).
