@@ -33,7 +33,13 @@ public class GtFromReadmeCommand implements Callable<Integer> {
             System.err.println("refusing to overwrite " + out + " (it may contain hand-written enrichment)");
             return 2;
         }
-        GroundTruth gt = new ReadmeConverter().convert(Files.readString(readme), source);
+        GroundTruth gt;
+        try {
+            gt = new ReadmeConverter().convert(Files.readString(readme), source);
+        } catch (IllegalArgumentException e) {
+            System.err.println("error: " + e.getMessage());
+            return 2;
+        }
         Files2.writeAtomic(out, Json.yaml().writeValueAsString(gt));
         System.out.println("wrote " + gt.items().size() + " items to " + out);
         return 0;

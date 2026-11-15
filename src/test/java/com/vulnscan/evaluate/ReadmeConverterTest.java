@@ -24,8 +24,21 @@ class ReadmeConverterTest {
     }
 
     @Test
+    void convertsUntitledNumberedLists() throws IOException {
+        GroundTruth gt = converter.convert(Files.readString(Path.of("ground_truth/ovaa.README.md")), "README");
+        assertThat(gt.items()).hasSize(18);
+        assertThat(gt.items().get(13).title()).isEqualTo("Use of the hardcoded AES key in `WeakCrypto`");
+        assertThat(gt.items().get(0).description()).startsWith("Installation of an arbitrary `login_url`").endsWith("when they log in.");
+    }
+
+    @Test
+    void failsOnMixedFormats() {
+        assertThatThrownBy(() -> converter.convert("## Vulnerabilities\n1. **A:** a\n2. plain text\n", "x")).hasMessageContaining("mixes");
+    }
+
+    @Test
     void failsOnMalformedLine() {
-        String readme = "## Vulnerabilities\n\n1. **A:** first\n2. B without bold title\n";
+        String readme = "## Vulnerabilities\n\n1. **A:** first\n- a bullet, not a numbered item\n";
         assertThatThrownBy(() -> converter.convert(readme, "x")).hasMessageContaining("line 4");
     }
 
@@ -39,6 +52,7 @@ class ReadmeConverterTest {
     void stopsAtNextHeadingAndFailsWithoutSection() {
         GroundTruth gt = converter.convert("## Vulnerabilities\n1. **A:** a\n## Other\nfree text\n", "x");
         assertThat(gt.items()).hasSize(1);
+        assertThat(converter.convert("## Vulnerabilities\n1. **A:** a\n\n-----\n*footer*\n", "x").items()).hasSize(1);
         assertThatThrownBy(() -> converter.convert("# Nothing here\n", "x")).hasMessageContaining("no 'Vulnerabilities'");
     }
 }

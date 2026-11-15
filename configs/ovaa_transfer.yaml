@@ -1,0 +1,16 @@
+# Cross-app transfer (plan step 17): OVAA, a second intentionally vulnerable app never used for development.
+# The student gets the lessons distilled from InsecureShop (v3 run); no lessons are distilled from OVAA.
+# Teacher scan of OVAA = ceiling. Scan prompt v3 (also untuned for this app).
+profile: assignment
+runs: {student_runs: 1}
+app:
+  name: ovaa
+  input: apps/OVAA.apk                # github.com/oversecured/ovaa release 1.0.0, app-debug.apk
+  input_sha256: 073d87a2bcbfcd539146854681d4968960dbee0209673b17cdbe1aaed6705233
+  ground_truth: ground_truth/ovaa.yaml
+scan:
+  prompt_version: v3
+planning:
+  prompt_overhead_tokens: 1200
+distill:
+  lessons_from: runs/2026-11-14T1846_insecureshop_9f96bd98/05_learn/lessons.json

