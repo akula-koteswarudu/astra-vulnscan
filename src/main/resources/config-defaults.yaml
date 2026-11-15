@@ -50,7 +50,7 @@ evaluate:
   headline: readme
   count_unverified: false
   screen_batch_size: 100           # all findings of a run in one quick-look call (findings are ~100 tokens each)
-  screen_orders: 1                 # quick look in content order; >1 adds fixed shuffles and takes the union
+  screen_orders: 3                 # quick look in content order plus 2 fixed shuffles, union of candidates (1 order missed 22 true pairs on the headline run)
   audit_file: null
 cache:
   llm: true

@@ -2,17 +2,18 @@
 
 ## 1. Results: student recall before and after lessons
 
-InsecureShop, scan prompt v4, file order shuffled per repeat, 3 repeats per arm, judge DeepSeek v4.1 Flash, strict, verified evidence only (`runs/2026-11-15T1036_insecureshop_fec4c875`):
+InsecureShop, scan prompt v4, file order shuffled per repeat, 3 repeats per arm, judge DeepSeek v4.1 Flash with a 3-order quick look, strict, verified evidence only (`runs/2026-11-15T1036_insecureshop_fec4c875`):
 
 | Arm | Model | Items found of 19 (per run) | Mean |
 |---|---|---|---|
 | Teacher (ceiling) | claude-sonnet-5-5 | 15 | 15 |
-| Student, no lessons | qwen3.8-27b | 9, 10, 9 | 9.3 (49%) |
+| Student, no lessons | qwen3.8-27b | 9, 10, 10 | 9.7 (51%) |
 | Student, with lessons | qwen3.8-27b | 15, 14, 13 | 14.0 (74%) |
 
-Lift: +4.7 items (+24.6 points); the ranges do not overlap. Checked three more ways:
+Lift: +4.3 items (+22.8 points); the ranges do not overlap (baseline at most 10, with lessons at least 13). Checked three more ways:
 - **Enriched reference** (same items plus CWEs and places): +28.1 points.
-- **Place check** (new, 15 Nov): a credit counts only if the finding sits in a file the item names. Baseline 8.0, with lessons 12.0: lift +4.0. If a manifest finding for the exported content provider also counts as the right place, +4.7. The lift survives.
+- **Place check** (new, 15 Nov): a credit counts only if the finding sits in a file the item names. Baseline 8.0, with lessons 11.7: lift +3.7. If a manifest finding for the exported content provider also counts as the right place, +4.3. The lift survives.
+- **Judge stability:** with a 1-order quick look the same run scored +4.7; removing a single duplicate finding changed the quick look's answer and the score, which is how this weakness was found. With 3 orders all 11 experiments were re-evaluated: only 2 of 18 result rows moved, each by one student run.
 - **Where it comes from:** items the baseline never found in any run and the lessons arm found in all three (GT-04 code loading, GT-07 file theft, GT-09 broadcast receiver), plus GT-14 (1 of 3 → 3 of 3). It does not come from the loosely worded WebView items.
 
 Cross-app (InsecureShop lessons, student scans OVAA): +0.3 items (10.7 → 11.0). The lessons did not transfer. Reported as found.
@@ -25,13 +26,16 @@ A ground-truth entry is one line of README prose with no file or line, for examp
 
 1. **Evidence gate:** a finding counts only if its quoted evidence is found in the decompiled code (exact, moved, or lightly rearranged lines). This removes invented code before scoring.
 2. **Structured pre-score:** CWE groups, component and file overlap. Cheap, used to rank candidates and to put the most likely pair first.
-3. **LLM judge, pairwise:** "same flaw: match, partial or no?" The judge (DeepSeek) is a different model family from the teacher (Anthropic) and the student (Qwen), so it is not grading its own family's writing. Temperature 0, cached, health check fails the run if more than 20% of answers are unparseable.
-4. **One-to-one assignment (Hungarian):** each item is credited to at most one finding and each finding to at most one item, maximising credits. A vague finding cannot claim three items; three duplicate findings cannot claim one item three times.
-5. **Strict headline** (judge said "match"), lenient shown beside it.
+3. **Quick look (one call per run, 3 orders):** the judge sees all items and all findings and shortlists pairs that might be the same flaw; only shortlisted pairs go to step 4, so a pair it overlooks counts as "not found". It runs in 3 orders (as listed plus 2 fixed shuffles) and the shortlists are combined: on the headline run a single order missed 22 true pairs.
+4. **LLM judge, pairwise:** "same flaw: match, partial or no?" The judge (DeepSeek) is a different model family from the teacher (Anthropic) and the student (Qwen), so it is not grading its own family's writing. Temperature 0, cached, health check fails the run if more than 20% of answers are unparseable.
+5. **One-to-one assignment (Hungarian):** each item is credited to at most one finding and each finding to at most one item, maximising credits. A vague finding cannot claim three items; three duplicate findings cannot claim one item three times.
+6. **Strict headline** (judge said "match"), lenient shown beside it.
 
 Why this over alternatives: string or CWE match fails on README prose; location match needs locations the README does not have; an LLM judge alone over-credits, hence the evidence gate and one-to-one. The judge was audited on its decisions: 95% agreement, kappa 0.79 (see limitation on who labelled).
 
 Known weakness, measured: with README-only items, the judge cannot tell apart items that share a consequence but differ in place (GT-02, 03, 06, 13, 17 all end in "loads an arbitrary URL in a WebView"). The total stays right but the credit can land on the neighbouring item. The enriched reference and the place check are the controls; both agree with the headline.
+
+Second weakness, measured and fixed: the quick look is one call over a long list, and LLMs show position bias (they overlook items depending on where they sit, especially in the middle of long inputs). A single order missed 22 true pairs and made the score depend on list order. The union of 3 orders fixed it here. A stronger judge (a larger model, or the same model with reasoning turned on; ours runs with reasoning off for speed) should overlook fewer pairs, but position bias does not disappear in strong models either, so the union stays as a cheap safeguard; for very long lists, checking pairs in batches or all pairs is the next step.
 
 ## 3. A real app with 1M+ lines
 
