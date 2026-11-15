@@ -1,0 +1,11 @@
+# Plan step 14 (unseen-app check): OVAA with NO ground truth, exactly as for a new APK.
+# Same as configs/example_new_app.yaml plus the app path; the teacher's verified findings are the
+# reference, so every number is "agreement with teacher", not recall. Lessons are distilled from
+# this app's own teacher findings (the normal teacher -> student flow).
+profile: assignment
+app:
+  name: ovaa
+  input: apps/OVAA.apk
+  input_sha256: 073d87a2bcbfcd539146854681d4968960dbee0209673b17cdbe1aaed6705233
+planning:
+  prompt_overhead_tokens: 1200

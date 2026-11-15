@@ -6,6 +6,11 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 # shellcheck disable=SC1091
 source "$ROOT/scripts/env.sh"
 cd "$ROOT"
+# A stale jar silently runs old defaults (it happened once: scan prompt v2 instead of v4). Refuse unless overridden.
+if [ -n "$(find src pom.xml -newer target/vulnscan.jar -type f 2>/dev/null | head -1)" ] && [ "${VULNSCAN_ALLOW_STALE:-0}" != "1" ]; then
+  echo "target/vulnscan.jar is older than the sources. Rebuild: ./mvnw -q -DskipTests package (or set VULNSCAN_ALLOW_STALE=1)" >&2
+  exit 2
+fi
 JAR="$(mktemp "${TMPDIR:-/tmp}/vulnscan-XXXXXX").jar"
 cp "$ROOT/target/vulnscan.jar" "$JAR"
 trap 'rm -f "$JAR"' EXIT
