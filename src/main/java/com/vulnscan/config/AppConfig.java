@@ -69,7 +69,8 @@ public record AppConfig(
                            @Positive Integer maxUnits,
                            @Positive int minCodeBudgetTokens,
                            @NotNull GraphBuilder graphBuilder,
-                           String prioritizerSignalsFile) {
+                           String prioritizerSignalsFile,
+                           boolean sharedUnits) {
     }
 
     public enum PlanningMode {

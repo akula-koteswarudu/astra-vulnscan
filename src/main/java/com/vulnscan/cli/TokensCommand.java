@@ -40,8 +40,10 @@ public class TokensCommand implements Callable<Integer> {
         System.out.printf("app %s: %d files, %d first-party (prefixes %s), %d excluded%n", app.model().packageName(),
                 s.filesTotal(), s.filesFirstParty(), s.firstPartyPrefixes(), s.filesExcluded());
         var roles = cfg.models().roles();
-        print(planner.plan(roles.teacher(), cfg.models().spec(roles.teacher()), false, app.model(), app.code()));
-        print(planner.plan(roles.student(), cfg.models().spec(roles.student()), true, app.model(), app.code()));
+        var pair = planner.planPair(roles.teacher(), cfg.models().spec(roles.teacher()), roles.student(),
+                cfg.models().spec(roles.student()), app.model(), app.code());
+        print(pair.teacher());
+        print(pair.student());
         return 0;
     }
 

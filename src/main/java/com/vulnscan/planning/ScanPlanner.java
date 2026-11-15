@@ -92,6 +92,31 @@ public class ScanPlanner {
         return plan(modelName, spec, reserveGuidance, app, code, config.mode());
     }
 
+    /** The teacher's and the student's plans, in that order. */
+    public record PlanPair(UnitPlan teacher, UnitPlan student) {
+    }
+
+    /**
+     * Plans both scanning models. With planning.shared_units (default) both get the units planned for the model with
+     * the smaller per-request budget, so "found by the teacher, missed by the student" always compares the same code
+     * seen together; each plan keeps its own model name and records the budget the units were planned with.
+     * Without it, each model is planned on its own budget (the larger model may then see more neighbours per unit).
+     */
+    public PlanPair planPair(String teacher, ModelSpec teacherSpec, String student, ModelSpec studentSpec, AppModel app, CodeBase code) {
+        if (!config.sharedUnits()) {
+            return new PlanPair(plan(teacher, teacherSpec, false, app, code), plan(student, studentSpec, true, app, code));
+        }
+        boolean studentIsSmaller = budget(student, studentSpec, true).effective() <= budget(teacher, teacherSpec, false).effective();
+        UnitPlan shared = studentIsSmaller ? plan(student, studentSpec, true, app, code) : plan(teacher, teacherSpec, false, app, code);
+        UnitPlan teacherPlan = studentIsSmaller ? renamed(shared, teacher) : shared;
+        UnitPlan studentPlan = studentIsSmaller ? shared : renamed(shared, student);
+        return new PlanPair(teacherPlan, studentPlan);
+    }
+
+    private static UnitPlan renamed(UnitPlan p, String model) {
+        return new UnitPlan(p.schemaVersion(), model, p.mode(), p.budget(), p.units(), p.skipped());
+    }
+
     /**
      * Re-plans a unit whose answer was truncated even with a doubled output budget (plan 6.5): a whole-app unit
      * becomes graph chunks; a multi-file chunk becomes one unit per file; an app-context unit is split into its parts.

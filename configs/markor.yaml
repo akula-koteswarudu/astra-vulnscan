@@ -1,0 +1,11 @@
+# Optional real-APK scan (plan step 24): open-source app from F-Droid, no ground truth.
+# Source: https://f-droid.org/repo/net.gsantner.markor_164.apk
+profile: assignment
+app:
+  name: markor
+  input: apps/fdroid/net.gsantner.markor_164.apk
+  input_sha256: c29412e02d03e4f0511746a1bcef48c6b73fc1f70c1024fbf04903b0b3f4c485
+ingest:
+  # net.gsantner.opoc is the same author's utility library, built into the app from the same repo
+  # (file, share and intent helpers). The manifest-derived allow-list does not see it, so add it here.
+  extra_first_party_prefixes: [net.gsantner.opoc]

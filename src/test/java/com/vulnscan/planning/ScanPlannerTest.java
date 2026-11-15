@@ -27,7 +27,7 @@ class ScanPlannerTest {
     Path dir;
 
     static AppConfig.Planning planning(AppConfig.PlanningMode mode) {
-        return new AppConfig.Planning(mode, 1, 4, 0.0, 100, 100, null, 200, AppConfig.GraphBuilder.TEXT_REFERENCE, null);
+        return new AppConfig.Planning(mode, 1, 4, 0.0, 100, 100, null, 200, AppConfig.GraphBuilder.TEXT_REFERENCE, null, true);
     }
 
     static ModelsConfig.ModelSpec model(int tpm, int maxOutput) {
@@ -89,6 +89,27 @@ class ScanPlannerTest {
         });
         assertThat(plan.units()).anySatisfy(u -> assertThat(u.kind()).isEqualTo("app_context"));
         assertThat(plan.units()).allSatisfy(u -> assertThat(u.estTokens()).isLessThanOrEqualTo(700));
+    }
+
+    @Test
+    void teacherAndStudentGetTheSameUnitsPlannedWithTheSmallerBudget() throws IOException {
+        AppModel app = ingest();
+        var big = model(1_000_000, 1000);   // fits the whole app
+        var small = model(1500, 300);       // forces chunks
+        ScanPlanner.PlanPair shared = planner(AppConfig.PlanningMode.AUTO).planPair("t", big, "s", small, app, new CodeBase(dir));
+        assertThat(shared.teacher().mode()).isEqualTo("chunked");
+        assertThat(shared.teacher().model()).isEqualTo("t");
+        assertThat(shared.student().model()).isEqualTo("s");
+        assertThat(shared.teacher().units()).extracting(ScanUnit::unitId)
+                .containsExactlyElementsOf(shared.student().units().stream().map(ScanUnit::unitId).toList());
+
+        AppConfig.Planning own = new AppConfig.Planning(AppConfig.PlanningMode.AUTO, 1, 4, 0.0, 100, 100, null, 200,
+                AppConfig.GraphBuilder.TEXT_REFERENCE, null, false);
+        ScanPlanner separate = new ScanPlanner(own, new TokenEstimator(4, 0.0), new Prioritizer(), new TextReferenceGraphBuilder(),
+                new UnitContextBuilder(), 50);
+        ScanPlanner.PlanPair apart = separate.planPair("t", big, "s", small, app, new CodeBase(dir));
+        assertThat(apart.teacher().mode()).isEqualTo("whole");
+        assertThat(apart.student().mode()).isEqualTo("chunked");
     }
 
     @Test

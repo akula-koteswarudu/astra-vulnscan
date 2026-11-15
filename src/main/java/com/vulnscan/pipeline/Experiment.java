@@ -171,8 +171,9 @@ public class Experiment {
         prepare();
         stage("plan", () -> {
             var roles = cfg.models().roles();
-            UnitPlan teacher = planner.plan(roles.teacher(), spec(roles.teacher()), false, app.model(), app.code());
-            UnitPlan student = planner.plan(roles.student(), spec(roles.student()), true, app.model(), app.code());
+            var pair = planner.planPair(roles.teacher(), spec(roles.teacher()), roles.student(), spec(roles.student()), app.model(), app.code());
+            UnitPlan teacher = pair.teacher();
+            UnitPlan student = pair.student();
             store.writeJson("03_plan/units_teacher.json", teacher);
             store.writeJson("03_plan/units_student.json", student);
             progress.accept("plan: teacher " + teacher.units().size() + " unit(s) (" + teacher.mode() + "), student "

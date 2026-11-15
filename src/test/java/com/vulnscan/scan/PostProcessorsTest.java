@@ -202,6 +202,43 @@ class PostProcessorsTest {
         assertThat(out).singleElement().satisfies(x -> assertThat(x.evidenceStatus()).isEqualTo("verified_exact"));
     }
 
+    static Finding quoted(String id, String file, String symbol, String cwe, String evidence, String kind) {
+        return new Finding(id, "t" + id, "c", cwe, null, "low", 0.5, new Finding.Location(file, null, symbol, null, null),
+                evidence, "r", kind, "verified_exact", false, new Finding.Provenance("m", "arm", "r", 0, List.of("u" + id), "v1"));
+    }
+
+    @Test
+    void sameManifestSettingFromManyUnitsIsOneFindingWhateverTheCwe() {
+        Deduplicator d = new Deduplicator(Map.of());
+        List<Finding> out = d.dedup(List.of(
+                quoted("1", "AndroidManifest.xml", null, "CWE-312", "android:allowBackup=\"true\"", "manifest"),
+                quoted("2", "AndroidManifest.xml", null, "CWE-922", "android:allowBackup=\"true\"", "manifest"),
+                quoted("3", "AndroidManifest.xml", "Net.call", null, "android:allowBackup=\"true\"", "manifest")));
+        assertThat(out).singleElement().satisfies(x -> assertThat(x.provenance().unitIds()).containsExactly("u1", "u2", "u3"));
+    }
+
+    @Test
+    void sameQuotedCodeWithoutCweMergesButDisagreeingCwesStayApart() {
+        Deduplicator d = new Deduplicator(Map.of("storage", List.of("CWE-312", "CWE-922")));
+        String line = "File f = new File(param);";
+        // no CWE on either copy, different symbols: same quoted line in the same file is the same issue
+        assertThat(d.dedup(List.of(quoted("1", A, "X.a", null, line, "code"), quoted("2", A, "X.b", null, "File  f = new File(param);", "code"))))
+                .hasSize(1);
+        // same line quoted for two unrelated weaknesses: kept apart
+        assertThat(d.dedup(List.of(quoted("1", A, "X.a", "CWE-22", line, "code"), quoted("2", A, "X.b", "CWE-312", line, "code"))))
+                .hasSize(2);
+    }
+
+    @Test
+    void wholeManifestTagNeedsAgreeingCwes() {
+        Deduplicator d = new Deduplicator(Map.of());
+        String tag = "<provider android:authorities=\"a.b\" android:exported=\"true\">";
+        assertThat(d.dedup(List.of(quoted("1", "AndroidManifest.xml", null, "CWE-200", tag, "manifest"),
+                quoted("2", "AndroidManifest.xml", "P", "CWE-200", tag, "manifest")))).hasSize(1);
+        assertThat(d.dedup(List.of(quoted("1", "AndroidManifest.xml", null, "CWE-200", tag, "manifest"),
+                quoted("2", "AndroidManifest.xml", null, "CWE-732", tag, "manifest")))).hasSize(2);
+    }
+
     @Test
     void partialRatioBehavesLikeRapidfuzz() {
         assertThat(TextMatch.partialRatio("hello world", "say hello world!")).isEqualTo(100.0);

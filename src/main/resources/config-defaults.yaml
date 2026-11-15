@@ -29,6 +29,7 @@ planning:
   min_code_budget_tokens: 2000
   graph_builder: text_reference
   prioritizer_signals_file: null
+  shared_units: true               # teacher and student scan the same units, planned with the smaller of the two budgets
 scan:
   prompt_version: v4              # v1 + root-cause splitting (v2) + inter-component hints (v3) + 'lessons add to your own review' (v4)
   dedup: lossless                  # lossless: merge duplicates keeping every location | off: no merging (ablation)

@@ -1,0 +1,7 @@
+# Optional real-APK scan (plan step 24): open-source app from F-Droid, no ground truth.
+# Source: https://f-droid.org/repo/com.beemdevelopment.aegis_82.apk
+profile: assignment
+app:
+  name: aegis
+  input: apps/fdroid/com.beemdevelopment.aegis_82.apk
+  input_sha256: 0eecec45de0da3ff1358004b51e2960d9178551643a6ed44f6496ea9ec999c19

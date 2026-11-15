@@ -6,15 +6,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.TreeSet;
+import java.util.regex.Pattern;
 
 /**
  * Post-processor 4 (across all units of an arm run): merges findings that are the same issue reported twice
- * (overlapping units, or two phrasings): same CWE + file + symbol, or same file + overlapping evidence lines + same
- * CWE group. The kept copy is chosen by evidence quality (exact/inventory > fuzzy > relocated > unverified), then
+ * (overlapping units, or two phrasings): same CWE + file + symbol; or same file + overlapping evidence lines + same
+ * CWE group; or same file + the same quoted evidence (whitespace ignored) when the CWEs do not disagree (equal, same
+ * group, or one missing) or the evidence is a single manifest attribute such as {@code android:allowBackup="true"}
+ * (one setting is one issue, whatever CWE each copy chose). Chunked scans need the last rule: every unit sees its
+ * manifest slice, so an app-wide setting comes back once per unit, often with a different CWE or none. The kept copy is chosen by evidence quality (exact/inventory > fuzzy > relocated > unverified), then
  * confidence, then content (file, symbol, title, evidence); never by id, because ids depend on the run, and a run-dependent
  * choice would make the same answer evaluate differently in another run folder. The merged finding lists every unit.
  */
 public class Deduplicator {
+
+    /** One manifest attribute, e.g. android:usesCleartextTraffic="true" (not a whole tag, which can carry several flaws). */
+    private static final Pattern SINGLE_ATTRIBUTE = Pattern.compile("[\\w:.]+\\s*=\\s*\"[^\"]*\"");
 
     private final Map<String, List<String>> cweGroups;
     private final boolean enabled;
@@ -78,7 +85,20 @@ public class Deduplicator {
         if (a.cwe() != null && a.cwe().equals(b.cwe()) && Objects.equals(a.location().symbol(), b.location().symbol())) {
             return true;
         }
-        return linesOverlap(a.location(), b.location()) && sameGroup(a.cwe(), b.cwe());
+        if (linesOverlap(a.location(), b.location()) && sameGroup(a.cwe(), b.cwe())) {
+            return true;
+        }
+        String evidence = normalise(a.evidence());
+        if (evidence.isEmpty() || !evidence.equals(normalise(b.evidence()))) {
+            return false;
+        }
+        boolean cwesAgree = a.cwe() == null || b.cwe() == null || sameGroup(a.cwe(), b.cwe());
+        boolean oneSetting = "manifest".equals(a.kind()) && "manifest".equals(b.kind()) && SINGLE_ATTRIBUTE.matcher(evidence).matches();
+        return cwesAgree || oneSetting;
+    }
+
+    private static String normalise(String evidence) {
+        return evidence == null ? "" : evidence.strip().replaceAll("\\s+", " ");
     }
 
     private static boolean linesOverlap(Finding.Location a, Finding.Location b) {
