@@ -10,8 +10,9 @@ import java.util.TreeSet;
 /**
  * Post-processor 4 (across all units of an arm run): merges findings that are the same issue reported twice
  * (overlapping units, or two phrasings): same CWE + file + symbol, or same file + overlapping evidence lines + same
- * CWE group. The merged finding keeps a verified version over an unverified one (then the highest confidence) and
- * lists every unit it came from.
+ * CWE group. The kept copy is chosen by evidence quality (exact/inventory > fuzzy > relocated > unverified), then
+ * confidence, then content (file, symbol, title, evidence); never by id, because ids depend on the run, and a run-dependent
+ * choice would make the same answer evaluate differently in another run folder. The merged finding lists every unit.
  */
 public class Deduplicator {
 
@@ -23,8 +24,12 @@ public class Deduplicator {
 
     public List<Finding> dedup(List<Finding> findings) {
         List<Finding> sorted = new ArrayList<>(findings);
-        sorted.sort(Comparator.comparing((Finding f) -> !f.isVerified())
+        sorted.sort(Comparator.comparingInt((Finding f) -> statusRank(f.evidenceStatus()))
                 .thenComparing(Comparator.comparingDouble(Finding::confidence).reversed())
+                .thenComparing(f -> String.valueOf(f.location().file()))
+                .thenComparing(f -> String.valueOf(f.location().symbol()))
+                .thenComparing(Finding::title)
+                .thenComparing(Finding::evidence)
                 .thenComparing(Finding::id));
         List<Finding> kept = new ArrayList<>();
         for (Finding f : sorted) {
@@ -43,6 +48,15 @@ public class Deduplicator {
         }
         kept.sort(Comparator.comparing(Finding::id));
         return kept;
+    }
+
+    static int statusRank(String status) {
+        return switch (status) {
+            case "verified_exact", "inventory_match" -> 0;
+            case "verified_fuzzy" -> 1;
+            case "relocated" -> 2;
+            default -> 3;
+        };
     }
 
     boolean same(Finding a, Finding b) {

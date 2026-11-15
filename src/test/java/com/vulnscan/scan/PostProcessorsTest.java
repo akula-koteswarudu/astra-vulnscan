@@ -153,6 +153,20 @@ class PostProcessorsTest {
     }
 
     @Test
+    void dedupKeepsTheSameCopyWhateverTheIds() {
+        Deduplicator d = new Deduplicator(Map.of());
+        // same finding at two locations, same confidence: exact evidence must win, independent of id order
+        Finding exactA = finding("zz", A, "A.go", "CWE-79", 3, 0.5, "u", "verified_exact");
+        Finding relocB = new Finding("aa", "t", "c", "CWE-79", null, "high", 0.5, new Finding.Location(A, null, "A.go", 3, 4), "e", "r", "code",
+                "relocated", false, new Finding.Provenance("m", "arm", "r", 0, List.of("u"), "v1"));
+        assertThat(d.dedup(List.of(exactA, relocB))).singleElement().satisfies(x -> assertThat(x.evidenceStatus()).isEqualTo("verified_exact"));
+        Finding exactA2 = finding("aa", A, "A.go", "CWE-79", 3, 0.5, "u", "verified_exact");
+        Finding relocB2 = new Finding("zz", "t", "c", "CWE-79", null, "high", 0.5, new Finding.Location(A, null, "A.go", 3, 4), "e", "r", "code",
+                "relocated", false, new Finding.Provenance("m", "arm", "r", 0, List.of("u"), "v1"));
+        assertThat(d.dedup(List.of(relocB2, exactA2))).singleElement().satisfies(x -> assertThat(x.evidenceStatus()).isEqualTo("verified_exact"));
+    }
+
+    @Test
     void dedupPrefersTheVerifiedCopy() {
         Deduplicator d = new Deduplicator(Map.of());
         List<Finding> out = d.dedup(List.of(

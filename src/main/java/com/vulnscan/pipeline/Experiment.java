@@ -91,7 +91,7 @@ public class Experiment {
      */
     public void reevaluate() {
         app = savedApp();
-        new Reverifier().reverify(this);
+        new Reprocessor().reprocess(this, planner);
         manifest.putIn("reevaluations", java.time.Instant.now().toString(), Map.of("config_hash", cfg.configHash(),
                 "judge", cfg.models().spec(cfg.models().roles().judge()).model()));
         for (String stage : List.of("evaluate", "report")) {

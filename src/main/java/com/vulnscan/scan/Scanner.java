@@ -163,6 +163,15 @@ public class Scanner {
         return r;
     }
 
+    /**
+     * Rebuilds a unit's findings from a saved model answer (no model call): parse, normalise, split, verify.
+     * Throws when the text is not a valid answer.
+     */
+    public List<Finding> fromSavedAnswer(String text, ScanUnit unit, ScanRun run, String modelUsed)
+            throws FindingParser.InvalidResponseException {
+        return postProcess(parser.parse(text).findings(), unit, run, modelUsed);
+    }
+
     List<Finding> postProcess(List<RawFinding> raw, ScanUnit unit, ScanRun run, String modelUsed) {
         List<Finding> out = new ArrayList<>();
         for (RawFinding f : raw) {
