@@ -1,6 +1,6 @@
 # Scan report: markor
 
-**Redacted copy.** One high-severity issue in this app has not been reported publicly yet. Its finding, the lesson distilled from it, and the guidance text derived from it are removed from this copy until the maintainers have been notified. Everything else, including the low-severity issues and the counts, is unchanged.
+**Redacted copy.** One high-severity issue in this app has not been reported publicly yet. Its finding, the lesson distilled from it, and the guidance text derived from it are removed from this copy until the maintainers have been notified. Everything else is unchanged. Severity note: the teacher rated the exported-activity file-path issue high; the author's review confirmed the code issue but not its impact, so it is counted as severity unconfirmed.
 
 Run `2026-11-15T1528_markor_49247051` · profile `assignment` · generated from the run folder (every number below is traceable to a file in it).
 

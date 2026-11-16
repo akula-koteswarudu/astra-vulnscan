@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Dynamic scan architecture</title>
+<style>
+  html, body { margin: 0; background: #ffffff; }
+  svg { display: block; font-family: -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; }
+  .box { fill: #f5f7fa; stroke: #4a5568; stroke-width: 1.5; }
+  .built { fill: #e6f4ea; stroke: #2f855a; }
+  .new { fill: #ebf4ff; stroke: #2b6cb0; }
+  .out { fill: #fffaf0; stroke: #b7791f; }
+  .group { fill: none; stroke: #a0aec0; stroke-width: 1.5; stroke-dasharray: 6 5; }
+  .t { font-size: 17px; font-weight: 600; fill: #1a202c; }
+  .s { font-size: 13.5px; fill: #4a5568; }
+  .g { font-size: 13px; font-weight: 600; fill: #718096; letter-spacing: .04em; }
+  .arrow { stroke: #4a5568; stroke-width: 1.8; fill: none; marker-end: url(#a); }
+  .fb { stroke: #b7791f; stroke-width: 1.8; fill: none; stroke-dasharray: 7 5; marker-end: url(#b); }
+  .lbl { font-size: 12.5px; fill: #4a5568; }
+</style>
+</head>
+<body>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="790" viewBox="0 0 1200 790">
+  <defs>
+    <marker id="a" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto-start-reverse"><path d="M0,0 L10,4 L0,8 z" fill="#4a5568"/></marker>
+    <marker id="b" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8 z" fill="#b7791f"/></marker>
+  </defs>
+
+  <!-- row 1: static pipeline -->
+  <text x="40" y="38" class="g">ALREADY BUILT (STATIC)</text>
+  <rect x="40" y="50" width="250" height="84" rx="8" class="box built"/>
+  <text x="165" y="85" text-anchor="middle" class="t">Static scan</text>
+  <text x="165" y="108" text-anchor="middle" class="s">teacher + student with lessons</text>
+
+  <rect x="350" y="50" width="250" height="84" rx="8" class="box built"/>
+  <text x="475" y="85" text-anchor="middle" class="t">Verified findings</text>
+  <text x="475" y="108" text-anchor="middle" class="s">quoted code checked in the app</text>
+
+  <rect x="660" y="50" width="500" height="84" rx="8" class="box new"/>
+  <text x="910" y="85" text-anchor="middle" class="t">Hypothesis queue</text>
+  <text x="910" y="108" text-anchor="middle" class="s">component, entry point, input, sink, and the oracle that would prove it</text>
+
+  <path d="M290,92 L348,92" class="arrow"/>
+  <path d="M600,92 L658,92" class="arrow"/>
+
+  <!-- row 2: orchestrator + emulator pool -->
+  <text x="40" y="196" class="g">NEW (DYNAMIC)</text>
+  <rect x="40" y="208" width="250" height="110" rx="8" class="box new"/>
+  <text x="165" y="246" text-anchor="middle" class="t">Orchestrator</text>
+  <text x="165" y="270" text-anchor="middle" class="s">job queue, timeouts, retries,</text>
+  <text x="165" y="289" text-anchor="middle" class="s">quarantine of failing devices</text>
+
+  <rect x="350" y="208" width="810" height="110" rx="8" class="box new"/>
+  <text x="755" y="240" text-anchor="middle" class="t">Emulator pool: one clean snapshot per job</text>
+  <text x="755" y="266" text-anchor="middle" class="s">app installed · proxy CA trusted · pinning hooks · unprivileged "attacker" helper app</text>
+  <text x="755" y="288" text-anchor="middle" class="s">login replayed per job against its own backend test tenant</text>
+
+  <path d="M910,134 L910,170 L165,170 L165,206" class="arrow"/>
+  <path d="M290,263 L348,263" class="arrow"/>
+
+  <!-- row 3: agent loop -->
+  <rect x="40" y="372" width="820" height="190" rx="10" class="group"/>
+  <text x="56" y="394" class="g">AI AGENT LOOP (reuses the model layer)</text>
+
+  <rect x="64" y="410" width="230" height="108" rx="8" class="box new"/>
+  <text x="179" y="446" text-anchor="middle" class="t">Observe</text>
+  <text x="179" y="470" text-anchor="middle" class="s">UI tree, screenshots,</text>
+  <text x="179" y="489" text-anchor="middle" class="s">logcat, proxy traffic</text>
+
+  <rect x="336" y="410" width="230" height="108" rx="8" class="box new"/>
+  <text x="451" y="446" text-anchor="middle" class="t">Act</text>
+  <text x="451" y="470" text-anchor="middle" class="s">tap, type, send intent from</text>
+  <text x="451" y="489" text-anchor="middle" class="s">attacker app, replay request</text>
+
+  <rect x="608" y="410" width="230" height="108" rx="8" class="box new"/>
+  <text x="723" y="446" text-anchor="middle" class="t">Check oracle</text>
+  <text x="723" y="470" text-anchor="middle" class="s">did the canary arrive?</text>
+  <text x="723" y="489" text-anchor="middle" class="s">a crash is only a lead</text>
+
+  <path d="M294,464 L334,464" class="arrow"/>
+  <path d="M566,464 L606,464" class="arrow"/>
+  <path d="M723,518 L723,532 L179,532 L179,520" class="arrow"/>
+  <text x="451" y="551" text-anchor="middle" class="lbl">not proven yet: next step</text>
+
+  <path d="M755,320 L755,346 L451,346 L451,370" class="arrow" style="marker-start:url(#a)"/>
+  <text x="603" y="339" text-anchor="middle" class="lbl">agent acts on the device and reads it back</text>
+
+  <!-- live backend -->
+  <rect x="930" y="410" width="230" height="108" rx="8" class="box"/>
+  <text x="1045" y="446" text-anchor="middle" class="t">Live backend</text>
+  <text x="1045" y="470" text-anchor="middle" class="s">test tenant, two seeded users,</text>
+  <text x="1045" y="489" text-anchor="middle" class="s">fixed OTP, no CAPTCHA</text>
+  <path d="M1045,318 L1045,408" class="arrow"/>
+  <text x="1055" y="366" class="lbl">traffic via proxy</text>
+
+  <!-- row 4: outputs -->
+  <rect x="40" y="610" width="400" height="110" rx="8" class="box out"/>
+  <text x="240" y="646" text-anchor="middle" class="t">Verdict + evidence</text>
+  <text x="240" y="670" text-anchor="middle" class="s">confirmed (canary hit), refuted or not reached;</text>
+  <text x="240" y="689" text-anchor="middle" class="s">request and response, screenshot, replayable script</text>
+
+  <rect x="500" y="610" width="300" height="110" rx="8" class="box out"/>
+  <text x="650" y="646" text-anchor="middle" class="t">Report</text>
+  <text x="650" y="670" text-anchor="middle" class="s">confirmed, refuted, not reached;</text>
+  <text x="650" y="689" text-anchor="middle" class="s">coverage; infrastructure failures apart</text>
+
+  <rect x="860" y="610" width="300" height="110" rx="8" class="box built"/>
+  <text x="1010" y="646" text-anchor="middle" class="t">Lessons</text>
+  <text x="1010" y="670" text-anchor="middle" class="s">confirmed vs refuted feeds the</text>
+  <text x="1010" y="689" text-anchor="middle" class="s">teacher-to-student loop</text>
+
+  <path d="M240,562 L240,608" class="arrow"/>
+  <path d="M440,665 L498,665" class="arrow"/>
+  <path d="M800,665 L858,665" class="arrow"/>
+  <path d="M1160,665 L1190,665 L1190,22 L262,22 L262,48" class="fb"/>
+  <text x="1180" y="250" text-anchor="middle" class="lbl" transform="rotate(-90 1180 250)">better lessons, next scan</text>
+  <!-- legend -->
+  <rect x="40" y="750" width="14" height="14" rx="3" class="box built"/><text x="62" y="762" class="lbl">already built</text>
+  <rect x="170" y="750" width="14" height="14" rx="3" class="box new"/><text x="192" y="762" class="lbl">new for dynamic</text>
+  <rect x="320" y="750" width="14" height="14" rx="3" class="box out"/><text x="342" y="762" class="lbl">outputs</text>
+  <rect x="420" y="750" width="14" height="14" rx="3" class="box"/><text x="442" y="762" class="lbl">the customer's test backend</text>
+</svg>
+</body>
+</html>
