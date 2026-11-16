@@ -69,14 +69,18 @@ Markor 2026.10.0, an open-source Markdown editor from F-Droid. An open-source ap
 - **Judge: deepseek-v4.1-flash**, chosen to be a third family so neither the teacher's nor the student's family grades itself; cheap enough to judge every pair.
 - **Adding a model** is a config entry; a new provider is one adapter class plus one registry line.
 
-## 6. Limitations (short list for the doc)
+## 6. Limitations and what I would do next
 
-- In-sample lift: lessons come from the app they are tested on. The one cross-app test (OVAA) showed no transfer.
-- InsecureShop and its list are public; models may have seen them.
-- The judge audit labels were drafted by Claude and reviewed by me, so they are not fully independent of model judgement.
-- README items have no places; per-item credit can land on a neighbouring WebView item (totals checked by place, see section 1).
-- Small N: 3 repeats per arm, no significance test.
-- Static only; native code and Flutter/React Native bundles are not read.
+| Limitation | Next step |
+|---|---|
+| In-sample lift; the one cross-app test (OVAA) showed no transfer. | Leave-one-app-out over several apps; lessons distilled from several apps and teacher runs, merged. |
+| InsecureShop and its list are public; models may have seen them. | Renamed or obfuscated copies, or private apps with planted bugs. |
+| Small N: 3 repeats per arm, no significance test. | More repeats; bootstrap confidence intervals or a paired test per item. |
+| Judge audit labels drafted by Claude and reviewed by me, so not fully independent. | A second human labeller; a reasoning or stronger judge; an all-pairs check on a sample. |
+| README items have no places; per-item credit can land on a neighbouring WebView item. | Location-level recall as a reported metric (the place check already gives +3.7 to +4.3). |
+| Units come from a text-based, one-hop class graph. | A bytecode call graph (Androguard / SootUp) with entry-point-to-sink slices and summaries of shared classes; the key step for 1M+ line apps (section 3). |
+| Static only; native code, React Native/Flutter bundles and split APKs are not read. | Bundle and native readers; the dynamic agent in the dynamic-analysis section for runtime-only bugs. |
+| No control for "any checklist would help". | The planned checklist control arm: the student gets a generic MASVS checklist instead of the lessons. |
 
 ## 7. Held-out testing (for the interview)
 

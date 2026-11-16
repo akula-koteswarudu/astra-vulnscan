@@ -103,6 +103,15 @@
     {{/grid}}
   </table></div>
 
+  <h3>Findings (run 1 of each arm)</h3>
+  <p class="muted" style="font-size: 13px;">Every finding after evidence checking and dedup, highest severity first. "Credited" is the reference item it was assigned to (strict); "-" means it matched no item, which does not by itself make it a false positive. Other runs are in the run folder's findings files.</p>
+  {{#finding_arms}}
+  <details><summary>{{arm}}: {{count}} finding(s)</summary><div class="scroll"><table>
+    <tr><th>#</th><th>Finding</th><th>Severity</th><th>CWE</th><th>Where</th><th>Evidence</th><th>Credited</th></tr>
+    {{#rows}}<tr><td class="num">{{n}}</td><td><strong>{{title}}</strong><div class="muted" style="font-size: 13px;">{{rationale}}</div><pre>{{evidence}}</pre></td><td>{{severity}}</td><td>{{cwe}}</td><td><code>{{place}}</code></td><td>{{evidence_status}}</td><td>{{credited}}</td></tr>{{/rows}}
+  </table></div></details>
+  {{/finding_arms}}
+
   <h2>2. Lessons</h2>
   <p>{{lessons_sentence}}</p>
   <div class="cards">

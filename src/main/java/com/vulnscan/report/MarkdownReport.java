@@ -28,7 +28,8 @@ public class MarkdownReport {
                          List<Violation> violations, String sanitiserPolicy, int droppedBySanitiser, int droppedByCaps,
                          List<UsageTracker.Line> usage, Map<String, Coverage> coverage, Decompile decompile,
                          Map<String, String> prompts, String teacherMode, int teacherUnits, String studentMode,
-                         int studentUnits, String auditSentence, List<String> limitations, String promptsSentence) {
+                         int studentUnits, String auditSentence, List<String> limitations, String promptsSentence,
+                         Map<String, List<com.vulnscan.scan.Finding>> findingsByArm) {
     }
 
     public record Coverage(int units, Map<String, Long> unitStatus, Map<String, Long> evidenceStatus, int badFindings) {
@@ -159,6 +160,7 @@ public class MarkdownReport {
             }
         }
         c.put("coverage_rows", cov);
+        c.put("finding_arms", findingArms(in.findingsByArm(), head));
         Decompile d = in.decompile();
         c.put("jadx_version", d.jadxVersion());
         c.put("jadx_exit", d.exitCode());
@@ -294,5 +296,58 @@ public class MarkdownReport {
 
     private static String counts(Map<String, Long> m) {
         return m.isEmpty() ? "none" : m.entrySet().stream().map(e -> e.getKey() + " " + e.getValue()).collect(Collectors.joining(", "));
+    }
+
+    private static final List<String> SEVERITY_ORDER = List.of("critical", "high", "medium", "low", "info");
+
+    /**
+     * Run 1 of each arm: every finding with its place, evidence status and the reference item it was credited to
+     * (strict, headline reference); the rest of the runs are in the run folder's findings.json files.
+     */
+    static List<Map<String, Object>> findingArms(Map<String, List<com.vulnscan.scan.Finding>> byArm, Metrics.Mode head) {
+        List<Map<String, Object>> arms = new ArrayList<>();
+        if (byArm == null) {
+            return arms;
+        }
+        for (Map.Entry<String, List<com.vulnscan.scan.Finding>> e : byArm.entrySet()) {
+            Map<String, String> credited = new java.util.HashMap<>();
+            head.armRuns().stream().filter(r -> r.arm().equals(e.getKey()) && r.run() == 1).findFirst()
+                    .ifPresent(r -> r.matchedStrict().forEach((item, finding) -> credited.put(finding, item)));
+            List<com.vulnscan.scan.Finding> sorted = new ArrayList<>(e.getValue());
+            sorted.sort(java.util.Comparator.comparingInt((com.vulnscan.scan.Finding f) -> {
+                int k = SEVERITY_ORDER.indexOf(String.valueOf(f.severity()).toLowerCase());
+                return k < 0 ? SEVERITY_ORDER.size() : k;
+            }).thenComparing(com.vulnscan.scan.Finding::title));
+            List<Map<String, Object>> rows = new ArrayList<>();
+            int n = 0;
+            for (com.vulnscan.scan.Finding f : sorted) {
+                Map<String, Object> row = new LinkedHashMap<>();
+                var l = f.location();
+                String place = (l.file() == null ? "" : l.file().replaceFirst("^sources/", "")) + (l.line() == null ? "" : ":" + l.line())
+                        + (l.symbol() == null ? "" : " (" + l.symbol() + ")");
+                int more = f.alsoAt() == null ? 0 : f.alsoAt().size();
+                row.put("n", ++n);
+                row.put("id", f.id());
+                row.put("title", f.title());
+                row.put("severity", f.severity());
+                row.put("cwe", f.cwe() == null ? "" : f.cwe());
+                row.put("place", place + (more > 0 ? " +" + more + " more" : ""));
+                row.put("evidence_status", f.evidenceStatus());
+                row.put("credited", credited.getOrDefault(f.id(), "-"));
+                row.put("evidence", shorten(f.evidence(), 220));
+                row.put("rationale", shorten(f.rationale(), 400));
+                rows.add(row);
+            }
+            arms.add(Map.of("arm", e.getKey(), "count", rows.size(), "rows", rows));
+        }
+        return arms;
+    }
+
+    private static String shorten(String s, int max) {
+        if (s == null) {
+            return "";
+        }
+        String one = s.strip().replaceAll("\\s+", " ");
+        return one.length() <= max ? one : one.substring(0, max - 1) + "…";
     }
 }

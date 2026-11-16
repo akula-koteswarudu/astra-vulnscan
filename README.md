@@ -29,8 +29,8 @@ All 11 experiments (prompt versions, sampling vs shuffled order, both references
 What each results folder contains: [`results/README.md`](results/README.md).
 
 **A real app.** The teacher also scanned Markor, an open-source Markdown editor from F-Droid (39 units, 1.22M input
-tokens, $2.90). Its 31 findings were 11 distinct issues: 6 real (1 high, 5 low) and 5 noise. Details of the real issues
-are withheld until the maintainers have been notified. The scan also exposed what breaks on a real app; those fixes are
+tokens, $2.90). Its 31 findings were 11 distinct issues: 6 real (1 high, 5 low) and 5 noise. The report is published with the high-severity issue
+redacted until the maintainers have been notified: [`results/markor-real-apk/report.html`](results/markor-real-apk/report.html). The scan also exposed what breaks on a real app; those fixes are
 described in [`BUILD_LOG.md`](BUILD_LOG.md).
 
 ## Run it with Docker (only API keys and an APK needed)
@@ -134,10 +134,23 @@ each run records the sha256 of every prompt it used.
 - [`docs/DYNAMIC.md`](docs/DYNAMIC.md): extending this to dynamic analysis, with a diagram.
 - [`PLAN.md`](PLAN.md): the plan the build followed. [`BUILD_LOG.md`](BUILD_LOG.md): progress, every deviation from the plan with its reason, and every measurement.
 
-## Main limitations
+## Limitations and next steps
 
-- One app's lift is in-sample; the cross-app test showed no transfer. InsecureShop and its list are public, so models may have seen them.
-- Small N (3 runs per arm), no significance test. The judge is an LLM; its audit labels were drafted by a second model (Claude) and reviewed by the author, so they are not fully independent.
-- README items have no locations, so per-item credit can land on a neighbouring item (totals checked by place).
-- Static only: no native code, no React Native or Flutter bundles, no split APKs; the code graph is text-based and one hop.
-- Full list: section 8 of each report and `BUILD_LOG.md`.
+| Limitation | Next step |
+|---|---|
+| The lift is in-sample (lessons come from the app they are tested on); on OVAA the lessons did not transfer (+0.3). | Leave-one-app-out over several vulnerable apps (OVAA, InsecureBankv2, DIVA, AndroGoat…): distil lessons from the others, test on the held-out one; also hold out whole vulnerability classes. |
+| Lessons come from one teacher pass on one app, so they cover only the classes the teacher saw there. | Distil from several apps and several teacher runs, merge and deduplicate the lessons; add the planned checklist control arm, to separate "lessons" from "a generic checklist". |
+| InsecureShop and OVAA are public, so models may have seen them. | Renamed or obfuscated copies of the apps, or private apps with planted bugs. |
+| Small N: 3 runs per arm, no significance test. | More repeats and bootstrap confidence intervals or a paired test per item. |
+| The judge is an LLM; its audit labels were drafted by a second model and reviewed by the author. | A second human labeller; a stronger judge or one with reasoning switched on; an all-pairs check on a sample to measure what the shortlist step misses. |
+| README items have no places, so per-item credit can land on a neighbouring item. | Make the place check (built as an analysis, +3.7 to +4.3) a reported metric: location-level recall. |
+| Units come from a text-based, one-hop class graph: reflection, framework callbacks and intents sent by action string are missed. | A bytecode call graph (Androguard, or SootUp on the JVM; a placeholder `AndroguardGraphBuilder` exists): units become entry-point-to-sink slices, and classes everyone calls get a short summary instead of their full body. This is also the main step for apps with 1M+ lines. |
+| Decompilation is lossy (jadx failures are counted). | A smali fallback for methods jadx cannot decompile. |
+| Native code, React Native and Flutter bundles, and split APKs / app bundles are not read. | Add those inputs: a JS or Hermes bundle reader, native-library analysis, and bundletool to merge splits. |
+| Library code is recognised by package name, which obfuscation breaks. | Fingerprint libraries by code hashes. |
+| The planner's token estimate is about 1.5× below Claude's real count. | Calibrate per model, or use the provider's token-counting endpoint for the teacher. |
+| The sanitiser is lexical plus a similarity check; a paraphrase of app-specific detail can pass. | Add a model-based leak check on each lesson. |
+| Code and strings from the app could try prompt injection. | Keep the code in delimited blocks (done) and add a second-pass check of findings against the evidence (partly done by the evidence gate). |
+| Static only: runtime-only bugs (for example server-side authorisation) are out of scope. | A dynamic agent that takes these findings as hypotheses and confirms them on a running app: [`docs/DYNAMIC.md`](docs/DYNAMIC.md). |
+
+The Limitations section of each report and `BUILD_LOG.md` have the full list.

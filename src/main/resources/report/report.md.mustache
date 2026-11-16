@@ -30,6 +30,22 @@ Strict = the judge said "match"; lenient also counts "partial". One-to-one assig
 | {{id}} | {{title}} | {{visibility}} |{{#cells}} {{.}} |{{/cells}}
 {{/item_rows}}
 
+### Findings (run 1 of each arm)
+
+Every finding after evidence checking and dedup, highest severity first. "Credited" is the reference item it was assigned to (strict); "-" means it matched no item, which does not by itself make it a false positive.
+
+{{#finding_arms}}
+<details><summary>{{arm}}: {{count}} finding(s)</summary>
+
+| # | Finding | Severity | CWE | Where | Evidence | Credited |
+|---|---|---|---|---|---|---|
+{{#rows}}
+| {{n}} | {{title}} | {{severity}} | {{cwe}} | `{{place}}` | {{evidence_status}} | {{credited}} |
+{{/rows}}
+
+</details>
+
+{{/finding_arms}}
 ## 2. Lessons
 
 {{lessons_sentence}}

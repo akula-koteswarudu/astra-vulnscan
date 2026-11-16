@@ -27,30 +27,30 @@ import java.util.stream.Stream;
 public class ReportStage {
 
     static final List<String> LIMITATIONS = List.of(
-            "The lift is in-sample: lessons are distilled from the same app the student is rescanned on. One app cannot show that the lessons generalise (cross-app transfer is the partial answer).",
-            "Contamination: the evaluation app and its vulnerability list are public; the models may have memorised them.",
+            "The lift is in-sample: lessons are distilled from the same app the student is rescanned on. One app cannot show that the lessons generalise (cross-app transfer is the partial answer). Next: leave-one-app-out over several apps, with lessons distilled from several apps and merged.",
+            "Contamination: the evaluation app and its vulnerability list are public; the models may have memorised them. Next: renamed or obfuscated copies, or private apps with planted bugs.",
             "Some ingest features (dependency inventory, cloud-identifier patterns) were added after reading the ground-truth list; they are generic, but not chosen blind.",
             "Prompts were developed on this app (versions and scores are recorded in section 8).",
             "Ground-truth enrichment is the author's own labelling (mitigated: written and committed before any scan, README-only headline, robustness check).",
             "Some items are only partly visible statically (server-side cloud configuration; known-vulnerable components rely on the model's advisory knowledge).",
-            "The teacher's temperature cannot be set (Claude Sonnet 5.5 rejects non-default sampling); LLM output varies between runs; small N; no significance test.",
+            "The teacher's temperature cannot be set (Claude Sonnet 5.5 rejects non-default sampling); LLM output varies between runs; small N; no significance test. Next: more repeats and bootstrap confidence intervals.",
             "Teacher refusals can reduce coverage (counted; the model that answered is recorded when a fallback was used).",
             "Teacher and student may scan different units because of different budgets; the student's free tier (1,000 output tokens per minute) forces small units, and units whose answer does not fit are re-planned into smaller ones.",
-            "The judge is an LLM; the hand audit measures its agreement with the author, it does not remove bias.",
+            "The judge is an LLM; the hand audit measures its agreement with the author, it does not remove bias. Next: a second human labeller, a stronger or reasoning judge, and an all-pairs check on a sample.",
             "One-to-one matching is conservative.",
             "Unmatched findings are not automatically false positives (the reference list may be incomplete).",
             "Teacher-as-reference (apps without ground truth) inherits the teacher's misses and mistakes and is circular with the lessons.",
-            "Decompilation is lossy (jadx failures are counted); the smali fallback is not built in v0.1.",
-            "Obfuscated apps: first-party code is derived from the manifest, but library detection is not fingerprint-based.",
-            "Native code, assets and split APKs / app bundles are not analysed.",
-            "Text-based one-hop graph: reflection, framework callbacks and string-action intents are missed; oversized files are skipped; no hub/skeleton handling in v0.1.",
+            "Decompilation is lossy (jadx failures are counted). Next: a smali fallback for methods jadx cannot decompile.",
+            "Obfuscated apps: first-party code is derived from the manifest, but library detection is not fingerprint-based. Next: fingerprint libraries by code hashes.",
+            "Native code, assets (including React Native / Flutter bundles) and split APKs / app bundles are not analysed. Next: bundle and native-library readers; bundletool to merge splits.",
+            "Text-based one-hop graph: reflection, framework callbacks and string-action intents are missed; oversized files are skipped; no hub/skeleton handling in v0.1. Next: a bytecode call graph (Androguard / SootUp) with entry-point-to-sink slices and summaries of shared classes.",
             "strings.xml filtering can miss innocently named, low-entropy secrets.",
             "Prompt injection via app code or strings can still influence the model.",
             "Model confidence is uncalibrated (used for ranking only).",
-            "The sanitiser is lexical plus a similarity check; paraphrased references can pass.",
+            "The sanitiser is lexical plus a similarity check; paraphrased references can pass. Next: a model-based leak check per lesson.",
             "Lessons cover only the vulnerability classes the teacher found in the source app.",
             "Line numbers refer to decompiled code.",
-            "Static only: runtime-only issues are out of scope (see the dynamic-analysis write-up).");
+            "Static only: runtime-only issues are out of scope. Next: a dynamic agent that confirms these findings on a running app (see the dynamic-analysis write-up).");
 
     public void report(Experiment e) {
         RunStore s = e.store();
@@ -68,6 +68,7 @@ public class ReportStage {
             droppedCaps = ((List<?>) rejected.get("dropped_by_caps")).size();
         }
 
+        Map<String, List<Finding>> findingsByArm = new LinkedHashMap<>();
         Map<String, MarkdownReport.Coverage> coverage = new LinkedHashMap<>();
         for (Arm arm : Arm.values()) {
             String dir = Experiment.armDir(arm, 1);
@@ -84,6 +85,7 @@ public class ReportStage {
                 bad += ((Number) m.get("bad_findings")).intValue();
             }
             List<Finding> findings = s.readJson(dir + "findings.json", ArmOutput.class).findings();
+            findingsByArm.put(arm.id, findings);
             Map<String, Long> evidence = findings.stream().collect(Collectors.groupingBy(Finding::evidenceStatus, TreeMap::new, Collectors.counting()));
             coverage.put(arm.id, new MarkdownReport.Coverage(units.size(), status, evidence, bad));
         }
@@ -109,7 +111,8 @@ public class ReportStage {
         MarkdownReport.Inputs in = new MarkdownReport.Inputs(cfg.app().name(), s.runId(), cfg.profile().name().toLowerCase(), metrics,
                 lessons, violations, policy, droppedSanitiser, droppedCaps, usage(s.dir()), coverage, decompile, prompts,
                 teacherPlan.mode(), teacherPlan.units().size(), studentPlan.mode(), studentPlan.units().size(), audit, LIMITATIONS,
-                "Prompts were written from the OWASP MASVS categories, not from the ground-truth list, but they were developed and debugged on this app.");
+                "Prompts were written from the OWASP MASVS categories, not from the ground-truth list, but they were developed and debugged on this app.",
+                findingsByArm);
         s.writeText("report.md", new MarkdownReport().render(in));
         s.writeText("report.html", new com.vulnscan.report.HtmlReport().render(in));
         e.progress().accept("report: " + s.path("report.html") + " (and report.md)");

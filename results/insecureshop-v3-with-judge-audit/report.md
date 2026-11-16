@@ -42,6 +42,83 @@ Strict = the judge said "match"; lenient also counts "partial". One-to-one assig
 | GT-18 | Insecure Data Storage | full | ✓ | ✓ | ✓ |
 | GT-19 | Insecure Logging | full | ✓ | ✓ | ✓ |
 
+### Findings (run 1 of each arm)
+
+Every finding after evidence checking and dedup, highest severity first. "Credited" is the reference item it was assigned to (strict); "-" means it matched no item, which does not by itself make it a false positive.
+
+<details><summary>teacher: 19 finding(s)</summary>
+
+| # | Finding | Severity | CWE | Where | Evidence | Credited |
+|---|---|---|---|---|---|---|
+| 1 | Deep link WebViewActivity: unvalidated /web path and weak endsWith host check on /webview path | high | CWE-939 | `com/insecureshop/WebViewActivity.java:91 (WebViewActivity.onCreate)` | verified_exact | GT-03 |
+| 2 | Exported ResultActivity returns caller's intent as result, enabling URI permission grants | high | CWE-927 | `com/insecureshop/ResultActivity.java:38 (ResultActivity.onCreate)` | verified_exact | GT-14 |
+| 3 | Exported WebView2Activity loads arbitrary URL from intent into JS-enabled WebView with universal file access | high | CWE-79 | `com/insecureshop/WebView2Activity.java:83 (WebView2Activity.onCreate)` | verified_exact | GT-06 |
+| 4 | Exported content provider returns username and password, guarded only by a normal-level permission | high | CWE-200 | `AndroidManifest.xml (InsecureShopProvider.query)` | verified_exact | GT-15 |
+| 5 | FileProvider exposes entire filesystem root | high | CWE-668 | `resources/res/xml/provider_paths.xml` | verified_exact | GT-11 |
+| 6 | Intent redirection via attacker-supplied nested intent in exported WebView2Activity | high | CWE-749 | `com/insecureshop/WebView2Activity.java:53 (WebView2Activity.onCreate)` | verified_exact | GT-05 |
+| 7 | Loads and executes code from any installed package whose name starts with com.insecureshopapp | high | CWE-94 | `com/insecureshop/LoginActivity.java:111 (LoginActivity.onLogin)` | verified_exact | GT-04 |
+| 8 | WebView ignores SSL errors | high | CWE-295 | `com/insecureshop/util/CustomWebViewClient.java:14 (CustomWebViewClient.onReceivedSslError)` | verified_exact | GT-16 |
+| 9 | Application is debuggable and allows backup | medium | CWE-489 | `AndroidManifest.xml` | verified_exact | - |
+| 10 | Cleartext HTTP traffic enabled | medium | CWE-319 | `AndroidManifest.xml` | verified_exact | - |
+| 11 | Credentials sent in implicit broadcast | medium | CWE-927 | `com/insecureshop/AboutUsActivity.java:86 (AboutUsActivity.onSendData)` | verified_exact | GT-12 |
+| 12 | Credentials written to logcat | medium | CWE-532 | `com/insecureshop/LoginActivity.java:87 (LoginActivity.onLogin)` | verified_exact | GT-19 |
+| 13 | Dynamically registered exported receiver opens attacker-supplied URL in WebView2Activity | medium | CWE-926 | `com/insecureshop/AboutUsActivity.java:63 (AboutUsActivity.onCreate) +1 more` | verified_exact | GT-09 |
+| 14 | Exported ChooserActivity copies attacker-chosen URI to external storage using attacker-controlled filename | medium | CWE-22 | `com/insecureshop/ChooserActivity.java:57 (ChooserActivity.makeTempCopy) +1 more` | verified_exact | GT-07 |
+| 15 | Hardcoded AWS Cognito identity pool ID | medium | CWE-798 | `res/values/strings.xml` | verified_exact | - |
+| 16 | Hardcoded login credentials with client-side-only authentication | medium | CWE-798 | `com/insecureshop/util/Util.java:25 (Util.getUserCreds)` | verified_exact | GT-01 |
+| 17 | Password stored in plaintext SharedPreferences (also backup-enabled) | medium | CWE-312 | `com/insecureshop/util/Prefs.java:100 (Prefs.setPassword)` | verified_exact | GT-18 |
+| 18 | PrivateActivity WebView loads intent-provided URL with universal file access | medium | CWE-79 | `com/insecureshop/PrivateActivity.java (PrivateActivity.onCreate)` | verified_fuzzy | GT-02 |
+| 19 | UploadService exported without permission | medium | CWE-926 | `AndroidManifest.xml` | verified_exact | - |
+
+</details>
+
+<details><summary>student_baseline: 15 finding(s)</summary>
+
+| # | Finding | Severity | CWE | Where | Evidence | Credited |
+|---|---|---|---|---|---|---|
+| 1 | Exported Content Provider exposes credentials | critical | CWE-926 | `AndroidManifest.xml` | verified_exact | GT-15 |
+| 2 | Hardcoded credentials | critical | CWE-798 | `com/insecureshop/util/Util.java:25 (Util.getUserCreds)` | verified_exact | GT-01 |
+| 3 | Broadcast sends credentials | high | CWE-927 | `com/insecureshop/AboutUsActivity.java:88 (AboutUsActivity.onSendData)` | verified_exact | GT-12 |
+| 4 | Credentials logged | high | CWE-532 | `com/insecureshop/LoginActivity.java:88 (LoginActivity.onLogin)` | verified_exact | GT-19 |
+| 5 | Debuggable build | high | CWE-489 | `AndroidManifest.xml` | verified_exact | - |
+| 6 | FileProvider exposes root path | high | CWE-22 | `resources/res/xml/provider_paths.xml` | verified_exact | GT-11 |
+| 7 | Sensitive data stored in plaintext | high | CWE-312 | `com/insecureshop/util/Prefs.java:100 (Prefs.setPassword)` | verified_exact | GT-18 |
+| 8 | WebView allows universal file access | high | CWE-749 | `com/insecureshop/WebView2Activity.java:73 (WebView2Activity.onCreate) +1 more` | verified_exact | GT-17 |
+| 9 | WebView allows universal file access | high | CWE-749 | `com/insecureshop/WebViewActivity.java:68 (WebViewActivity.onCreate)` | verified_exact | - |
+| 10 | WebView ignores SSL errors | high | CWE-295 | `com/insecureshop/util/CustomWebViewClient.java:16 (CustomWebViewClient.onReceivedSslError)` | verified_exact | GT-16 |
+| 11 | WebView loads untrusted URL | high | CWE-601 | `com/insecureshop/WebView2Activity.java:83 (WebView2Activity.onCreate)` | verified_exact | GT-02 |
+| 12 | Backup enabled | medium | CWE-921 | `AndroidManifest.xml` | verified_exact | - |
+| 13 | Cleartext traffic enabled | medium | CWE-319 | `AndroidManifest.xml` | verified_exact | - |
+| 14 | Hardcoded AWS Identity Pool ID | medium | CWE-798 | `res/values/strings.xml` | verified_exact | - |
+| 15 | Implicit intent with sensitive data | medium | CWE-927 | `com/insecureshop/ProductAdapter.java:123 (ProductAdapter.onBindViewHolder)` | verified_exact | - |
+
+</details>
+
+<details><summary>student_with_lessons: 18 finding(s)</summary>
+
+| # | Finding | Severity | CWE | Where | Evidence | Credited |
+|---|---|---|---|---|---|---|
+| 1 | Debuggable build enabled | high | CWE-489 | `AndroidManifest.xml` | verified_exact | - |
+| 2 | Deep link URL check bypassable via weak host validation | high | CWE-939 | `com/insecureshop/WebViewActivity.java:91 (WebViewActivity.onCreate)` | verified_exact | GT-03 |
+| 3 | Exported Activity reflects caller Intent through setResult | high | CWE-927 | `com/insecureshop/ResultActivity.java:38 (ResultActivity.onCreate)` | verified_exact | GT-14 |
+| 4 | Exported ContentProvider leaks credentials with normal-level permission | high | CWE-200 | `AndroidManifest.xml (InsecureShopProvider.query) +1 more` | verified_exact | GT-15 |
+| 5 | Exported WebView loads unvalidated URL with file access | high | CWE-79 | `com/insecureshop/WebView2Activity.java:73 (WebView2Activity.onCreate)` | verified_exact | GT-02 |
+| 6 | FileProvider configured with overly broad root path | high | CWE-668 | `resources/res/xml/provider_paths.xml` | verified_exact | GT-11 |
+| 7 | Hardcoded credentials in client-side authentication | high | CWE-798 | `com/insecureshop/util/Util.java:25 (Util.getUserCreds)` | verified_exact | GT-01 |
+| 8 | Intent redirection via nested Intent extra | high | CWE-749 | `com/insecureshop/WebView2Activity.java:53 (WebView2Activity.onCreate)` | verified_exact | GT-05 |
+| 9 | Loading code from another package by name prefix | high | CWE-94 | `com/insecureshop/LoginActivity.java:109 (LoginActivity.onLogin)` | verified_exact | GT-04 |
+| 10 | WebView ignores SSL errors | high | CWE-295 | `com/insecureshop/util/CustomWebViewClient.java:16 (CustomWebViewClient.onReceivedSslError)` | verified_exact | GT-16 |
+| 11 | Cleartext traffic enabled | medium | CWE-319 | `AndroidManifest.xml` | verified_exact | - |
+| 12 | Credentials logged to logcat | medium | CWE-532 | `com/insecureshop/LoginActivity.java:87 (LoginActivity.onLogin)` | verified_exact | GT-19 |
+| 13 | Dynamic receiver registered without permission triggers actions | medium | CWE-926 | `com/insecureshop/AboutUsActivity.java:63 (AboutUsActivity.onCreate) +1 more` | verified_exact | GT-09 |
+| 14 | Exported third-party service without permission | medium | CWE-926 | `AndroidManifest.xml` | verified_exact | - |
+| 15 | Hardcoded AWS Identity Pool ID | medium | CWE-798 | `res/values/strings.xml` | verified_exact | - |
+| 16 | Plaintext credentials stored in SharedPreferences with backup enabled | medium | CWE-312 | `com/insecureshop/util/Prefs.java:100 (Prefs.setPassword) +1 more` | verified_exact | GT-18 |
+| 17 | Sensitive data sent in implicit broadcast | medium | CWE-927 | `com/insecureshop/AboutUsActivity.java:87 (AboutUsActivity.onSendData)` | verified_exact | GT-12 |
+| 18 | Untrusted stream URI copied to shared storage | medium | CWE-22 | `com/insecureshop/ChooserActivity.java:57 (ChooserActivity.onCreate)` | verified_exact | GT-07 |
+
+</details>
+
 ## 2. Lessons
 
 15 lessons kept after sanitising, distilled in one teacher call from 19 verified teacher findings; 15 selected for the student (3583 tokens, within the reserved budget).
@@ -267,27 +344,27 @@ Prompts were written from the OWASP MASVS categories, not from the ground-truth 
 
 ## 9. Limitations
 
-- The lift is in-sample: lessons are distilled from the same app the student is rescanned on. One app cannot show that the lessons generalise (cross-app transfer is the partial answer).
-- Contamination: the evaluation app and its vulnerability list are public; the models may have memorised them.
+- The lift is in-sample: lessons are distilled from the same app the student is rescanned on. One app cannot show that the lessons generalise (cross-app transfer is the partial answer). Next: leave-one-app-out over several apps, with lessons distilled from several apps and merged.
+- Contamination: the evaluation app and its vulnerability list are public; the models may have memorised them. Next: renamed or obfuscated copies, or private apps with planted bugs.
 - Some ingest features (dependency inventory, cloud-identifier patterns) were added after reading the ground-truth list; they are generic, but not chosen blind.
 - Prompts were developed on this app (versions and scores are recorded in section 8).
 - Ground-truth enrichment is the author's own labelling (mitigated: written and committed before any scan, README-only headline, robustness check).
 - Some items are only partly visible statically (server-side cloud configuration; known-vulnerable components rely on the model's advisory knowledge).
-- The teacher's temperature cannot be set (Claude Sonnet 5.5 rejects non-default sampling); LLM output varies between runs; small N; no significance test.
+- The teacher's temperature cannot be set (Claude Sonnet 5.5 rejects non-default sampling); LLM output varies between runs; small N; no significance test. Next: more repeats and bootstrap confidence intervals.
 - Teacher refusals can reduce coverage (counted; the model that answered is recorded when a fallback was used).
 - Teacher and student may scan different units because of different budgets; the student's free tier (1,000 output tokens per minute) forces small units, and units whose answer does not fit are re-planned into smaller ones.
-- The judge is an LLM; the hand audit measures its agreement with the author, it does not remove bias.
+- The judge is an LLM; the hand audit measures its agreement with the author, it does not remove bias. Next: a second human labeller, a stronger or reasoning judge, and an all-pairs check on a sample.
 - One-to-one matching is conservative.
 - Unmatched findings are not automatically false positives (the reference list may be incomplete).
 - Teacher-as-reference (apps without ground truth) inherits the teacher's misses and mistakes and is circular with the lessons.
-- Decompilation is lossy (jadx failures are counted); the smali fallback is not built in v0.1.
-- Obfuscated apps: first-party code is derived from the manifest, but library detection is not fingerprint-based.
-- Native code, assets and split APKs / app bundles are not analysed.
-- Text-based one-hop graph: reflection, framework callbacks and string-action intents are missed; oversized files are skipped; no hub/skeleton handling in v0.1.
+- Decompilation is lossy (jadx failures are counted). Next: a smali fallback for methods jadx cannot decompile.
+- Obfuscated apps: first-party code is derived from the manifest, but library detection is not fingerprint-based. Next: fingerprint libraries by code hashes.
+- Native code, assets (including React Native / Flutter bundles) and split APKs / app bundles are not analysed. Next: bundle and native-library readers; bundletool to merge splits.
+- Text-based one-hop graph: reflection, framework callbacks and string-action intents are missed; oversized files are skipped; no hub/skeleton handling in v0.1. Next: a bytecode call graph (Androguard / SootUp) with entry-point-to-sink slices and summaries of shared classes.
 - strings.xml filtering can miss innocently named, low-entropy secrets.
 - Prompt injection via app code or strings can still influence the model.
 - Model confidence is uncalibrated (used for ranking only).
-- The sanitiser is lexical plus a similarity check; paraphrased references can pass.
+- The sanitiser is lexical plus a similarity check; paraphrased references can pass. Next: a model-based leak check per lesson.
 - Lessons cover only the vulnerability classes the teacher found in the source app.
 - Line numbers refer to decompiled code.
-- Static only: runtime-only issues are out of scope (see the dynamic-analysis write-up).
+- Static only: runtime-only issues are out of scope. Next: a dynamic agent that confirms these findings on a running app (see the dynamic-analysis write-up).

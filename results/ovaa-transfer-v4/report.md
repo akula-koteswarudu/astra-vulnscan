@@ -45,6 +45,83 @@ Strict = the judge said "match"; lenient also counts "partial". One-to-one assig
 | GT-17 | Hardcoded credentials to a dev environment endpoint in `strings.xml` in `test_url` entry |  | ✓ | ✓ 1/3 | ✓ 2/3 |
 | GT-18 | Arbitrary code execution via a DEX library located in a world-readable/writable directory |  | ✓ | ✓ 3/3 | ✓ 3/3 |
 
+### Findings (run 1 of each arm)
+
+Every finding after evidence checking and dedup, highest severity first. "Credited" is the reference item it was assigned to (strict); "-" means it matched no item, which does not by itself make it a false positive.
+
+<details><summary>teacher: 21 finding(s)</summary>
+
+| # | Finding | Severity | CWE | Where | Evidence | Credited |
+|---|---|---|---|---|---|---|
+| 1 | Credentials sent over cleartext HTTP | high | CWE-319 | `oversecured/ovaa/network/RetrofitInstance.java:8 (RetrofitInstance) +1 more` | verified_exact | - |
+| 2 | Deeplink can set the login URL to an attacker server | high | CWE-345 | `oversecured/ovaa/activities/DeeplinkActivity.java:37 (DeeplinkActivity.processDeeplink) +1 more` | verified_exact | GT-01 |
+| 3 | DexClassLoader loads code from world-writable /sdcard/updater.apk | high | CWE-94 | `oversecured/ovaa/OversecuredApplication.java:38 (OversecuredApplication.updateChecker)` | verified_exact | GT-18 |
+| 4 | Exported LoginActivity starts an attacker-supplied intent | high | CWE-926 | `oversecured/ovaa/activities/LoginActivity.java:75 (LoginActivity.onLoginFinished)` | verified_exact | GT-05 |
+| 5 | Exported provider opens arbitrary files via an unvalidated path segment, with read/write | high | CWE-22 | `oversecured/ovaa/providers/TheftOverwriteProvider.java:46 (TheftOverwriteProvider.openFile)` | verified_exact | GT-12 |
+| 6 | Exported service writes logcat to a caller-supplied path | high | CWE-73 | `oversecured/ovaa/services/InsecureLoggerService.java:29 (InsecureLoggerService.getDumpFile)` | verified_exact | - |
+| 7 | FileProvider exposes the entire filesystem root | high | CWE-552 | `resources/res/xml/provider_paths.xml` | verified_exact | GT-16 |
+| 8 | Result from an implicit intent is reflected to the caller, leaking URI grants | high | CWE-926 | `oversecured/ovaa/activities/DeeplinkActivity.java:47 (DeeplinkActivity.onActivityResult)` | verified_exact | GT-02 |
+| 9 | WebView with JS and file access from file URLs loads intent URL | high | CWE-749 | `oversecured/ovaa/activities/WebViewActivity.java:24 (WebViewActivity.setupWebView)` | verified_exact | GT-04 |
+| 10 | AES used with the default ECB mode | medium | CWE-327 | `oversecured/ovaa/utils/WeakCrypto.java:17 (WeakCrypto.encrypt)` | verified_exact | - |
+| 11 | Application is debuggable and allows backup | medium | CWE-1188 | `AndroidManifest.xml` | verified_exact | - |
+| 12 | Credential token sent in a URL over HTTP | medium | CWE-319 | `oversecured/ovaa/activities/MainActivity.java:50 (MainActivity.onCreate)` | verified_exact | - |
+| 13 | Credentials sent in an implicit broadcast with no permission | medium | CWE-927 | `oversecured/ovaa/activities/MainActivity.java:40 (MainActivity.onCreate)` | verified_exact | GT-07 |
+| 14 | Credentials written to logcat | medium | CWE-532 | `oversecured/ovaa/activities/LoginActivity.java:59 (LoginActivity.processLogin)` | verified_exact | GT-13 |
+| 15 | Deeplink WebView URL check bypassable via endsWith suffix | medium | CWE-601 | `oversecured/ovaa/activities/DeeplinkActivity.java:52 (DeeplinkActivity.processDeeplink)` | verified_exact | GT-03 |
+| 16 | Hardcoded AES key | medium | CWE-321 | `oversecured/ovaa/utils/WeakCrypto.java:9 (WeakCrypto)` | verified_exact | GT-14 |
+| 17 | Parcelable instantiates an attacker-chosen class from a Parcel string | medium | CWE-502 | `oversecured/ovaa/objects/MemoryCorruptionParcelable.java:26 (MemoryCorruptionParcelable.<init>)` | verified_exact | GT-10 |
+| 18 | Password stored in plaintext SharedPreferences | medium | CWE-312 | `oversecured/ovaa/utils/LoginUtils.java:37 (LoginUtils.saveCredentials)` | verified_exact | - |
+| 19 | Plugin code loaded from any package matching a name prefix | medium | CWE-470 | `oversecured/ovaa/OversecuredApplication.java:25 (OversecuredApplication.invokePlugins)` | verified_exact | GT-15 |
+| 20 | Serializable deletes files named in the stream on deserialization | medium | CWE-502 | `oversecured/ovaa/objects/DeleteFilesSerializable.java:12 (DeleteFilesSerializable.readObject)` | verified_exact | GT-09 |
+| 21 | Hardcoded credentials in a URL resource | low | CWE-522 | `res/values/strings.xml` | verified_exact | GT-17 |
+
+</details>
+
+<details><summary>student_baseline: 15 finding(s)</summary>
+
+| # | Finding | Severity | CWE | Where | Evidence | Credited |
+|---|---|---|---|---|---|---|
+| 1 | Debuggable build allows code injection and memory dump | critical | CWE-489 | `AndroidManifest.xml` | verified_exact | - |
+| 2 | Arbitrary code execution via DexClassLoader | high | CWE-925 | `oversecured/ovaa/OversecuredApplication.java:38 (OversecuredApplication.updateChecker)` | verified_exact | GT-18 |
+| 3 | Arbitrary file read via exported ContentProvider | high | CWE-22 | `oversecured/ovaa/providers/TheftOverwriteProvider.java:46 (TheftOverwriteProvider.openFile)` | verified_exact | GT-12 |
+| 4 | Arbitrary file write via exported Service | high | CWE-22 | `oversecured/ovaa/services/InsecureLoggerService.java:29 (InsecureLoggerService.getDumpFile)` | verified_exact | - |
+| 5 | Cleartext HTTP traffic for login | high | CWE-319 | `oversecured/ovaa/network/RetrofitInstance.java:8 (RetrofitInstance)` | verified_exact | - |
+| 6 | Intent Redirection in LoginActivity | high | CWE-926 | `oversecured/ovaa/activities/LoginActivity.java:75 (LoginActivity.onLoginFinished)` | verified_exact | GT-05 |
+| 7 | Plugin loading from other packages | high | CWE-925 | `oversecured/ovaa/OversecuredApplication.java:27 (OversecuredApplication.invokePlugins)` | verified_exact | GT-15 |
+| 8 | Sensitive data broadcast without protection | high | CWE-319 | `oversecured/ovaa/activities/MainActivity.java:39 (MainActivity.onCreate)` | verified_exact | GT-07 |
+| 9 | Weak encryption with hardcoded key | high | CWE-321 | `oversecured/ovaa/utils/WeakCrypto.java:9 (WeakCrypto)` | verified_exact | GT-14 |
+| 10 | Credentials stored in plaintext SharedPreferences | medium | CWE-312 | `oversecured/ovaa/utils/LoginUtils.java:36 (LoginUtils.saveCredentials)` | verified_exact | - |
+| 11 | Deeplink allows setting arbitrary login URL | medium | CWE-20 | `oversecured/ovaa/activities/DeeplinkActivity.java:36 (DeeplinkActivity.processDeeplink)` | verified_exact | GT-01 |
+| 12 | FileProvider exposes entire filesystem | medium | CWE-22 | `resources/res/xml/provider_paths.xml` | verified_exact | GT-16 |
+| 13 | Hardcoded credentials in resources | medium | CWE-798 | `res/values/strings.xml` | verified_exact | GT-17 |
+| 14 | Log output contains sensitive data | medium | CWE-532 | `oversecured/ovaa/activities/LoginActivity.java:59 (LoginActivity.processLogin)` | verified_exact | GT-13 |
+| 15 | WebView allows file access from file URLs | medium | CWE-749 | `oversecured/ovaa/activities/WebViewActivity.java:24 (WebViewActivity.setupWebView)` | verified_exact | GT-04 |
+
+</details>
+
+<details><summary>student_with_lessons: 16 finding(s)</summary>
+
+| # | Finding | Severity | CWE | Where | Evidence | Credited |
+|---|---|---|---|---|---|---|
+| 1 | DexClassLoader loads code from World-Readable Path | critical | CWE-94 | `oversecured/ovaa/OversecuredApplication.java:38 (OversecuredApplication.updateChecker)` | verified_fuzzy | GT-18 |
+| 2 | Dynamic Code Loading from Untrusted Package | critical | CWE-94 | `oversecured/ovaa/OversecuredApplication.java:27 (OversecuredApplication.invokePlugins)` | verified_fuzzy | GT-15 |
+| 3 | Cleartext HTTP Traffic | high | CWE-319 | `oversecured/ovaa/network/RetrofitInstance.java:8 (RetrofitInstance)` | verified_exact | - |
+| 4 | Credentials stored in plaintext SharedPreferences | high | CWE-312 | `oversecured/ovaa/utils/LoginUtils.java:37 (LoginUtils.saveCredentials)` | verified_exact | - |
+| 5 | Debuggable build with backup enabled | high | CWE-489 | `AndroidManifest.xml` | unverified | - |
+| 6 | DeepLink allows arbitrary Login URL injection | high | CWE-20 | `oversecured/ovaa/activities/DeeplinkActivity.java:37 (DeeplinkActivity.processDeeplink)` | verified_exact | GT-01 |
+| 7 | Exported ContentProvider allows Arbitrary File Read/Write | high | CWE-926 | `oversecured/ovaa/providers/TheftOverwriteProvider.java:46 (TheftOverwriteProvider.openFile)` | verified_exact | GT-12 |
+| 8 | Exported Service allows Arbitrary File Write | high | CWE-926 | `oversecured/ovaa/services/InsecureLoggerService.java (InsecureLoggerService.onHandleIntent)` | unverified | - |
+| 9 | FileProvider exposes root filesystem | high | CWE-668 | `resources/res/xml/provider_paths.xml` | verified_exact | GT-16 |
+| 10 | Hardcoded AES Key and Weak Encryption | high | CWE-798 | `oversecured/ovaa/utils/WeakCrypto.java:9 (WeakCrypto)` | verified_exact | GT-14 |
+| 11 | Intent Redirection in LoginActivity | high | CWE-927 | `oversecured/ovaa/activities/LoginActivity.java:75 (LoginActivity.onLoginFinished)` | verified_fuzzy | GT-05 |
+| 12 | Sensitive Data in Implicit Broadcast | high | CWE-927 | `oversecured/ovaa/activities/MainActivity.java:39 (MainActivity.onCreate)` | verified_exact | GT-07 |
+| 13 | WebView loads unvalidated URL with File Access | high | CWE-79 | `oversecured/ovaa/activities/WebViewActivity.java:18 (WebViewActivity.onCreate)` | verified_fuzzy | GT-04 |
+| 14 | Credentials Logged to Logcat | medium | CWE-532 | `oversecured/ovaa/activities/LoginActivity.java:59 (LoginActivity.processLogin)` | verified_exact | GT-13 |
+| 15 | DeepLink WebView URL validation bypass | medium | CWE-939 | `oversecured/ovaa/activities/DeeplinkActivity.java:52 (DeeplinkActivity.processDeeplink)` | verified_exact | GT-03 |
+| 16 | Hardcoded Credentials in Resources | medium | CWE-798 | `res/values/strings.xml` | verified_exact | GT-17 |
+
+</details>
+
 ## 2. Lessons
 
 15 lessons kept after sanitising (lessons_from:runs/2026-11-14T1846_insecureshop_9f96bd98/05_learn/lessons.json); 15 selected for the student (3583 tokens, within the reserved budget).
@@ -229,27 +306,27 @@ Prompts were written from the OWASP MASVS categories, not from the ground-truth 
 
 ## 9. Limitations
 
-- The lift is in-sample: lessons are distilled from the same app the student is rescanned on. One app cannot show that the lessons generalise (cross-app transfer is the partial answer).
-- Contamination: the evaluation app and its vulnerability list are public; the models may have memorised them.
+- The lift is in-sample: lessons are distilled from the same app the student is rescanned on. One app cannot show that the lessons generalise (cross-app transfer is the partial answer). Next: leave-one-app-out over several apps, with lessons distilled from several apps and merged.
+- Contamination: the evaluation app and its vulnerability list are public; the models may have memorised them. Next: renamed or obfuscated copies, or private apps with planted bugs.
 - Some ingest features (dependency inventory, cloud-identifier patterns) were added after reading the ground-truth list; they are generic, but not chosen blind.
 - Prompts were developed on this app (versions and scores are recorded in section 8).
 - Ground-truth enrichment is the author's own labelling (mitigated: written and committed before any scan, README-only headline, robustness check).
 - Some items are only partly visible statically (server-side cloud configuration; known-vulnerable components rely on the model's advisory knowledge).
-- The teacher's temperature cannot be set (Claude Sonnet 5.5 rejects non-default sampling); LLM output varies between runs; small N; no significance test.
+- The teacher's temperature cannot be set (Claude Sonnet 5.5 rejects non-default sampling); LLM output varies between runs; small N; no significance test. Next: more repeats and bootstrap confidence intervals.
 - Teacher refusals can reduce coverage (counted; the model that answered is recorded when a fallback was used).
 - Teacher and student may scan different units because of different budgets; the student's free tier (1,000 output tokens per minute) forces small units, and units whose answer does not fit are re-planned into smaller ones.
-- The judge is an LLM; the hand audit measures its agreement with the author, it does not remove bias.
+- The judge is an LLM; the hand audit measures its agreement with the author, it does not remove bias. Next: a second human labeller, a stronger or reasoning judge, and an all-pairs check on a sample.
 - One-to-one matching is conservative.
 - Unmatched findings are not automatically false positives (the reference list may be incomplete).
 - Teacher-as-reference (apps without ground truth) inherits the teacher's misses and mistakes and is circular with the lessons.
-- Decompilation is lossy (jadx failures are counted); the smali fallback is not built in v0.1.
-- Obfuscated apps: first-party code is derived from the manifest, but library detection is not fingerprint-based.
-- Native code, assets and split APKs / app bundles are not analysed.
-- Text-based one-hop graph: reflection, framework callbacks and string-action intents are missed; oversized files are skipped; no hub/skeleton handling in v0.1.
+- Decompilation is lossy (jadx failures are counted). Next: a smali fallback for methods jadx cannot decompile.
+- Obfuscated apps: first-party code is derived from the manifest, but library detection is not fingerprint-based. Next: fingerprint libraries by code hashes.
+- Native code, assets (including React Native / Flutter bundles) and split APKs / app bundles are not analysed. Next: bundle and native-library readers; bundletool to merge splits.
+- Text-based one-hop graph: reflection, framework callbacks and string-action intents are missed; oversized files are skipped; no hub/skeleton handling in v0.1. Next: a bytecode call graph (Androguard / SootUp) with entry-point-to-sink slices and summaries of shared classes.
 - strings.xml filtering can miss innocently named, low-entropy secrets.
 - Prompt injection via app code or strings can still influence the model.
 - Model confidence is uncalibrated (used for ranking only).
-- The sanitiser is lexical plus a similarity check; paraphrased references can pass.
+- The sanitiser is lexical plus a similarity check; paraphrased references can pass. Next: a model-based leak check per lesson.
 - Lessons cover only the vulnerability classes the teacher found in the source app.
 - Line numbers refer to decompiled code.
-- Static only: runtime-only issues are out of scope (see the dynamic-analysis write-up).
+- Static only: runtime-only issues are out of scope. Next: a dynamic agent that confirms these findings on a running app (see the dynamic-analysis write-up).
