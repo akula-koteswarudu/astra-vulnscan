@@ -73,7 +73,7 @@ Markor 2026.10.0, an open-source Markdown editor from F-Droid. An open-source ap
 
 - In-sample lift: lessons come from the app they are tested on. The one cross-app test (OVAA) showed no transfer.
 - InsecureShop and its list are public; models may have seen them.
-- The judge audit labels were produced by Claude, not by a person; until I review them they are a second model's opinion, not a human check.
+- The judge audit labels were drafted by Claude and reviewed by me, so they are not fully independent of model judgement.
 - README items have no places; per-item credit can land on a neighbouring WebView item (totals checked by place, see section 1).
 - Small N: 3 repeats per arm, no significance test.
 - Static only; native code and Flutter/React Native bundles are not read.

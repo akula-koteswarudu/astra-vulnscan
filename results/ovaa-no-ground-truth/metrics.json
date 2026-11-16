@@ -113,10 +113,10 @@
       "unit_status" : {
         "ok" : 1
       },
-      "judge_calls" : 21,
+      "judge_calls" : 22,
       "judge_errors" : 0,
       "prefilter_dropped" : 0,
-      "screen_extra_pairs" : 0
+      "screen_extra_pairs" : 1
     } ],
     "per_item" : [ {
       "item_id" : "T-01",

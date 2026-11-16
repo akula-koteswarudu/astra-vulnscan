@@ -92,8 +92,9 @@ public class ReportStage {
         Map<String, Object> dec = read(s.path("01_decompile/stats.json"), new TypeReference<>() { });
         Map<?, ?> st = (Map<?, ?>) dec.get("stats");
         AppModel.Stats ms = model.stats();
-        String topExcluded = ms.topExcludedPackages().stream().limit(5).map(p -> p.packageName() + " (" + p.files() + ")")
-                .collect(Collectors.joining(", "));
+        var top5 = ms.topExcludedPackages().stream().limit(5).toList();
+        String topExcluded = "(top " + top5.size() + ", " + top5.stream().mapToInt(p -> p.files()).sum() + " of " + ms.filesExcluded()
+                + " excluded files) " + top5.stream().map(p -> p.packageName() + " (" + p.files() + ")").collect(Collectors.joining(", "));
         MarkdownReport.Decompile decompile = new MarkdownReport.Decompile(String.valueOf(dec.get("tool_version")),
                 ((Number) st.get("exit_code")).intValue(), Boolean.TRUE.equals(st.get("partial")), ((Number) st.get("methods_failed")).intValue(),
                 ms.methodsFailed(), ms.filesFirstParty(), ms.filesTotal(), ms.firstPartyPrefixes(), ms.filesGeneratedExcluded(), topExcluded);
@@ -116,7 +117,9 @@ public class ReportStage {
 
     static String auditSentence(RunStore s) {
         if (!s.exists("07_evaluate/audit/score.json")) {
-            return "Not run yet for this run: `vulnscan audit export` writes blind rows to label, `vulnscan audit score` measures agreement.";
+            return "Not run on this run folder (an audit labels one run's judge decisions). The same judge model and prompts may have been "
+                    + "audited on another run; see that run's report. To audit this run: `vulnscan audit export` writes blind rows to label, "
+                    + "`vulnscan audit score` measures agreement.";
         }
         Map<String, Object> f = read(s.path("07_evaluate/audit/score.json"), new TypeReference<>() { });
         Map<?, ?> sc = (Map<?, ?>) f.get("score");

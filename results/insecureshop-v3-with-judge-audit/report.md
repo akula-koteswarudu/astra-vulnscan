@@ -212,7 +212,7 @@ None enabled in this run (profile `assignment`): 1 run(s) per student arm, no ch
 | student with lessons | 1 | ok 1 | verified_exact 18 | 0 |
 
 - Decompilation: jadx 1.5.6, exit code 3 (partial success: output present); 8 failed-method markers in all code, 0 in first-party code.
-- First-party split: 22 of 2179 Java files (prefixes com.insecureshop); 29 build-generated files excluded from the app's own packages. Largest excluded groups: com.bumptech (312), androidx.core (270), com.google (250), androidx.appcompat (133), kotlin.jvm (118).
+- First-party split: 22 of 2179 Java files (prefixes com.insecureshop); 29 build-generated files excluded from the app's own packages. Largest excluded groups: (top 5, 1083 of 2157 excluded files) com.bumptech (312), androidx.core (270), com.google (250), androidx.appcompat (133), kotlin.jvm (118).
 - Units: teacher 1 (whole), student 1 (whole); the two models may scan different units because their budgets differ. All student arms use the same units.
 - Judge: 117 confirm calls, 0 unparseable answers (counted as "no").
 
@@ -229,13 +229,13 @@ None enabled in this run (profile `assignment`): 1 run(s) per student arm, no ch
 | judge_pollinations | judge_confirm | enriched:student_with_lessons | 0 / 18 | 7805 | 1650 | $0.0000 |
 | judge_pollinations | judge_confirm | enriched:teacher | 0 / 19 | 8605 | 1628 | $0.0000 |
 | judge_pollinations | judge_confirm | readme:student_baseline | 0 / 20 | 7525 | 1604 | $0.0000 |
-| judge_pollinations | judge_confirm | readme:student_with_lessons | 2 / 19 | 8308 | 1808 | $0.0000 |
+| judge_pollinations | judge_confirm | readme:student_with_lessons | 0 / 21 | 8308 | 1808 | $0.0000 |
 | judge_pollinations | judge_confirm | readme:teacher | 0 / 25 | 10182 | 2101 | $0.0000 |
 | judge_pollinations | judge_screen | enriched:student_baseline | 0 / 3 | 8403 | 740 | $0.0000 |
-| judge_pollinations | judge_screen | enriched:student_with_lessons | 3 / 0 | 9861 | 893 | $0.0000 |
+| judge_pollinations | judge_screen | enriched:student_with_lessons | 0 / 3 | 9861 | 893 | $0.0000 |
 | judge_pollinations | judge_screen | enriched:teacher | 0 / 3 | 10527 | 961 | $0.0000 |
 | judge_pollinations | judge_screen | readme:student_baseline | 0 / 3 | 5880 | 757 | $0.0000 |
-| judge_pollinations | judge_screen | readme:student_with_lessons | 3 / 0 | 7338 | 898 | $0.0000 |
+| judge_pollinations | judge_screen | readme:student_with_lessons | 0 / 3 | 7338 | 898 | $0.0000 |
 | judge_pollinations | judge_screen | readme:teacher | 0 / 3 | 8004 | 984 | $0.0000 |
 | student_pollinations | scan | student_with_lessons | 1 / 0 | 20800 | 3120 | $0.0000 |
 | teacher | distill | distill | 1 / 0 | 5782 | 1247 | $0.0240 |

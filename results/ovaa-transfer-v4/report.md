@@ -178,7 +178,7 @@ Not computed (no enriched ground truth for this app).
 
 ## 4. Judge audit
 
-Not run yet for this run: `vulnscan audit export` writes blind rows to label, `vulnscan audit score` measures agreement.
+Not run on this run folder (an audit labels one run's judge decisions). The same judge model and prompts may have been audited on another run; see that run's report. To audit this run: `vulnscan audit export` writes blind rows to label, `vulnscan audit score` measures agreement.
 
 ## 5. Betterments
 
@@ -193,7 +193,7 @@ None enabled in this run (profile `assignment`): 3 run(s) per student arm, no ch
 | student with lessons | 1 | ok 1 | unverified 2, verified_exact 10, verified_fuzzy 4 | 0 |
 
 - Decompilation: jadx 1.5.6, exit code 3 (partial success: output present); 42 failed-method markers in all code, 0 in first-party code.
-- First-party split: 21 of 4119 Java files (prefixes oversecured.ovaa); 1 build-generated files excluded from the app's own packages. Largest excluded groups: kotlinx.coroutines (503), androidx.core (400), org.apache (286), androidx.constraintlayout (202), kotlinx.serialization (186).
+- First-party split: 21 of 4119 Java files (prefixes oversecured.ovaa); 1 build-generated files excluded from the app's own packages. Largest excluded groups: (top 5, 1577 of 4098 excluded files) kotlinx.coroutines (503), androidx.core (400), org.apache (286), androidx.constraintlayout (202), kotlinx.serialization (186).
 - Units: teacher 1 (whole), student 1 (whole); the two models may scan different units because their budgets differ. All student arms use the same units.
 - Judge: 107 confirm calls, 0 unparseable answers (counted as "no").
 
@@ -209,10 +209,10 @@ None enabled in this run (profile `assignment`): 3 run(s) per student arm, no ch
 | student_pollinations | scan | student_with_lessons | 1 / 0 | 12421 | 4157 | $0.0000 |
 | teacher | scan | teacher | 0 / 1 | 17541 | 6132 | $0.0000 |
 | judge_pollinations | judge_confirm | readme:student_baseline | 0 / 41 | 17697 | 3375 | $0.0000 |
-| judge_pollinations | judge_confirm | readme:student_with_lessons | 4 / 40 | 19656 | 3807 | $0.0000 |
+| judge_pollinations | judge_confirm | readme:student_with_lessons | 0 / 44 | 19656 | 3807 | $0.0000 |
 | judge_pollinations | judge_confirm | readme:teacher | 0 / 22 | 9548 | 2063 | $0.0000 |
 | judge_pollinations | judge_screen | readme:student_baseline | 0 / 9 | 26130 | 2177 | $0.0000 |
-| judge_pollinations | judge_screen | readme:student_with_lessons | 6 / 3 | 26880 | 2278 | $0.0000 |
+| judge_pollinations | judge_screen | readme:student_with_lessons | 0 / 9 | 26880 | 2278 | $0.0000 |
 | judge_pollinations | judge_screen | readme:teacher | 0 / 3 | 10473 | 1015 | $0.0000 |
 
 Billed in this run: $0.0000. Including calls served from the response cache at their original price: $0.0964. Free-tier models are shown at $0 (tokens are still counted).

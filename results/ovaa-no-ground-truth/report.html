@@ -367,7 +367,7 @@
   <p class="muted">Not computed (no enriched ground truth for this app).</p>
 
   <h2>4. Judge audit</h2>
-  <p>Not run yet for this run: &#x60;vulnscan audit export&#x60; writes blind rows to label, &#x60;vulnscan audit score&#x60; measures agreement.</p>
+  <p>Not run on this run folder (an audit labels one run&#39;s judge decisions). The same judge model and prompts may have been audited on another run; see that run&#39;s report. To audit this run: &#x60;vulnscan audit export&#x60; writes blind rows to label, &#x60;vulnscan audit score&#x60; measures agreement.</p>
 
   <h2>5. Coverage and quality</h2>
   <div class="scroll"><table>
@@ -376,15 +376,15 @@
   </table></div>
   <ul class="plain">
     <li>Decompilation: jadx 1.5.6, exit code 3 (partial success: output present); 42 failed-method markers in all code, 0 in first-party code.</li>
-    <li>First-party split: 21 of 4119 Java files (prefixes oversecured.ovaa); 1 build-generated files excluded. Largest excluded groups: kotlinx.coroutines (503), androidx.core (400), org.apache (286), androidx.constraintlayout (202), kotlinx.serialization (186).</li>
+    <li>First-party split: 21 of 4119 Java files (prefixes oversecured.ovaa); 1 build-generated files excluded. Largest excluded groups: (top 5, 1577 of 4098 excluded files) kotlinx.coroutines (503), androidx.core (400), org.apache (286), androidx.constraintlayout (202), kotlinx.serialization (186).</li>
     <li>Units: teacher 1 (whole), student 1 (whole).</li>
-    <li>Judge: 38 confirm calls, 0 unparseable answers.</li>
+    <li>Judge: 39 confirm calls, 0 unparseable answers.</li>
   </ul>
 
   <h2>6. Usage</h2>
   <details><summary>Calls and tokens per model and stage</summary><div class="scroll"><table>
     <tr><th>Model</th><th>Purpose</th><th>Arm</th><th>Calls billed / cached</th><th>Input tokens</th><th>Output tokens</th><th>Cost</th></tr>
-    <tr><td>student_pollinations</td><td>scan</td><td>student_baseline</td><td class="num">0 / 1</td><td class="num">9579</td><td class="num">3589</td><td class="num">$0.0000</td></tr><tr><td>student_pollinations</td><td>scan</td><td>student_with_lessons</td><td class="num">1 / 0</td><td class="num">12055</td><td class="num">4665</td><td class="num">$0.0000</td></tr><tr><td>teacher</td><td>scan</td><td>teacher</td><td class="num">0 / 1</td><td class="num">17541</td><td class="num">6132</td><td class="num">$0.0000</td></tr><tr><td>teacher</td><td>distill</td><td>distill</td><td class="num">1 / 0</td><td class="num">6098</td><td class="num">5236</td><td class="num">$0.0646</td></tr><tr><td>judge_pollinations</td><td>judge_confirm</td><td>teacher_findings:student_baseline</td><td class="num">17 / 0</td><td class="num">7498</td><td class="num">1566</td><td class="num">$0.0000</td></tr><tr><td>judge_pollinations</td><td>judge_confirm</td><td>teacher_findings:student_with_lessons</td><td class="num">21 / 0</td><td class="num">9082</td><td class="num">1853</td><td class="num">$0.0000</td></tr><tr><td>judge_pollinations</td><td>judge_screen</td><td>teacher_findings:student_baseline</td><td class="num">1 / 0</td><td class="num">3115</td><td class="num">256</td><td class="num">$0.0000</td></tr><tr><td>judge_pollinations</td><td>judge_screen</td><td>teacher_findings:student_with_lessons</td><td class="num">1 / 0</td><td class="num">3555</td><td class="num">331</td><td class="num">$0.0000</td></tr>
+    <tr><td>student_pollinations</td><td>scan</td><td>student_baseline</td><td class="num">0 / 1</td><td class="num">9579</td><td class="num">3589</td><td class="num">$0.0000</td></tr><tr><td>student_pollinations</td><td>scan</td><td>student_with_lessons</td><td class="num">1 / 0</td><td class="num">12055</td><td class="num">4665</td><td class="num">$0.0000</td></tr><tr><td>teacher</td><td>scan</td><td>teacher</td><td class="num">0 / 1</td><td class="num">17541</td><td class="num">6132</td><td class="num">$0.0000</td></tr><tr><td>teacher</td><td>distill</td><td>distill</td><td class="num">1 / 0</td><td class="num">6098</td><td class="num">5236</td><td class="num">$0.0646</td></tr><tr><td>judge_pollinations</td><td>judge_confirm</td><td>teacher_findings:student_baseline</td><td class="num">0 / 17</td><td class="num">7498</td><td class="num">1566</td><td class="num">$0.0000</td></tr><tr><td>judge_pollinations</td><td>judge_confirm</td><td>teacher_findings:student_with_lessons</td><td class="num">1 / 21</td><td class="num">9533</td><td class="num">1964</td><td class="num">$0.0000</td></tr><tr><td>judge_pollinations</td><td>judge_screen</td><td>teacher_findings:student_baseline</td><td class="num">2 / 1</td><td class="num">9345</td><td class="num">768</td><td class="num">$0.0000</td></tr><tr><td>judge_pollinations</td><td>judge_screen</td><td>teacher_findings:student_with_lessons</td><td class="num">2 / 1</td><td class="num">10665</td><td class="num">988</td><td class="num">$0.0000</td></tr>
   </table></div></details>
   <p>Billed in this run: $0.0646. Including calls served from the response cache at their original price: $0.1610. Free-tier models are shown at $0 (tokens are still counted).</p>
 

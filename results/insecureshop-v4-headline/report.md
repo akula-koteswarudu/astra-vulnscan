@@ -191,7 +191,7 @@ Lift with the enriched reference: +28.1 points (headline +22.8). A difference me
 
 ## 4. Judge audit
 
-Not run yet for this run: `vulnscan audit export` writes blind rows to label, `vulnscan audit score` measures agreement.
+Not run on this run folder (an audit labels one run's judge decisions). The same judge model and prompts may have been audited on another run; see that run's report. To audit this run: `vulnscan audit export` writes blind rows to label, `vulnscan audit score` measures agreement.
 
 ## 5. Betterments
 
@@ -206,7 +206,7 @@ None enabled in this run (profile `assignment`): 3 run(s) per student arm, no ch
 | student with lessons | 1 | ok 1 | verified_exact 16, verified_fuzzy 2 | 0 |
 
 - Decompilation: jadx 1.5.6, exit code 3 (partial success: output present); 8 failed-method markers in all code, 0 in first-party code.
-- First-party split: 22 of 2179 Java files (prefixes com.insecureshop); 29 build-generated files excluded from the app's own packages. Largest excluded groups: com.bumptech (312), androidx.core (270), com.google (250), androidx.appcompat (133), kotlin.jvm (118).
+- First-party split: 22 of 2179 Java files (prefixes com.insecureshop); 29 build-generated files excluded from the app's own packages. Largest excluded groups: (top 5, 1083 of 2157 excluded files) com.bumptech (312), androidx.core (270), com.google (250), androidx.appcompat (133), kotlin.jvm (118).
 - Units: teacher 1 (whole), student 1 (whole); the two models may scan different units because their budgets differ. All student arms use the same units.
 - Judge: 256 confirm calls, 0 unparseable answers (counted as "no").
 

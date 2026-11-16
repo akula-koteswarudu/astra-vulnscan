@@ -137,7 +137,7 @@ each run records the sha256 of every prompt it used.
 ## Main limitations
 
 - One app's lift is in-sample; the cross-app test showed no transfer. InsecureShop and its list are public, so models may have seen them.
-- Small N (3 runs per arm), no significance test. The judge is an LLM; its audit labels were produced by a second model.
+- Small N (3 runs per arm), no significance test. The judge is an LLM; its audit labels were drafted by a second model (Claude) and reviewed by the author, so they are not fully independent.
 - README items have no locations, so per-item credit can land on a neighbouring item (totals checked by place).
 - Static only: no native code, no React Native or Flutter bundles, no split APKs; the code graph is text-based and one hop.
 - Full list: section 8 of each report and `BUILD_LOG.md`.

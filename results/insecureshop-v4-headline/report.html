@@ -420,7 +420,7 @@ c.getClassLoader().loadClass(&lt;cls&gt;)...invoke(...);</pre>
   
 
   <h2>4. Judge audit</h2>
-  <p>Not run yet for this run: &#x60;vulnscan audit export&#x60; writes blind rows to label, &#x60;vulnscan audit score&#x60; measures agreement.</p>
+  <p>Not run on this run folder (an audit labels one run&#39;s judge decisions). The same judge model and prompts may have been audited on another run; see that run&#39;s report. To audit this run: &#x60;vulnscan audit export&#x60; writes blind rows to label, &#x60;vulnscan audit score&#x60; measures agreement.</p>
 
   <h2>5. Coverage and quality</h2>
   <div class="scroll"><table>
@@ -429,7 +429,7 @@ c.getClassLoader().loadClass(&lt;cls&gt;)...invoke(...);</pre>
   </table></div>
   <ul class="plain">
     <li>Decompilation: jadx 1.5.6, exit code 3 (partial success: output present); 8 failed-method markers in all code, 0 in first-party code.</li>
-    <li>First-party split: 22 of 2179 Java files (prefixes com.insecureshop); 29 build-generated files excluded. Largest excluded groups: com.bumptech (312), androidx.core (270), com.google (250), androidx.appcompat (133), kotlin.jvm (118).</li>
+    <li>First-party split: 22 of 2179 Java files (prefixes com.insecureshop); 29 build-generated files excluded. Largest excluded groups: (top 5, 1083 of 2157 excluded files) com.bumptech (312), androidx.core (270), com.google (250), androidx.appcompat (133), kotlin.jvm (118).</li>
     <li>Units: teacher 1 (whole), student 1 (whole).</li>
     <li>Judge: 256 confirm calls, 0 unparseable answers.</li>
   </ul>

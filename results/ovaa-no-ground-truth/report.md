@@ -4,7 +4,7 @@ Run `2026-11-15T1429_ovaa_f76a7263` · profile `assignment` · generated from th
 
 **No ground truth for this app.** The teacher's verified findings are the reference, so every number is *agreement with teacher*, not recall. The lessons were distilled from the same findings used as the reference, so this comparison is circular and favours the with-lessons arm. The teacher ceiling and precision are omitted.
 
-## 1. Core result (single run)
+## 1. Core result
 
 Headline: how many of the teacher's verified findings the student also reports, before and after the lessons.
 
@@ -192,11 +192,11 @@ Not computed (no enriched ground truth for this app).
 
 ## 4. Judge audit
 
-Not run yet for this run: `vulnscan audit export` writes blind rows to label, `vulnscan audit score` measures agreement.
+Not run on this run folder (an audit labels one run's judge decisions). The same judge model and prompts may have been audited on another run; see that run's report. To audit this run: `vulnscan audit export` writes blind rows to label, `vulnscan audit score` measures agreement.
 
 ## 5. Betterments
 
-None enabled in this run (profile `assignment`): single run per arm, no checklist control arm.
+None enabled in this run (profile `assignment`): 1 run(s) per student arm, no checklist control arm.
 
 ## 6. Coverage and quality
 
@@ -207,9 +207,9 @@ None enabled in this run (profile `assignment`): single run per arm, no checklis
 | student with lessons | 1 | ok 1 | unverified 2, verified_exact 18 | 0 |
 
 - Decompilation: jadx 1.5.6, exit code 3 (partial success: output present); 42 failed-method markers in all code, 0 in first-party code.
-- First-party split: 21 of 4119 Java files (prefixes oversecured.ovaa); 1 build-generated files excluded from the app's own packages. Largest excluded groups: kotlinx.coroutines (503), androidx.core (400), org.apache (286), androidx.constraintlayout (202), kotlinx.serialization (186).
+- First-party split: 21 of 4119 Java files (prefixes oversecured.ovaa); 1 build-generated files excluded from the app's own packages. Largest excluded groups: (top 5, 1577 of 4098 excluded files) kotlinx.coroutines (503), androidx.core (400), org.apache (286), androidx.constraintlayout (202), kotlinx.serialization (186).
 - Units: teacher 1 (whole), student 1 (whole); the two models may scan different units because their budgets differ. All student arms use the same units.
-- Judge: 38 confirm calls, 0 unparseable answers (counted as "no").
+- Judge: 39 confirm calls, 0 unparseable answers (counted as "no").
 
 ## 7. Usage
 
@@ -219,10 +219,10 @@ None enabled in this run (profile `assignment`): single run per arm, no checklis
 | student_pollinations | scan | student_with_lessons | 1 / 0 | 12055 | 4665 | $0.0000 |
 | teacher | scan | teacher | 0 / 1 | 17541 | 6132 | $0.0000 |
 | teacher | distill | distill | 1 / 0 | 6098 | 5236 | $0.0646 |
-| judge_pollinations | judge_confirm | teacher_findings:student_baseline | 17 / 0 | 7498 | 1566 | $0.0000 |
-| judge_pollinations | judge_confirm | teacher_findings:student_with_lessons | 21 / 0 | 9082 | 1853 | $0.0000 |
-| judge_pollinations | judge_screen | teacher_findings:student_baseline | 1 / 0 | 3115 | 256 | $0.0000 |
-| judge_pollinations | judge_screen | teacher_findings:student_with_lessons | 1 / 0 | 3555 | 331 | $0.0000 |
+| judge_pollinations | judge_confirm | teacher_findings:student_baseline | 0 / 17 | 7498 | 1566 | $0.0000 |
+| judge_pollinations | judge_confirm | teacher_findings:student_with_lessons | 1 / 21 | 9533 | 1964 | $0.0000 |
+| judge_pollinations | judge_screen | teacher_findings:student_baseline | 2 / 1 | 9345 | 768 | $0.0000 |
+| judge_pollinations | judge_screen | teacher_findings:student_with_lessons | 2 / 1 | 10665 | 988 | $0.0000 |
 
 Billed in this run: $0.0646. Including calls served from the response cache at their original price: $0.1610. Free-tier models are shown at $0 (tokens are still counted).
 
