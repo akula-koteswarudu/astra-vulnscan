@@ -1,0 +1,449 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Scan report: ovaa</title>
+<style>
+  :root {
+    --bg: #f7f7f5; --panel: #ffffff; --text: #1d1d1b; --muted: #6b6b66; --line: #e3e2dd;
+    --accent: #3b5bdb; --teacher: #868e96;
+    --hit: #2b8a3e; --hit-bg: #d3f9d8; --partial: #b07d00; --partial-bg: #fff3bf;
+    --unc: #5f3dc4; --unc-bg: #e5dbff; --miss: #868e96; --miss-bg: #f1f3f5;
+    --code-bg: #f1f0ec;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #161615; --panel: #1f1f1d; --text: #ecebe6; --muted: #a3a29b; --line: #34332f;
+      --accent: #7c95f5; --teacher: #a5adb5;
+      --hit: #8ce99a; --hit-bg: #1f3b26; --partial: #ffd43b; --partial-bg: #3d3416;
+      --unc: #b197fc; --unc-bg: #2f2552; --miss: #909296; --miss-bg: #2a2a28;
+      --code-bg: #262623;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  main { max-width: 1040px; margin: 0 auto; padding: 24px 16px 64px; }
+  h1 { font-size: 26px; margin: 0 0 4px; }
+  h2 { font-size: 19px; margin: 36px 0 12px; padding-bottom: 6px; border-bottom: 1px solid var(--line); }
+  h3 { font-size: 15px; margin: 20px 0 8px; }
+  .muted { color: var(--muted); }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px; margin: 12px 0; }
+  .banner { border-left: 4px solid var(--partial); }
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+  .kpi .v { font-size: 26px; font-weight: 650; }
+  .kpi .l { color: var(--muted); font-size: 13px; }
+  .bar-row { display: grid; grid-template-columns: minmax(120px, 210px) 1fr 70px; gap: 10px; align-items: center; margin: 8px 0; }
+  .bar { position: relative; height: 18px; background: var(--miss-bg); border-radius: 4px; overflow: hidden; }
+  .bar .len { position: absolute; inset: 0 auto 0 0; background: var(--accent); opacity: .25; }
+  .bar .str { position: absolute; inset: 0 auto 0 0; background: var(--accent); }
+  .bar.teacher .str, .bar.teacher .len { background: var(--teacher); }
+  .bar-row .val { font-variant-numeric: tabular-nums; text-align: right; font-size: 13px; }
+  .scroll { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; font-size: 14px; }
+  th, td { text-align: left; padding: 7px 9px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; font-size: 13px; }
+  td.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  td.c { text-align: center; font-weight: 650; border-radius: 4px; white-space: nowrap; }
+  td.hit { color: var(--hit); background: var(--hit-bg); }
+  td.partial { color: var(--partial); background: var(--partial-bg); }
+  td.uncredited { color: var(--unc); background: var(--unc-bg); }
+  td.miss { color: var(--miss); background: var(--miss-bg); }
+  .legend span { display: inline-block; padding: 1px 8px; border-radius: 4px; margin-right: 6px; font-size: 13px; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px; }
+  .card h4 { margin: 0 0 6px; font-size: 15px; }
+  .tag { display: inline-block; font-size: 12px; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 0 8px; }
+  .card ul { margin: 6px 0; padding-left: 18px; }
+  pre, code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12.5px; }
+  pre { background: var(--code-bg); padding: 10px; border-radius: 6px; overflow-x: auto; white-space: pre-wrap; }
+  details { margin: 10px 0; }
+  summary { cursor: pointer; font-weight: 600; }
+  ul.plain { padding-left: 18px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Scan report: ovaa</h1>
+  <div class="muted">Run <code>2026-11-15T1043_ovaa_d4186f7b</code> · profile <code>assignment</code> · every number is read from this run folder</div>
+
+
+  <h2>1. Core result</h2>
+  <p>Headline: the student&#39;s recall against the README list before and after the lessons, judged strictly, counting verified findings only. The teacher row is the ceiling.</p>
+  <div class="panel">
+    <div class="bar-row">
+      <div>teacher (ceiling)</div>
+      <div class="bar teacher" title="strict 83% · lenient 83%">
+        <div class="len" style="width: 83%"></div><div class="str" style="width: 83%"></div>
+      </div>
+      <div class="val">15/18 (83%)</div>
+    </div>
+    <div class="bar-row">
+      <div>student baseline · run 1</div>
+      <div class="bar " title="strict 61% · lenient 61%">
+        <div class="len" style="width: 61%"></div><div class="str" style="width: 61%"></div>
+      </div>
+      <div class="val">11/18 (61%)</div>
+    </div>
+    <div class="bar-row">
+      <div>student baseline · run 2</div>
+      <div class="bar " title="strict 56% · lenient 56%">
+        <div class="len" style="width: 56%"></div><div class="str" style="width: 56%"></div>
+      </div>
+      <div class="val">10/18 (56%)</div>
+    </div>
+    <div class="bar-row">
+      <div>student baseline · run 3</div>
+      <div class="bar " title="strict 61% · lenient 61%">
+        <div class="len" style="width: 61%"></div><div class="str" style="width: 61%"></div>
+      </div>
+      <div class="val">11/18 (61%)</div>
+    </div>
+    <div class="bar-row">
+      <div>student with lessons · run 1</div>
+      <div class="bar " title="strict 67% · lenient 67%">
+        <div class="len" style="width: 67%"></div><div class="str" style="width: 67%"></div>
+      </div>
+      <div class="val">12/18 (67%)</div>
+    </div>
+    <div class="bar-row">
+      <div>student with lessons · run 2</div>
+      <div class="bar " title="strict 61% · lenient 61%">
+        <div class="len" style="width: 61%"></div><div class="str" style="width: 61%"></div>
+      </div>
+      <div class="val">11/18 (61%)</div>
+    </div>
+    <div class="bar-row">
+      <div>student with lessons · run 3</div>
+      <div class="bar " title="strict 56% · lenient 61%">
+        <div class="len" style="width: 61%"></div><div class="str" style="width: 56%"></div>
+      </div>
+      <div class="val">10/18 (56%)</div>
+    </div>
+    <div class="muted" style="font-size: 13px; margin-top: 6px;">Solid: strict recall (judge said "match"). Faded extension: lenient (also "partial").</div>
+  </div>
+  <div class="panel"><strong>Lift: +1.9 points of recall (11/18 (59%) → 11/18 (61%), strict, verified). Mean of 3 runs per arm; ranges 56%–61% and 56%–67%.</strong></div>
+
+  <div class="scroll"><table>
+    <tr><th>Arm</th><th>Model</th><th>Recall (strict, verified)</th><th>Lenient</th><th>Incl. unverified</th><th>Precision</th><th>Findings (verified / total)</th></tr>
+    <tr><td>teacher (ceiling)</td><td><code>claude-sonnet-5-5</code></td><td class="num"><strong>15/18 (83%)</strong></td><td class="num">15/18 (83%)</td><td class="num">15/18 (83%)</td><td class="num">71%</td><td class="num">21 / 21</td></tr>
+    <tr><td>student baseline</td><td><code>qwen/qwen3.8-27b</code></td><td class="num"><strong>11/18 (61%)</strong></td><td class="num">11/18 (61%)</td><td class="num">11/18 (61%)</td><td class="num">73%</td><td class="num">15 / 15</td></tr>
+    <tr><td>student baseline (run 2)</td><td><code>qwen/qwen3.8-27b</code></td><td class="num"><strong>10/18 (56%)</strong></td><td class="num">10/18 (56%)</td><td class="num">10/18 (56%)</td><td class="num">67%</td><td class="num">15 / 15</td></tr>
+    <tr><td>student baseline (run 3)</td><td><code>qwen/qwen3.8-27b</code></td><td class="num"><strong>11/18 (61%)</strong></td><td class="num">11/18 (61%)</td><td class="num">11/18 (61%)</td><td class="num">75%</td><td class="num">16 / 16</td></tr>
+    <tr><td>student with lessons</td><td><code>qwen/qwen3.8-27b</code></td><td class="num"><strong>12/18 (67%)</strong></td><td class="num">12/18 (67%)</td><td class="num">12/18 (67%)</td><td class="num">86%</td><td class="num">14 / 16</td></tr>
+    <tr><td>student with lessons (run 2)</td><td><code>qwen/qwen3.8-27b</code></td><td class="num"><strong>11/18 (61%)</strong></td><td class="num">11/18 (61%)</td><td class="num">11/18 (61%)</td><td class="num">69%</td><td class="num">16 / 16</td></tr>
+    <tr><td>student with lessons (run 3)</td><td><code>qwen/qwen3.8-27b</code></td><td class="num"><strong>10/18 (56%)</strong></td><td class="num">11/18 (61%)</td><td class="num">10/18 (56%)</td><td class="num">63%</td><td class="num">16 / 16</td></tr>
+  </table></div>
+  <p class="muted" style="font-size: 13px;">One-to-one assignment (Hungarian): each reference item is credited to at most one finding and each finding counts for at most one item. Precision counts findings that match any item over verified findings; unmatched findings are not necessarily false positives.</p>
+
+  <h3>Per item (README ground truth, 18 items)</h3>
+  <div class="legend muted"><span style="background: var(--hit-bg); color: var(--hit);">✓ match</span><span style="background: var(--unc-bg); color: var(--unc);">◐ matched, credited elsewhere</span><span style="background: var(--partial-bg); color: var(--partial);">~ partial</span><span style="background: var(--miss-bg); color: var(--miss);">· not found</span></div>
+  <div class="scroll"><table>
+    <tr><th>Item</th><th>Title</th><th>Static visibility</th><th>teacher (ceiling)</th><th>student baseline</th><th>student with lessons</th></tr>
+    <tr><td>GT-01</td><td>Installation of an arbitrary &#x60;login_url&#x60; via deeplink &#x60;oversecured://ovaa/login?url&#x3D;http://evil.com/&#x60;</td><td class="muted"></td><td class="c hit">✓</td><td class="c hit">✓ 3/3</td><td class="c hit">✓ 1/3</td></tr>
+    <tr><td>GT-02</td><td>Obtaining access to arbitrary content providers (not exported, but with the attribute &#x60;android:grantUriPermissions&#x3D;&quot;true&quot;&#x60;) via deeplink &#x60;oversecured://ovaa/grant_uri_permissions&#x60;</td><td class="muted"></td><td class="c hit">✓</td><td class="c miss">·</td><td class="c miss">·</td></tr>
+    <tr><td>GT-03</td><td>Vulnerable host validation when processing deeplink &#x60;oversecured://ovaa/webview?url&#x3D;...&#x60;</td><td class="muted"></td><td class="c hit">✓</td><td class="c miss">·</td><td class="c hit">✓ 3/3</td></tr>
+    <tr><td>GT-04</td><td>Opening arbitrary URLs via deeplink &#x60;oversecured://ovaa/webview?url&#x3D;http://evilexample.com&#x60;</td><td class="muted"></td><td class="c hit">✓</td><td class="c hit">✓ 3/3</td><td class="c hit">✓ 3/3</td></tr>
+    <tr><td>GT-05</td><td>Access to arbitrary activities and acquiring access to arbitrary content providers in &#x60;LoginActivity&#x60; by supplying an arbitrary Intent object to &#x60;redirect_intent&#x60;</td><td class="muted"></td><td class="c hit">✓</td><td class="c hit">✓ 3/3</td><td class="c hit">✓ 3/3</td></tr>
+    <tr><td>GT-06</td><td>Theft of arbitrary files in &#x60;MainActivity&#x60; by intercepting an activity launch from &#x60;Intent.ACTION_PICK&#x60; and passing the URI to any file as data</td><td class="muted"></td><td class="c miss">·</td><td class="c miss">·</td><td class="c partial">~ 1/3</td></tr>
+    <tr><td>GT-07</td><td>Insecure broadcast to &#x60;MainActivity&#x60; containing credentials</td><td class="muted"></td><td class="c hit">✓</td><td class="c hit">✓ 2/3</td><td class="c hit">✓ 3/3</td></tr>
+    <tr><td>GT-08</td><td>Insecure activity launch in &#x60;MainActivity&#x60; with action &#x60;oversecured.ovaa.action.WEBVIEW&#x60;, containing the user&#39;s encrypted data in the query parameter &#x60;token&#x60;</td><td class="muted"></td><td class="c miss">·</td><td class="c miss">·</td><td class="c miss">·</td></tr>
+    <tr><td>GT-09</td><td>Deletion of arbitrary files via the insecure &#x60;DeleteFilesSerializable&#x60; deserialization object</td><td class="muted"></td><td class="c hit">✓</td><td class="c hit">✓ 1/3</td><td class="c miss">·</td></tr>
+    <tr><td>GT-10</td><td>Memory corruption via the &#x60;MemoryCorruptionParcelable&#x60; object</td><td class="muted"></td><td class="c hit">✓</td><td class="c hit">✓ 1/3</td><td class="c miss">·</td></tr>
+    <tr><td>GT-11</td><td>Memory corruption via the &#x60;MemoryCorruptionSerializable&#x60; object</td><td class="muted"></td><td class="c miss">·</td><td class="c miss">·</td><td class="c miss">·</td></tr>
+    <tr><td>GT-12</td><td>Obtaining read/write access to arbitrary files in &#x60;TheftOverwriteProvider&#x60; via path-traversal in the value &#x60;uri.getLastPathSegment()&#x60;</td><td class="muted"></td><td class="c hit">✓</td><td class="c hit">✓ 3/3</td><td class="c hit">✓ 3/3</td></tr>
+    <tr><td>GT-13</td><td>Obtaining access to app logs via &#x60;InsecureLoggerService&#x60;</td><td class="muted"></td><td class="c hit">✓</td><td class="c hit">✓ 3/3</td><td class="c hit">✓ 3/3</td></tr>
+    <tr><td>GT-14</td><td>Use of the hardcoded AES key in &#x60;WeakCrypto&#x60;</td><td class="muted"></td><td class="c hit">✓</td><td class="c hit">✓ 3/3</td><td class="c hit">✓ 3/3</td></tr>
+    <tr><td>GT-15</td><td>Arbitrary Code Execution in &#x60;OversecuredApplication&#x60; by launching code from third-party apps with no security checks</td><td class="muted"></td><td class="c hit">✓</td><td class="c hit">✓ 3/3</td><td class="c hit">✓ 3/3</td></tr>
+    <tr><td>GT-16</td><td>Use of very wide file sharing declaration for &#x60;oversecured.ovaa.fileprovider&#x60; content provider in &#x60;root&#x60; entry</td><td class="muted"></td><td class="c hit">✓</td><td class="c hit">✓ 3/3</td><td class="c hit">✓ 3/3</td></tr>
+    <tr><td>GT-17</td><td>Hardcoded credentials to a dev environment endpoint in &#x60;strings.xml&#x60; in &#x60;test_url&#x60; entry</td><td class="muted"></td><td class="c hit">✓</td><td class="c hit">✓ 1/3</td><td class="c hit">✓ 2/3</td></tr>
+    <tr><td>GT-18</td><td>Arbitrary code execution via a DEX library located in a world-readable/writable directory</td><td class="muted"></td><td class="c hit">✓</td><td class="c hit">✓ 3/3</td><td class="c hit">✓ 3/3</td></tr>
+  </table></div>
+
+  <h2>2. Lessons</h2>
+  <p>15 lessons kept after sanitising (lessons_from:runs/2026-11-14T1846_insecureshop_9f96bd98/05_learn/lessons.json); 15 selected for the student (3583 tokens, within the reserved budget).</p>
+  <div class="cards">
+    <div class="panel card">
+      <h4>L01 · Exported ContentProvider leaks data behind weak permission</h4>
+      <span class="tag">CWE-200 M8: Security Misconfiguration</span>
+      <div style="margin-top: 8px;"><strong>Look for</strong><ul><li>&lt;provider&gt; exported&#x3D;true with readPermission whose protectionLevel is normal or undeclared</li><li>query() returns credentials, tokens or user records</li><li>No caller or path checks inside query()</li></ul></div>
+      <div><strong>Why</strong> Normal-level permissions are granted automatically to any app that requests them, so they are no barrier. Any installed app can query the provider and read the sensitive columns.</div>
+      <div style="margin-top: 6px;"><strong>Not a finding when</strong><ul><li>Permission is signature-level or the provider is not exported</li><li>Returned columns contain no sensitive data</li></ul></div>
+      <pre>&lt;provider exported&#x3D;true readPermission&#x3D;&lt;normalPerm&gt;/&gt;
+query(...) -&gt; Cursor with &lt;secretColumn&gt;</pre>
+    </div>
+    <div class="panel card">
+      <h4>L02 · Intent redirection via nested Intent extra</h4>
+      <span class="tag">CWE-749 M8: Security Misconfiguration</span>
+      <div style="margin-top: 8px;"><strong>Look for</strong><ul><li>Exported component reads an Intent from an extra and launches it</li><li>No check on target component, package or grant flags</li><li>Nested Intent passed straight to startActivity</li></ul></div>
+      <div><strong>Why</strong> The app launches the attacker-built Intent with its own identity. This reaches non-exported components and can carry URI grant flags, bypassing the exported&#x3D;false boundary.</div>
+      <div style="margin-top: 6px;"><strong>Not a finding when</strong><ul><li>Target component is resolved and checked against an allowlist before launch</li><li>Component is not exported and only receives intents from trusted code</li></ul></div>
+      
+    </div>
+    <div class="panel card">
+      <h4>L03 · Exported WebView component loads unvalidated URL with file access</h4>
+      <span class="tag">CWE-79 M4: Insufficient Input/Output Validation</span>
+      <div style="margin-top: 8px;"><strong>Look for</strong><ul><li>loadUrl() argument taken from intent data or extras without validation</li><li>JavaScript enabled plus setAllowUniversalAccessFromFileURLs(true) or file access allowed</li><li>Component exported or reachable through intent redirection</li></ul></div>
+      <div><strong>Why</strong> An attacker supplies a file:// or remote page URL. Script runs with universal file access, reads private app files such as prefs and exfiltrates them.</div>
+      <div style="margin-top: 6px;"><strong>Not a finding when</strong><ul><li>URL is checked against a strict scheme and host allowlist before loadUrl</li><li>File access settings are disabled and JavaScript is off</li></ul></div>
+      <pre>ws.setAllowUniversalAccessFromFileURLs(true);
+webView.loadUrl(getIntent().getStringExtra(&lt;urlKey&gt;));</pre>
+    </div>
+    <div class="panel card">
+      <h4>L04 · Deep link URL check bypassable via weak host validation</h4>
+      <span class="tag">CWE-939 M4: Insufficient Input/Output Validation</span>
+      <div style="margin-top: 8px;"><strong>Look for</strong><ul><li>Browsable intent-filter with custom scheme or host feeding a WebView</li><li>Validation uses endsWith/contains/startsWith on the raw URL string</li><li>Another deep link path loads the &lt;String&gt; parameter without any check</li></ul></div>
+      <div><strong>Why</strong> String suffix or substring checks are satisfied by attacker URLs that merely include the trusted name in the query or path. Any web link can then load arbitrary content into the privileged WebView.</div>
+      <div style="margin-top: 6px;"><strong>Not a finding when</strong><ul><li>Host parsed with Uri.getHost and compared by exact equality with https scheme</li><li>WebView is hardened with no JavaScript or file access</li></ul></div>
+      <pre>String u &#x3D; uri.getQueryParameter(&lt;param&gt;);
+if (u.endsWith(&lt;trustedHost&gt;)) webView.loadUrl(u);</pre>
+    </div>
+    <div class="panel card">
+      <h4>L05 · Exported Activity reflects caller Intent through setResult</h4>
+      <span class="tag">CWE-927 M8: Security Misconfiguration</span>
+      <div style="margin-top: 8px;"><strong>Look for</strong><ul><li>setResult(RESULT_OK, getIntent()) in an exported Activity</li><li>FileProvider or grantUriPermissions provider present in the app</li><li>Caller can set data URI and grant flags</li></ul></div>
+      <div><strong>Why</strong> The caller&#39;s Intent returns with its grant flags and URI, so the app grants the caller access to its own provider URIs. This leaks private files.</div>
+      <div style="margin-top: 6px;"><strong>Not a finding when</strong><ul><li>Result Intent is newly built with no caller URI or flags</li><li>Activity is not exported or no grantable provider exists</li></ul></div>
+      <pre>// exported Activity
+setResult(RESULT_OK, getIntent());</pre>
+    </div>
+    <div class="panel card">
+      <h4>L06 · FileProvider configured with overly broad root path</h4>
+      <span class="tag">CWE-668 M8: Security Misconfiguration</span>
+      <div style="margin-top: 8px;"><strong>Look for</strong><ul><li>Paths XML contains &lt;root-path&gt; with path&#x3D;&quot;/&quot; or a broad files-path</li><li>FileProvider has grantUriPermissions&#x3D;true</li><li>Intent redirection or reflected results exist that can grant URIs</li></ul></div>
+      <div><strong>Why</strong> Any file readable by the app, including private data, can be exposed through a content URI. An attacker who obtains a grant reads or writes those files.</div>
+      <div style="margin-top: 6px;"><strong>Not a finding when</strong><ul><li>Paths limited to a dedicated shared subdirectory holding non-sensitive files</li><li>No grant path is reachable by other apps</li></ul></div>
+      
+    </div>
+    <div class="panel card">
+      <h4>L07 · Sensitive data sent in implicit broadcast</h4>
+      <span class="tag">CWE-927 M8: Security Misconfiguration</span>
+      <div style="margin-top: 8px;"><strong>Look for</strong><ul><li>sendBroadcast with custom action and no receiver permission</li><li>putExtra carries passwords, tokens or PII</li><li>No setPackage or explicit component set</li></ul></div>
+      <div><strong>Why</strong> Any app registering a receiver for the action receives the extras, so credentials leak to malicious apps on the device.</div>
+      <div style="margin-top: 6px;"><strong>Not a finding when</strong><ul><li>Broadcast is explicit via setPackage or sent with a signature permission</li><li>Extras hold no sensitive data</li></ul></div>
+      <pre>i &#x3D; new Intent(&lt;action&gt;); i.putExtra(&lt;secretKey&gt;, secret);
+sendBroadcast(i);</pre>
+    </div>
+    <div class="panel card">
+      <h4>L08 · Dynamic receiver registered without permission triggers actions</h4>
+      <span class="tag">CWE-926 M8: Security Misconfiguration</span>
+      <div style="margin-top: 8px;"><strong>Look for</strong><ul><li>registerReceiver(receiver, filter) without a permission argument</li><li>onReceive reads extras and starts an Activity or loads a URL</li><li>Receiver exported implicitly or by RECEIVER_EXPORTED flag</li></ul></div>
+      <div><strong>Why</strong> Any app can send the action. onReceive then acts on attacker-controlled extras, such as launching a WebView with a malicious URL.</div>
+      <div style="margin-top: 6px;"><strong>Not a finding when</strong><ul><li>Registered with a signature permission or RECEIVER_NOT_EXPORTED</li><li>onReceive validates the sender and input</li></ul></div>
+      
+    </div>
+    <div class="panel card">
+      <h4>L09 · Exported third-party service without permission</h4>
+      <span class="tag">CWE-926 M8: Security Misconfiguration</span>
+      <div style="margin-top: 8px;"><strong>Look for</strong><ul><li>&lt;service&gt; exported&#x3D;true from a library with no android:permission</li><li>Service accepts Intent extras describing files or URLs</li><li>Library service performs uploads or downloads</li></ul></div>
+      <div><strong>Why</strong> Any app can start the service with crafted intents. This can trigger uploads of local files to attacker servers or other library actions.</div>
+      <div style="margin-top: 6px;"><strong>Not a finding when</strong><ul><li>Service is protected by a signature permission or not exported</li><li>Service ignores caller-supplied parameters</li></ul></div>
+      <pre>&lt;service exported&#x3D;true name&#x3D;&lt;LibService&gt;/&gt;
+// no android:permission</pre>
+    </div>
+    <div class="panel card">
+      <h4>L10 · Weak transport security: ignored SSL errors and cleartext</h4>
+      <span class="tag">CWE-295 M5: Insecure Communication</span>
+      <div style="margin-top: 8px;"><strong>Look for</strong><ul><li>onReceivedSslError calls handler.proceed() unconditionally</li><li>android:usesCleartextTraffic&#x3D;&quot;true&quot; or permissive network security config</li><li>WebView loads remote content over HTTP</li></ul></div>
+      <div><strong>Why</strong> A network attacker can intercept or modify traffic. Injected JavaScript in a WebView runs with its privileges.</div>
+      <div style="margin-top: 6px;"><strong>Not a finding when</strong><ul><li>Handler calls cancel() or is limited to debug builds</li><li>Cleartext allowed only for local test domains, not production hosts</li></ul></div>
+      <pre>onReceivedSslError(v, handler, e) { handler.proceed(); }</pre>
+    </div>
+    <div class="panel card">
+      <h4>L11 · Hardcoded credentials and cloud identifiers in app</h4>
+      <span class="tag">CWE-798 M1: Improper Credential Usage</span>
+      <div style="margin-top: 8px;"><strong>Look for</strong><ul><li>Literal &lt;String&gt; and password compared locally to authenticate</li><li>Identity pool IDs, API keys or secrets in resources or code</li><li>&lt;Class&gt; logic wholly client-side with no server check</li></ul></div>
+      <div><strong>Why</strong> Anyone can decompile the APK and recover the secrets. They then log in or obtain cloud credentials for the backend role.</div>
+      <div style="margin-top: 6px;"><strong>Not a finding when</strong><ul><li>Value is a public non-secret identifier with restricted server-side permissions</li><li>Credential is a test value in a non-release build</li></ul></div>
+      <pre>&lt;package&gt;(&lt;user&gt;, &lt;literalPassword&gt;);
+if (&lt;package&gt;(u).equals(p)) &lt;name&gt;();</pre>
+    </div>
+    <div class="panel card">
+      <h4>L12 · Plaintext secrets in storage with backup or debuggable enabled</h4>
+      <span class="tag">CWE-312 M9: Insecure Data Storage</span>
+      <div style="margin-top: 8px;"><strong>Look for</strong><ul><li>putString stores password or token in plain SharedPreferences</li><li>allowBackup&#x3D;true without backup rules excluding the file</li><li>debuggable&#x3D;true in the release manifest</li></ul></div>
+      <div><strong>Why</strong> Unencrypted secrets can be extracted via adb backup or run-as, or by any file-read primitive. Debuggable builds also expose all private data.</div>
+      <div style="margin-top: 6px;"><strong>Not a finding when</strong><ul><li>Value is encrypted with a Keystore-backed key</li><li>Backup rules exclude the preferences file and the build is not debuggable</li></ul></div>
+      <pre>prefs.edit().putString(&lt;prefsKey&gt;, password).apply();</pre>
+    </div>
+    <div class="panel card">
+      <h4>L13 · Credentials written to logcat</h4>
+      <span class="tag">CWE-532 M9: Insecure Data Storage</span>
+      <div style="margin-top: 8px;"><strong>Look for</strong><ul><li>Log call with password, token or &lt;String&gt; variable</li><li>Logging not stripped in release builds</li><li>Sensitive values logged in &lt;name&gt; flow</li></ul></div>
+      <div><strong>Why</strong> Log output is readable via adb or logcat on debuggable devices and by privileged tooling, exposing credentials to anyone with device access.</div>
+      <div style="margin-top: 6px;"><strong>Not a finding when</strong><ul><li>Logs are stripped in release builds via ProGuard or R8 rules</li><li>Logged value is a redacted or non-sensitive string</li></ul></div>
+      <pre>Log.d(&lt;tag&gt;, password);</pre>
+    </div>
+    <div class="panel card">
+      <h4>L14 · Untrusted stream URI copied to shared storage</h4>
+      <span class="tag">CWE-22 M4: Insufficient Input/Output Validation</span>
+      <div style="margin-top: 8px;"><strong>Look for</strong><ul><li>Exported Activity reads EXTRA_STREAM URI and copies it to external storage</li><li>File name derived from URI path or display name without sanitizing</li><li>Uri converted to a File path without scheme checks</li></ul></div>
+      <div><strong>Why</strong> A caller points the URI at private app files or uses traversal in the name. The app copies the data to world-readable storage or writes to arbitrary paths.</div>
+      <div style="margin-top: 6px;"><strong>Not a finding when</strong><ul><li>Scheme restricted and name sanitized, output in app-private directory</li><li>Activity not exported and URI source trusted</li></ul></div>
+      <pre>Uri u &#x3D; getIntent().getParcelableExtra(EXTRA_STREAM);
+copy(new File(u.toString()), &lt;externalDir&gt;);</pre>
+    </div>
+    <div class="panel card">
+      <h4>L15 · Loading code from another package by name prefix</h4>
+      <span class="tag">CWE-94 M7: Insufficient Binary Protections</span>
+      <div style="margin-top: 8px;"><strong>Look for</strong><ul><li>createPackageContext with CONTEXT_INCLUDE_CODE and CONTEXT_IGNORE_SECURITY</li><li>Package chosen by name prefix or from the installed list</li><li>loadClass followed by reflective invoke</li></ul></div>
+      <div><strong>Why</strong> Any app with a matching package name is loaded into this process and its code runs with the app&#39;s permissions and data access.</div>
+      <div style="margin-top: 6px;"><strong>Not a finding when</strong><ul><li>Package signature is verified against a pinned certificate before loading</li><li>Package name is an exact match and signature-checked</li></ul></div>
+      <pre>Context c &#x3D; createPackageContext(&lt;pkgPrefixMatch&gt;, CONTEXT_INCLUDE_CODE);
+c.getClassLoader().loadClass(&lt;cls&gt;)...invoke(...);</pre>
+    </div>
+  </div>
+  <details><summary>Guidance block exactly as the student saw it</summary><pre>- L01 Exported ContentProvider leaks data behind weak permission (CWE-200, M8: Security Misconfiguration)
+  Applies to: ContentProvider; APIs: ContentProvider.query, android:readPermission, android:protectionLevel
+  Look for: &lt;provider&gt; exported&#x3D;true with readPermission whose protectionLevel is normal or undeclared; query() returns credentials, tokens or user records; No caller or path checks inside query()
+  Why: Normal-level permissions are granted automatically to any app that requests them, so they are no barrier. Any installed app can query the provider and read the sensitive columns.
+  Not a finding when: Permission is signature-level or the provider is not exported; Returned columns contain no sensitive data
+  Severity: High when credentials or PII are returned.
+  Example: &lt;provider exported&#x3D;true readPermission&#x3D;&lt;normalPerm&gt;/&gt; query(...) -&gt; Cursor with &lt;secretColumn&gt;
+
+- L02 Intent redirection via nested Intent extra (CWE-749, M8: Security Misconfiguration)
+  Applies to: Activity, Service, BroadcastReceiver; APIs: getParcelableExtra, startActivity, startService, sendBroadcast
+  Look for: Exported component reads an Intent from an extra and launches it; No check on target component, package or grant flags; Nested Intent passed straight to startActivity
+  Why: The app launches the attacker-built Intent with its own identity. This reaches non-exported components and can carry URI grant flags, bypassing the exported&#x3D;false boundary.
+  Not a finding when: Target component is resolved and checked against an allowlist before launch; Component is not exported and only receives intents from trusted code
+  Severity: High when private components or URI grants become reachable.
+
+- L03 Exported WebView component loads unvalidated URL with file access (CWE-79, M4: Insufficient Input/Output Validation)
+  Applies to: Activity; APIs: WebView.loadUrl, setJavaScriptEnabled, setAllowUniversalAccessFromFileURLs, getDataString
+  Look for: loadUrl() argument taken from intent data or extras without validation; JavaScript enabled plus setAllowUniversalAccessFromFileURLs(true) or file access allowed; Component exported or reachable through intent redirection
+  Why: An attacker supplies a file:// or remote page URL. Script runs with universal file access, reads private app files such as prefs and exfiltrates them.
+  Not a finding when: URL is checked against a strict scheme and host allowlist before loadUrl; File access settings are disabled and JavaScript is off
+  Severity: High if exported or reachable by a third party; medium if only internal.
+  Example: ws.setAllowUniversalAccessFromFileURLs(true); webView.loadUrl(getIntent().getStringExtra(&lt;urlKey&gt;));
+
+- L04 Deep link URL check bypassable via weak host validation (CWE-939, M4: Insufficient Input/Output Validation)
+  Applies to: Activity, Deep link handler; APIs: Uri.getQueryParameter, String.endsWith, String.contains, WebView.loadUrl
+  Look for: Browsable intent-filter with custom scheme or host feeding a WebView; Validation uses endsWith/contains/startsWith on the raw URL string; Another deep link path loads the &lt;String&gt; parameter without any check
+  Why: String suffix or substring checks are satisfied by attacker URLs that merely include the trusted name in the query or path. Any web link can then load arbitrary content into the privileged WebView.
+  Not a finding when: Host parsed with Uri.getHost and compared by exact equality with https scheme; WebView is hardened with no JavaScript or file access
+  Severity: High when the target WebView has JS or file access.
+  Example: String u &#x3D; uri.getQueryParameter(&lt;param&gt;); if (u.endsWith(&lt;trustedHost&gt;)) webView.loadUrl(u);
+
+- L05 Exported Activity reflects caller Intent through setResult (CWE-927, M8: Security Misconfiguration)
+  Applies to: Activity; APIs: setResult, getIntent, FLAG_GRANT_READ_URI_PERMISSION, FileProvider
+  Look for: setResult(RESULT_OK, getIntent()) in an exported Activity; FileProvider or grantUriPermissions provider present in the app; Caller can set data URI and grant flags
+  Why: The caller&#39;s Intent returns with its grant flags and URI, so the app grants the caller access to its own provider URIs. This leaks private files.
+  Not a finding when: Result Intent is newly built with no caller URI or flags; Activity is not exported or no grantable provider exists
+  Severity: High when combined with a broad FileProvider.
+  Example: // exported Activity setResult(RESULT_OK, getIntent());
+
+- L06 FileProvider configured with overly broad root path (CWE-668, M8: Security Misconfiguration)
+  Applies to: ContentProvider, XML resource; APIs: FileProvider, root-path, grantUriPermissions, FileProvider.getUriForFile
+  Look for: Paths XML contains &lt;root-path&gt; with path&#x3D;&quot;/&quot; or a broad files-path; FileProvider has grantUriPermissions&#x3D;true; Intent redirection or reflected results exist that can grant URIs
+  Why: Any file readable by the app, including private data, can be exposed through a content URI. An attacker who obtains a grant reads or writes those files.
+  Not a finding when: Paths limited to a dedicated shared subdirectory holding non-sensitive files; No grant path is reachable by other apps
+  Severity: High, since it amplifies any URI grant primitive.
+
+- L07 Sensitive data sent in implicit broadcast (CWE-927, M8: Security Misconfiguration)
+  Applies to: Activity, Service, BroadcastReceiver; APIs: sendBroadcast, Intent.putExtra, registerReceiver
+  Look for: sendBroadcast with custom action and no receiver permission; putExtra carries passwords, tokens or PII; No setPackage or explicit component set
+  Why: Any app registering a receiver for the action receives the extras, so credentials leak to malicious apps on the device.
+  Not a finding when: Broadcast is explicit via setPackage or sent with a signature permission; Extras hold no sensitive data
+  Severity: Medium to high depending on data sensitivity.
+  Example: i &#x3D; new Intent(&lt;action&gt;); i.putExtra(&lt;secretKey&gt;, secret); sendBroadcast(i);
+
+- L08 Dynamic receiver registered without permission triggers actions (CWE-926, M8: Security Misconfiguration)
+  Applies to: BroadcastReceiver; APIs: registerReceiver, IntentFilter, RECEIVER_EXPORTED, BroadcastReceiver.onReceive
+  Look for: registerReceiver(receiver, filter) without a permission argument; onReceive reads extras and starts an Activity or loads a URL; Receiver exported implicitly or by RECEIVER_EXPORTED flag
+  Why: Any app can send the action. onReceive then acts on attacker-controlled extras, such as launching a WebView with a malicious URL.
+  Not a finding when: Registered with a signature permission or RECEIVER_NOT_EXPORTED; onReceive validates the sender and input
+  Severity: Medium; higher if the action reaches a WebView or sensitive operation.
+
+- L09 Exported third-party service without permission (CWE-926, M8: Security Misconfiguration)
+  Applies to: Service; APIs: android:exported, Service.onStartCommand, android:permission
+  Look for: &lt;service&gt; exported&#x3D;true from a library with no android:permission; Service accepts Intent extras describing files or URLs; Library service performs uploads or downloads
+  Why: Any app can start the service with crafted intents. This can trigger uploads of local files to attacker servers or other library actions.
+  Not a finding when: Service is protected by a signature permission or not exported; Service ignores caller-supplied parameters
+  Severity: Medium; high if it can exfiltrate files.
+  Example: &lt;service exported&#x3D;true name&#x3D;&lt;LibService&gt;/&gt; // no android:permission
+
+- L10 Weak transport security: ignored SSL errors and cleartext (CWE-295, M5: Insecure Communication)
+  Applies to: WebViewClient, Manifest; APIs: onReceivedSslError, SslErrorHandler.proceed, usesCleartextTraffic, TrustManager
+  Look for: onReceivedSslError calls handler.proceed() unconditionally; android:usesCleartextTraffic&#x3D;&quot;true&quot; or permissive network security config; WebView loads remote content over HTTP
+  Why: A network attacker can intercept or modify traffic. Injected JavaScript in a WebView runs with its privileges.
+  Not a finding when: Handler calls cancel() or is limited to debug builds; Cleartext allowed only for local test domains, not production hosts
+  Severity: High for WebView or auth traffic; medium for incidental cleartext.
+  Example: onReceivedSslError(v, handler, e) { handler.proceed(); }
+
+- L11 Hardcoded credentials and cloud identifiers in app (CWE-798, M1: Improper Credential Usage)
+  Applies to: Class, strings.xml; APIs: HashMap.put, getString, CognitoCachingCredentialsProvider
+  Look for: Literal &lt;String&gt; and password compared locally to authenticate; Identity pool IDs, API keys or secrets in resources or code; &lt;Class&gt; logic wholly client-side with no server check
+  Why: Anyone can decompile the APK and recover the secrets. They then log in or obtain cloud credentials for the backend role.
+  Not a finding when: Value is a public non-secret identifier with restricted server-side permissions; Credential is a test value in a non-release build
+  Severity: Medium to high depending on what the credential unlocks.
+  Example: &lt;package&gt;(&lt;user&gt;, &lt;literalPassword&gt;); if (&lt;package&gt;(u).equals(p)) &lt;name&gt;();
+
+- L12 Plaintext secrets in storage with backup or debuggable enabled (CWE-312, M9: Insecure Data Storage)
+  Applies to: Application, Manifest; APIs: SharedPreferences.Editor.putString, android:allowBackup, android:debuggable
+  Look for: putString stores password or token in plain SharedPreferences; allowBackup&#x3D;true without backup rules excluding the file; debuggable&#x3D;true in the release manifest
+  Why: Unencrypted secrets can be extracted via adb backup or run-as, or by any file-read primitive. Debuggable builds also expose all private data.
+  Not a finding when: Value is encrypted with a Keystore-backed key; Backup rules exclude the preferences file and the build is not debuggable
+  Severity: Medium; higher when it chains with file read.
+  Example: prefs.edit().putString(&lt;prefsKey&gt;, password).apply();
+
+- L13 Credentials written to logcat (CWE-532, M9: Insecure Data Storage)
+  Applies to: Activity, Class; APIs: Log.d, Log.i, Log.v
+  Look for: Log call with password, token or &lt;String&gt; variable; Logging not stripped in release builds; Sensitive values logged in &lt;name&gt; flow
+  Why: Log output is readable via adb or logcat on debuggable devices and by privileged tooling, exposing credentials to anyone with device access.
+  Not a finding when: Logs are stripped in release builds via ProGuard or R8 rules; Logged value is a redacted or non-sensitive string
+  Severity: Medium; low if release builds strip logs.
+  Example: Log.d(&lt;tag&gt;, password);
+
+- L14 Untrusted stream URI copied to shared storage (CWE-22, M4: Insufficient Input/Output Validation)
+  Applies to: Activity; APIs: EXTRA_STREAM, Uri.fromFile, ContentResolver.openInputStream, getExternalStorageDirectory
+  Look for: Exported Activity reads EXTRA_STREAM URI and copies it to external storage; File name derived from URI path or display name without sanitizing; Uri converted to a File path without scheme checks
+  Why: A caller points the URI at private app files or uses traversal in the name. The app copies the data to world-readable storage or writes to arbitrary paths.
+  Not a finding when: Scheme restricted and name sanitized, output in app-private directory; Activity not exported and URI source trusted
+  Severity: Medium; high if private files leak or arbitrary writes occur.
+  Example: Uri u &#x3D; getIntent().getParcelableExtra(EXTRA_STREAM); copy(new File(u.toString()), &lt;externalDir&gt;);
+
+- L15 Loading code from another package by name prefix (CWE-94, M7: Insufficient Binary Protections)
+  Applies to: Activity, Class; APIs: createPackageContext, CONTEXT_INCLUDE_CODE, CONTEXT_IGNORE_SECURITY, ClassLoader.loadClass
+  Look for: createPackageContext with CONTEXT_INCLUDE_CODE and CONTEXT_IGNORE_SECURITY; Package chosen by name prefix or from the installed list; loadClass followed by reflective invoke
+  Why: Any app with a matching package name is loaded into this process and its code runs with the app&#39;s permissions and data access.
+  Not a finding when: Package signature is verified against a pinned certificate before loading; Package name is an exact match and signature-checked
+  Severity: High; arbitrary code execution in the app process.
+  Example: Context c &#x3D; createPackageContext(&lt;pkgPrefixMatch&gt;, CONTEXT_INCLUDE_CODE); c.getClassLoader().loadClass(&lt;cls&gt;)...invoke(...);</pre></details>
+  <p>Sanitiser (redact): 0 term(s) redacted, 0 example(s) removed by the answer-key check, 0 lesson(s) dropped; 0 lesson(s) left out by the count/token caps. Full records: 05_learn/rejected_lessons.json.</p>
+
+  <h2>3. Robustness check: README-only vs enriched reference</h2>
+  <p class="muted">Not computed (no enriched ground truth for this app).</p>
+
+  <h2>4. Judge audit</h2>
+  <p>Not run yet for this run: &#x60;vulnscan audit export&#x60; writes blind rows to label, &#x60;vulnscan audit score&#x60; measures agreement.</p>
+
+  <h2>5. Coverage and quality</h2>
+  <div class="scroll"><table>
+    <tr><th>Arm</th><th>Units</th><th>Unit status</th><th>Evidence status</th><th>Bad findings dropped</th></tr>
+    <tr><td>teacher (ceiling)</td><td class="num">1</td><td>ok 1</td><td>verified_exact 21</td><td class="num">0</td></tr><tr><td>student baseline</td><td class="num">1</td><td>ok 1</td><td>verified_exact 15</td><td class="num">0</td></tr><tr><td>student with lessons</td><td class="num">1</td><td>ok 1</td><td>unverified 2, verified_exact 10, verified_fuzzy 4</td><td class="num">0</td></tr>
+  </table></div>
+  <ul class="plain">
+    <li>Decompilation: jadx 1.5.6, exit code 3 (partial success: output present); 42 failed-method markers in all code, 0 in first-party code.</li>
+    <li>First-party split: 21 of 4119 Java files (prefixes oversecured.ovaa); 1 build-generated files excluded. Largest excluded groups: kotlinx.coroutines (503), androidx.core (400), org.apache (286), androidx.constraintlayout (202), kotlinx.serialization (186).</li>
+    <li>Units: teacher 1 (whole), student 1 (whole).</li>
+    <li>Judge: 107 confirm calls, 0 unparseable answers.</li>
+  </ul>
+
+  <h2>6. Usage</h2>
+  <details><summary>Calls and tokens per model and stage</summary><div class="scroll"><table>
+    <tr><th>Model</th><th>Purpose</th><th>Arm</th><th>Calls billed / cached</th><th>Input tokens</th><th>Output tokens</th><th>Cost</th></tr>
+    <tr><td>student_pollinations</td><td>scan</td><td>student_baseline</td><td class="num">0 / 1</td><td class="num">9579</td><td class="num">3589</td><td class="num">$0.0000</td></tr><tr><td>student_pollinations</td><td>scan</td><td>student_baseline</td><td class="num">0 / 1</td><td class="num">9579</td><td class="num">3310</td><td class="num">$0.0000</td></tr><tr><td>student_pollinations</td><td>scan</td><td>student_baseline</td><td class="num">0 / 1</td><td class="num">9579</td><td class="num">3777</td><td class="num">$0.0000</td></tr><tr><td>student_pollinations</td><td>scan</td><td>student_with_lessons</td><td class="num">1 / 0</td><td class="num">12421</td><td class="num">3675</td><td class="num">$0.0000</td></tr><tr><td>student_pollinations</td><td>scan</td><td>student_with_lessons</td><td class="num">1 / 0</td><td class="num">12421</td><td class="num">3878</td><td class="num">$0.0000</td></tr><tr><td>student_pollinations</td><td>scan</td><td>student_with_lessons</td><td class="num">1 / 0</td><td class="num">12421</td><td class="num">4157</td><td class="num">$0.0000</td></tr><tr><td>teacher</td><td>scan</td><td>teacher</td><td class="num">0 / 1</td><td class="num">17541</td><td class="num">6132</td><td class="num">$0.0000</td></tr><tr><td>judge_pollinations</td><td>judge_confirm</td><td>readme:student_baseline</td><td class="num">0 / 41</td><td class="num">17697</td><td class="num">3375</td><td class="num">$0.0000</td></tr><tr><td>judge_pollinations</td><td>judge_confirm</td><td>readme:student_with_lessons</td><td class="num">4 / 40</td><td class="num">19656</td><td class="num">3807</td><td class="num">$0.0000</td></tr><tr><td>judge_pollinations</td><td>judge_confirm</td><td>readme:teacher</td><td class="num">0 / 22</td><td class="num">9548</td><td class="num">2063</td><td class="num">$0.0000</td></tr><tr><td>judge_pollinations</td><td>judge_screen</td><td>readme:student_baseline</td><td class="num">0 / 9</td><td class="num">26130</td><td class="num">2177</td><td class="num">$0.0000</td></tr><tr><td>judge_pollinations</td><td>judge_screen</td><td>readme:student_with_lessons</td><td class="num">6 / 3</td><td class="num">26880</td><td class="num">2278</td><td class="num">$0.0000</td></tr><tr><td>judge_pollinations</td><td>judge_screen</td><td>readme:teacher</td><td class="num">0 / 3</td><td class="num">10473</td><td class="num">1015</td><td class="num">$0.0000</td></tr>
+  </table></div></details>
+  <p>Billed in this run: $0.0000. Including calls served from the response cache at their original price: $0.0964. Free-tier models are shown at $0 (tokens are still counted).</p>
+
+  <h2>7. Prompt versions</h2>
+  <div class="scroll"><table>
+    <tr><th>Prompt</th><th>sha256</th></tr>
+    <tr><td><code>judge_confirm/v1</code></td><td><code>cbbc6bf53622</code></td></tr><tr><td><code>judge_screen/v1</code></td><td><code>0d8f84acdbc7</code></td></tr><tr><td><code>scan/v4</code></td><td><code>7cd4f30371a6</code></td></tr>
+  </table></div>
+  <p class="muted">Prompts were written from the OWASP MASVS categories, not from the ground-truth list, but they were developed and debugged on this app. The scores above are for exactly these versions.</p>
+
+  <h2>8. Limitations</h2>
+  <ul class="plain"><li>The lift is in-sample: lessons are distilled from the same app the student is rescanned on. One app cannot show that the lessons generalise (cross-app transfer is the partial answer).</li><li>Contamination: the evaluation app and its vulnerability list are public; the models may have memorised them.</li><li>Some ingest features (dependency inventory, cloud-identifier patterns) were added after reading the ground-truth list; they are generic, but not chosen blind.</li><li>Prompts were developed on this app (versions and scores are recorded in section 8).</li><li>Ground-truth enrichment is the author&#39;s own labelling (mitigated: written and committed before any scan, README-only headline, robustness check).</li><li>Some items are only partly visible statically (server-side cloud configuration; known-vulnerable components rely on the model&#39;s advisory knowledge).</li><li>The teacher&#39;s temperature cannot be set (Claude Sonnet 5.5 rejects non-default sampling); LLM output varies between runs; small N; no significance test.</li><li>Teacher refusals can reduce coverage (counted; the model that answered is recorded when a fallback was used).</li><li>Teacher and student may scan different units because of different budgets; the student&#39;s free tier (1,000 output tokens per minute) forces small units, and units whose answer does not fit are re-planned into smaller ones.</li><li>The judge is an LLM; the hand audit measures its agreement with the author, it does not remove bias.</li><li>One-to-one matching is conservative.</li><li>Unmatched findings are not automatically false positives (the reference list may be incomplete).</li><li>Teacher-as-reference (apps without ground truth) inherits the teacher&#39;s misses and mistakes and is circular with the lessons.</li><li>Decompilation is lossy (jadx failures are counted); the smali fallback is not built in v0.1.</li><li>Obfuscated apps: first-party code is derived from the manifest, but library detection is not fingerprint-based.</li><li>Native code, assets and split APKs / app bundles are not analysed.</li><li>Text-based one-hop graph: reflection, framework callbacks and string-action intents are missed; oversized files are skipped; no hub/skeleton handling in v0.1.</li><li>strings.xml filtering can miss innocently named, low-entropy secrets.</li><li>Prompt injection via app code or strings can still influence the model.</li><li>Model confidence is uncalibrated (used for ranking only).</li><li>The sanitiser is lexical plus a similarity check; paraphrased references can pass.</li><li>Lessons cover only the vulnerability classes the teacher found in the source app.</li><li>Line numbers refer to decompiled code.</li><li>Static only: runtime-only issues are out of scope (see the dynamic-analysis write-up).</li></ul>
+</main>
+</body>
+</html>

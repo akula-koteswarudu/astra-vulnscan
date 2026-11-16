@@ -1,0 +1,169 @@
+{
+  "labels_file" : "runs/2026-11-14T1846_insecureshop_9f96bd98/07_evaluate/audit/audit_labels_claude.csv",
+  "score" : {
+    "labelled" : 368,
+    "unlabelled" : 0,
+    "raw_agreement" : 0.9456521739130435,
+    "collapsed_agreement" : 0.9646739130434783,
+    "cohens_kappa" : 0.7905341947235107,
+    "confusion" : {
+      "match" : {
+        "match" : 40,
+        "no" : 2,
+        "partial" : 7
+      },
+      "no" : {
+        "match" : 0,
+        "no" : 307,
+        "partial" : 9
+      },
+      "partial" : {
+        "match" : 0,
+        "no" : 2,
+        "partial" : 1
+      }
+    },
+    "screened_out_labelled_match" : 0,
+    "disagreements" : [ {
+      "finding" : "Exported WebView2Activity loads arbitrary URL from intent into JS-enabled WebView with universal file access",
+      "item" : "GT-02",
+      "judge" : "match",
+      "label" : "partial",
+      "row_id" : "a3255e6956c6",
+      "source" : "confirm"
+    }, {
+      "finding" : "Dynamically registered exported receiver opens attacker-supplied URL in WebView2Activity",
+      "item" : "GT-06",
+      "judge" : "no",
+      "label" : "partial",
+      "row_id" : "8a291297fce7",
+      "source" : "screened_out"
+    }, {
+      "finding" : "PrivateActivity WebView loads intent-provided URL with universal file access",
+      "item" : "GT-06",
+      "judge" : "no",
+      "label" : "partial",
+      "row_id" : "99640c0cfbb2",
+      "source" : "screened_out"
+    }, {
+      "finding" : "Deep link WebViewActivity: unvalidated /web path and weak endsWith host check on /webview path",
+      "item" : "GT-06",
+      "judge" : "no",
+      "label" : "partial",
+      "row_id" : "a89405eee2a1",
+      "source" : "screened_out"
+    }, {
+      "finding" : "UploadService exported without permission",
+      "item" : "GT-08",
+      "judge" : "no",
+      "label" : "partial",
+      "row_id" : "2919176ef99d",
+      "source" : "confirm"
+    }, {
+      "finding" : "Hardcoded AWS Cognito identity pool ID",
+      "item" : "GT-10",
+      "judge" : "no",
+      "label" : "partial",
+      "row_id" : "a4b7a0c12085",
+      "source" : "confirm"
+    }, {
+      "finding" : "PrivateActivity WebView loads intent-provided URL with universal file access",
+      "item" : "GT-17",
+      "judge" : "match",
+      "label" : "partial",
+      "row_id" : "9a9fa5854d52",
+      "source" : "confirm"
+    }, {
+      "finding" : "Exported WebView2Activity loads arbitrary URL from intent into JS-enabled WebView with universal file access",
+      "item" : "GT-17",
+      "judge" : "match",
+      "label" : "partial",
+      "row_id" : "3cf863703e6a",
+      "source" : "confirm"
+    }, {
+      "finding" : "WebView loads untrusted URL",
+      "item" : "GT-02",
+      "judge" : "match",
+      "label" : "partial",
+      "row_id" : "b857e6512a04",
+      "source" : "confirm"
+    }, {
+      "finding" : "WebView loads untrusted URL",
+      "item" : "GT-03",
+      "judge" : "match",
+      "label" : "no",
+      "row_id" : "5113438ce5c2",
+      "source" : "confirm"
+    }, {
+      "finding" : "Hardcoded AWS Identity Pool ID",
+      "item" : "GT-10",
+      "judge" : "no",
+      "label" : "partial",
+      "row_id" : "a14bfe9eb6ea",
+      "source" : "confirm"
+    }, {
+      "finding" : "Implicit intent with sensitive data",
+      "item" : "GT-12",
+      "judge" : "match",
+      "label" : "partial",
+      "row_id" : "f9f83f95f7c5",
+      "source" : "confirm"
+    }, {
+      "finding" : "WebView loads untrusted URL",
+      "item" : "GT-13",
+      "judge" : "match",
+      "label" : "no",
+      "row_id" : "e91462a2ba8a",
+      "source" : "confirm"
+    }, {
+      "finding" : "Cleartext traffic enabled",
+      "item" : "GT-16",
+      "judge" : "partial",
+      "label" : "no",
+      "row_id" : "1a5818500962",
+      "source" : "confirm"
+    }, {
+      "finding" : "Backup enabled",
+      "item" : "GT-18",
+      "judge" : "partial",
+      "label" : "no",
+      "row_id" : "6b864a976c18",
+      "source" : "confirm"
+    }, {
+      "finding" : "Exported WebView loads unvalidated URL with file access",
+      "item" : "GT-02",
+      "judge" : "match",
+      "label" : "partial",
+      "row_id" : "698527772333",
+      "source" : "confirm"
+    }, {
+      "finding" : "Deep link URL check bypassable via weak host validation",
+      "item" : "GT-06",
+      "judge" : "no",
+      "label" : "partial",
+      "row_id" : "14dc1d63a19c",
+      "source" : "screened_out"
+    }, {
+      "finding" : "Exported third-party service without permission",
+      "item" : "GT-08",
+      "judge" : "no",
+      "label" : "partial",
+      "row_id" : "a80ec970dd69",
+      "source" : "confirm"
+    }, {
+      "finding" : "Hardcoded AWS Identity Pool ID",
+      "item" : "GT-10",
+      "judge" : "no",
+      "label" : "partial",
+      "row_id" : "146d64caf5b5",
+      "source" : "confirm"
+    }, {
+      "finding" : "Exported WebView loads unvalidated URL with file access",
+      "item" : "GT-17",
+      "judge" : "match",
+      "label" : "partial",
+      "row_id" : "340fef980edf",
+      "source" : "confirm"
+    } ]
+  }
+}

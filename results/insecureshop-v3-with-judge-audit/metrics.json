@@ -1,0 +1,1067 @@
+{
+  "schema_version" : 1,
+  "headline_mode" : "readme",
+  "label" : "recall",
+  "ground_truth" : true,
+  "modes" : [ {
+    "mode" : "readme",
+    "label" : "recall",
+    "items" : 19,
+    "arm_runs" : [ {
+      "arm" : "teacher",
+      "run" : 1,
+      "model" : "claude-sonnet-5-5",
+      "findings_total" : 19,
+      "findings_verified" : 19,
+      "recall_strict" : 0.7894736842105263,
+      "recall_lenient" : 0.7894736842105263,
+      "recall_strict_incl_unverified" : 0.7894736842105263,
+      "precision_strict" : 0.7894736842105263,
+      "precision_lenient" : 0.7894736842105263,
+      "matched_strict" : {
+        "GT-01" : "1888adee6f8c2e08",
+        "GT-02" : "71fea81b602dafb2",
+        "GT-03" : "953d336cde24e65f",
+        "GT-04" : "ff92dfed3e3a5c81",
+        "GT-05" : "2c50461813a507ef",
+        "GT-06" : "8c5837e00af8dac3",
+        "GT-07" : "e76491cd0d4300ad",
+        "GT-09" : "4d664f2e4822bbf9",
+        "GT-11" : "a9de307a71794e20",
+        "GT-12" : "1d10851ecc769b82",
+        "GT-14" : "19f64712f531c58b",
+        "GT-15" : "11edd44f6b5e4e21",
+        "GT-16" : "2e920bfd02d746b5",
+        "GT-18" : "ad51a3c67e777159",
+        "GT-19" : "cb524a9a78af3cab"
+      },
+      "matched_lenient" : {
+        "GT-01" : "1888adee6f8c2e08",
+        "GT-02" : "71fea81b602dafb2",
+        "GT-03" : "953d336cde24e65f",
+        "GT-04" : "ff92dfed3e3a5c81",
+        "GT-05" : "2c50461813a507ef",
+        "GT-06" : "8c5837e00af8dac3",
+        "GT-07" : "e76491cd0d4300ad",
+        "GT-09" : "4d664f2e4822bbf9",
+        "GT-11" : "a9de307a71794e20",
+        "GT-12" : "1d10851ecc769b82",
+        "GT-14" : "19f64712f531c58b",
+        "GT-15" : "11edd44f6b5e4e21",
+        "GT-16" : "2e920bfd02d746b5",
+        "GT-18" : "ad51a3c67e777159",
+        "GT-19" : "cb524a9a78af3cab"
+      },
+      "uncredited_strict" : [ "GT-17" ],
+      "unit_status" : {
+        "ok" : 1
+      },
+      "judge_calls" : 25,
+      "judge_errors" : 0,
+      "prefilter_dropped" : 0,
+      "screen_extra_pairs" : 4
+    }, {
+      "arm" : "student_baseline",
+      "run" : 1,
+      "model" : "qwen/qwen3.8-27b",
+      "findings_total" : 15,
+      "findings_verified" : 15,
+      "recall_strict" : 0.47368421052631576,
+      "recall_lenient" : 0.5263157894736842,
+      "recall_strict_incl_unverified" : 0.47368421052631576,
+      "precision_strict" : 0.7333333333333333,
+      "precision_lenient" : 0.8666666666666667,
+      "matched_strict" : {
+        "GT-01" : "0bf6bf665d7e5428",
+        "GT-02" : "af99789d05c64842",
+        "GT-11" : "89781ec628fa10be",
+        "GT-12" : "9f6418c4430673cf",
+        "GT-15" : "067db50d55732067",
+        "GT-16" : "3cabd61b5742b9af",
+        "GT-17" : "555cc58eaf404d34",
+        "GT-18" : "5dfc2314502fc778",
+        "GT-19" : "92b7eec1039b3db8"
+      },
+      "matched_lenient" : {
+        "GT-01" : "0bf6bf665d7e5428",
+        "GT-02" : "af99789d05c64842",
+        "GT-11" : "89781ec628fa10be",
+        "GT-12" : "9f6418c4430673cf",
+        "GT-13" : "b5adbe75b6b37f30",
+        "GT-15" : "067db50d55732067",
+        "GT-16" : "3cabd61b5742b9af",
+        "GT-17" : "555cc58eaf404d34",
+        "GT-18" : "1ebcbb2be7d58484",
+        "GT-19" : "92b7eec1039b3db8"
+      },
+      "uncredited_strict" : [ "GT-03", "GT-06", "GT-13" ],
+      "unit_status" : {
+        "ok" : 1
+      },
+      "judge_calls" : 20,
+      "judge_errors" : 0,
+      "prefilter_dropped" : 0,
+      "screen_extra_pairs" : 5
+    }, {
+      "arm" : "student_with_lessons",
+      "run" : 1,
+      "model" : "qwen/qwen3.8-27b",
+      "findings_total" : 18,
+      "findings_verified" : 18,
+      "recall_strict" : 0.7368421052631579,
+      "recall_lenient" : 0.7368421052631579,
+      "recall_strict_incl_unverified" : 0.7368421052631579,
+      "precision_strict" : 0.7777777777777778,
+      "precision_lenient" : 0.7777777777777778,
+      "matched_strict" : {
+        "GT-01" : "170d328921beb405",
+        "GT-02" : "88bd9a504177a6c6",
+        "GT-03" : "682dfcf89f786fb3",
+        "GT-04" : "c13bcbc0ab106c4a",
+        "GT-05" : "f032d79bd6c89abd",
+        "GT-07" : "f3d1c0721cfc27f3",
+        "GT-09" : "5bd7e8694bda5648",
+        "GT-11" : "489876e41225436a",
+        "GT-12" : "06d3d1f99b835144",
+        "GT-14" : "3ca364f610c51359",
+        "GT-15" : "fd19b7eacd8cd71a",
+        "GT-16" : "9562ceb48738f9ac",
+        "GT-18" : "480b6cc24435b816",
+        "GT-19" : "6149d71826673f21"
+      },
+      "matched_lenient" : {
+        "GT-01" : "170d328921beb405",
+        "GT-02" : "88bd9a504177a6c6",
+        "GT-03" : "682dfcf89f786fb3",
+        "GT-04" : "c13bcbc0ab106c4a",
+        "GT-05" : "f032d79bd6c89abd",
+        "GT-07" : "f3d1c0721cfc27f3",
+        "GT-09" : "5bd7e8694bda5648",
+        "GT-11" : "489876e41225436a",
+        "GT-12" : "06d3d1f99b835144",
+        "GT-14" : "3ca364f610c51359",
+        "GT-15" : "fd19b7eacd8cd71a",
+        "GT-16" : "9562ceb48738f9ac",
+        "GT-18" : "480b6cc24435b816",
+        "GT-19" : "6149d71826673f21"
+      },
+      "uncredited_strict" : [ "GT-06", "GT-13", "GT-17" ],
+      "unit_status" : {
+        "ok" : 1
+      },
+      "judge_calls" : 21,
+      "judge_errors" : 0,
+      "prefilter_dropped" : 0,
+      "screen_extra_pairs" : 3
+    } ],
+    "per_item" : [ {
+      "item_id" : "GT-01",
+      "title" : "Hardcoded Credentials",
+      "static_visibility" : "full",
+      "hits_strict" : {
+        "student_baseline" : "1/1",
+        "student_with_lessons" : "1/1",
+        "teacher" : "1/1"
+      },
+      "hits_lenient" : {
+        "student_baseline" : "1/1",
+        "student_with_lessons" : "1/1",
+        "teacher" : "1/1"
+      },
+      "uncredited" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "0/1",
+        "teacher" : "0/1"
+      }
+    }, {
+      "item_id" : "GT-02",
+      "title" : "Insufficient URL Validation",
+      "static_visibility" : "full",
+      "hits_strict" : {
+        "student_baseline" : "1/1",
+        "student_with_lessons" : "1/1",
+        "teacher" : "1/1"
+      },
+      "hits_lenient" : {
+        "student_baseline" : "1/1",
+        "student_with_lessons" : "1/1",
+        "teacher" : "1/1"
+      },
+      "uncredited" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "0/1",
+        "teacher" : "0/1"
+      }
+    }, {
+      "item_id" : "GT-03",
+      "title" : "Weak Host Validation Check",
+      "static_visibility" : "full",
+      "hits_strict" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "1/1",
+        "teacher" : "1/1"
+      },
+      "hits_lenient" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "1/1",
+        "teacher" : "1/1"
+      },
+      "uncredited" : {
+        "student_baseline" : "1/1",
+        "student_with_lessons" : "0/1",
+        "teacher" : "0/1"
+      }
+    }, {
+      "item_id" : "GT-04",
+      "title" : "Arbitrary Code Execution",
+      "static_visibility" : "full",
+      "hits_strict" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "1/1",
+        "teacher" : "1/1"
+      },
+      "hits_lenient" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "1/1",
+        "teacher" : "1/1"
+      },
+      "uncredited" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "0/1",
+        "teacher" : "0/1"
+      }
+    }, {
+      "item_id" : "GT-05",
+      "title" : "Access to Protected Components",
+      "static_visibility" : "full",
+      "hits_strict" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "1/1",
+        "teacher" : "1/1"
+      },
+      "hits_lenient" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "1/1",
+        "teacher" : "1/1"
+      },
+      "uncredited" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "0/1",
+        "teacher" : "0/1"
+      }
+    }, {
+      "item_id" : "GT-06",
+      "title" : "Unprotected Data URIs",
+      "static_visibility" : "full",
+      "hits_strict" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "0/1",
+        "teacher" : "1/1"
+      },
+      "hits_lenient" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "0/1",
+        "teacher" : "1/1"
+      },
+      "uncredited" : {
+        "student_baseline" : "1/1",
+        "student_with_lessons" : "1/1",
+        "teacher" : "0/1"
+      }
+    }, {
+      "item_id" : "GT-07",
+      "title" : "Theft of Arbitrary",
+      "static_visibility" : "full",
+      "hits_strict" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "1/1",
+        "teacher" : "1/1"
+      },
+      "hits_lenient" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "1/1",
+        "teacher" : "1/1"
+      },
+      "uncredited" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "0/1",
+        "teacher" : "0/1"
+      }
+    }, {
+      "item_id" : "GT-08",
+      "title" : "Using Components with Known Vulnerabilities",
+      "static_visibility" : "inventory_only",
+      "hits_strict" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "0/1",
+        "teacher" : "0/1"
+      },
+      "hits_lenient" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "0/1",
+        "teacher" : "0/1"
+      },
+      "uncredited" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "0/1",
+        "teacher" : "0/1"
+      }
+    }, {
+      "item_id" : "GT-09",
+      "title" : "Insecure Broadcast Receiver",
+      "static_visibility" : "full",
+      "hits_strict" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "1/1",
+        "teacher" : "1/1"
+      },
+      "hits_lenient" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "1/1",
+        "teacher" : "1/1"
+      },
+      "uncredited" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "0/1",
+        "teacher" : "0/1"
+      }
+    }, {
+      "item_id" : "GT-10",
+      "title" : "AWS Cognito Misconfiguration",
+      "static_visibility" : "partial",
+      "hits_strict" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "0/1",
+        "teacher" : "0/1"
+      },
+      "hits_lenient" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "0/1",
+        "teacher" : "0/1"
+      },
+      "uncredited" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "0/1",
+        "teacher" : "0/1"
+      }
+    }, {
+      "item_id" : "GT-11",
+      "title" : "Insecure use of FilePaths in FileProvider",
+      "static_visibility" : "full",
+      "hits_strict" : {
+        "student_baseline" : "1/1",
+        "student_with_lessons" : "1/1",
+        "teacher" : "1/1"
+      },
+      "hits_lenient" : {
+        "student_baseline" : "1/1",
+        "student_with_lessons" : "1/1",
+        "teacher" : "1/1"
+      },
+      "uncredited" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "0/1",
+        "teacher" : "0/1"
+      }
+    }, {
+      "item_id" : "GT-12",
+      "title" : "Use of Implicit intent to send a broadcast with sensitive data",
+      "static_visibility" : "full",
+      "hits_strict" : {
+        "student_baseline" : "1/1",
+        "student_with_lessons" : "1/1",
+        "teacher" : "1/1"
+      },
+      "hits_lenient" : {
+        "student_baseline" : "1/1",
+        "student_with_lessons" : "1/1",
+        "teacher" : "1/1"
+      },
+      "uncredited" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "0/1",
+        "teacher" : "0/1"
+      }
+    }, {
+      "item_id" : "GT-13",
+      "title" : "Intercepting Implicit intent to load arbitrary URL",
+      "static_visibility" : "full",
+      "hits_strict" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "0/1",
+        "teacher" : "0/1"
+      },
+      "hits_lenient" : {
+        "student_baseline" : "1/1",
+        "student_with_lessons" : "0/1",
+        "teacher" : "0/1"
+      },
+      "uncredited" : {
+        "student_baseline" : "1/1",
+        "student_with_lessons" : "1/1",
+        "teacher" : "0/1"
+      }
+    }, {
+      "item_id" : "GT-14",
+      "title" : "Insecure Implementation of SetResult in exported Activity",
+      "static_visibility" : "full",
+      "hits_strict" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "1/1",
+        "teacher" : "1/1"
+      },
+      "hits_lenient" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "1/1",
+        "teacher" : "1/1"
+      },
+      "uncredited" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "0/1",
+        "teacher" : "0/1"
+      }
+    }, {
+      "item_id" : "GT-15",
+      "title" : "Insecure Content Provider",
+      "static_visibility" : "full",
+      "hits_strict" : {
+        "student_baseline" : "1/1",
+        "student_with_lessons" : "1/1",
+        "teacher" : "1/1"
+      },
+      "hits_lenient" : {
+        "student_baseline" : "1/1",
+        "student_with_lessons" : "1/1",
+        "teacher" : "1/1"
+      },
+      "uncredited" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "0/1",
+        "teacher" : "0/1"
+      }
+    }, {
+      "item_id" : "GT-16",
+      "title" : "Lack of SSL Certificate Validation",
+      "static_visibility" : "full",
+      "hits_strict" : {
+        "student_baseline" : "1/1",
+        "student_with_lessons" : "1/1",
+        "teacher" : "1/1"
+      },
+      "hits_lenient" : {
+        "student_baseline" : "1/1",
+        "student_with_lessons" : "1/1",
+        "teacher" : "1/1"
+      },
+      "uncredited" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "0/1",
+        "teacher" : "0/1"
+      }
+    }, {
+      "item_id" : "GT-17",
+      "title" : "Insecure Webview Properties Enabled",
+      "static_visibility" : "full",
+      "hits_strict" : {
+        "student_baseline" : "1/1",
+        "student_with_lessons" : "0/1",
+        "teacher" : "0/1"
+      },
+      "hits_lenient" : {
+        "student_baseline" : "1/1",
+        "student_with_lessons" : "0/1",
+        "teacher" : "0/1"
+      },
+      "uncredited" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "1/1",
+        "teacher" : "1/1"
+      }
+    }, {
+      "item_id" : "GT-18",
+      "title" : "Insecure Data Storage",
+      "static_visibility" : "full",
+      "hits_strict" : {
+        "student_baseline" : "1/1",
+        "student_with_lessons" : "1/1",
+        "teacher" : "1/1"
+      },
+      "hits_lenient" : {
+        "student_baseline" : "1/1",
+        "student_with_lessons" : "1/1",
+        "teacher" : "1/1"
+      },
+      "uncredited" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "0/1",
+        "teacher" : "0/1"
+      }
+    }, {
+      "item_id" : "GT-19",
+      "title" : "Insecure Logging",
+      "static_visibility" : "full",
+      "hits_strict" : {
+        "student_baseline" : "1/1",
+        "student_with_lessons" : "1/1",
+        "teacher" : "1/1"
+      },
+      "hits_lenient" : {
+        "student_baseline" : "1/1",
+        "student_with_lessons" : "1/1",
+        "teacher" : "1/1"
+      },
+      "uncredited" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "0/1",
+        "teacher" : "0/1"
+      }
+    } ]
+  }, {
+    "mode" : "enriched",
+    "label" : "recall",
+    "items" : 19,
+    "arm_runs" : [ {
+      "arm" : "teacher",
+      "run" : 1,
+      "model" : "claude-sonnet-5-5",
+      "findings_total" : 19,
+      "findings_verified" : 19,
+      "recall_strict" : 0.8947368421052632,
+      "recall_lenient" : 0.8947368421052632,
+      "recall_strict_incl_unverified" : 0.8947368421052632,
+      "precision_strict" : 0.8947368421052632,
+      "precision_lenient" : 0.8947368421052632,
+      "matched_strict" : {
+        "GT-01" : "1888adee6f8c2e08",
+        "GT-02" : "953d336cde24e65f",
+        "GT-04" : "ff92dfed3e3a5c81",
+        "GT-05" : "2c50461813a507ef",
+        "GT-06" : "8c5837e00af8dac3",
+        "GT-07" : "e76491cd0d4300ad",
+        "GT-08" : "55b67690b5c71387",
+        "GT-09" : "4d664f2e4822bbf9",
+        "GT-10" : "5952756137792283",
+        "GT-11" : "a9de307a71794e20",
+        "GT-12" : "1d10851ecc769b82",
+        "GT-14" : "19f64712f531c58b",
+        "GT-15" : "11edd44f6b5e4e21",
+        "GT-16" : "2e920bfd02d746b5",
+        "GT-17" : "71fea81b602dafb2",
+        "GT-18" : "ad51a3c67e777159",
+        "GT-19" : "cb524a9a78af3cab"
+      },
+      "matched_lenient" : {
+        "GT-01" : "1888adee6f8c2e08",
+        "GT-02" : "953d336cde24e65f",
+        "GT-04" : "ff92dfed3e3a5c81",
+        "GT-05" : "2c50461813a507ef",
+        "GT-06" : "8c5837e00af8dac3",
+        "GT-07" : "e76491cd0d4300ad",
+        "GT-08" : "55b67690b5c71387",
+        "GT-09" : "4d664f2e4822bbf9",
+        "GT-10" : "5952756137792283",
+        "GT-11" : "a9de307a71794e20",
+        "GT-12" : "1d10851ecc769b82",
+        "GT-14" : "19f64712f531c58b",
+        "GT-15" : "11edd44f6b5e4e21",
+        "GT-16" : "2e920bfd02d746b5",
+        "GT-17" : "71fea81b602dafb2",
+        "GT-18" : "ad51a3c67e777159",
+        "GT-19" : "cb524a9a78af3cab"
+      },
+      "uncredited_strict" : [ "GT-03" ],
+      "unit_status" : {
+        "ok" : 1
+      },
+      "judge_calls" : 19,
+      "judge_errors" : 0,
+      "prefilter_dropped" : 308,
+      "screen_extra_pairs" : 0
+    }, {
+      "arm" : "student_baseline",
+      "run" : 1,
+      "model" : "qwen/qwen3.8-27b",
+      "findings_total" : 15,
+      "findings_verified" : 15,
+      "recall_strict" : 0.5263157894736842,
+      "recall_lenient" : 0.5789473684210527,
+      "recall_strict_incl_unverified" : 0.5263157894736842,
+      "precision_strict" : 0.7333333333333333,
+      "precision_lenient" : 0.8,
+      "matched_strict" : {
+        "GT-01" : "0bf6bf665d7e5428",
+        "GT-06" : "af99789d05c64842",
+        "GT-10" : "e37a55afa0695a7c",
+        "GT-11" : "89781ec628fa10be",
+        "GT-12" : "9f6418c4430673cf",
+        "GT-15" : "067db50d55732067",
+        "GT-16" : "3cabd61b5742b9af",
+        "GT-17" : "555cc58eaf404d34",
+        "GT-18" : "5dfc2314502fc778",
+        "GT-19" : "92b7eec1039b3db8"
+      },
+      "matched_lenient" : {
+        "GT-01" : "0bf6bf665d7e5428",
+        "GT-06" : "af99789d05c64842",
+        "GT-10" : "e37a55afa0695a7c",
+        "GT-11" : "89781ec628fa10be",
+        "GT-12" : "9f6418c4430673cf",
+        "GT-13" : "b5adbe75b6b37f30",
+        "GT-15" : "067db50d55732067",
+        "GT-16" : "3cabd61b5742b9af",
+        "GT-17" : "555cc58eaf404d34",
+        "GT-18" : "5dfc2314502fc778",
+        "GT-19" : "92b7eec1039b3db8"
+      },
+      "uncredited_strict" : [ ],
+      "unit_status" : {
+        "ok" : 1
+      },
+      "judge_calls" : 14,
+      "judge_errors" : 0,
+      "prefilter_dropped" : 249,
+      "screen_extra_pairs" : 0
+    }, {
+      "arm" : "student_with_lessons",
+      "run" : 1,
+      "model" : "qwen/qwen3.8-27b",
+      "findings_total" : 18,
+      "findings_verified" : 18,
+      "recall_strict" : 0.8421052631578947,
+      "recall_lenient" : 0.8421052631578947,
+      "recall_strict_incl_unverified" : 0.8421052631578947,
+      "precision_strict" : 0.8888888888888888,
+      "precision_lenient" : 0.8888888888888888,
+      "matched_strict" : {
+        "GT-01" : "170d328921beb405",
+        "GT-02" : "682dfcf89f786fb3",
+        "GT-04" : "c13bcbc0ab106c4a",
+        "GT-05" : "f032d79bd6c89abd",
+        "GT-07" : "f3d1c0721cfc27f3",
+        "GT-08" : "667b891dab7c861b",
+        "GT-09" : "5bd7e8694bda5648",
+        "GT-10" : "e155de696fcb6917",
+        "GT-11" : "489876e41225436a",
+        "GT-12" : "06d3d1f99b835144",
+        "GT-14" : "3ca364f610c51359",
+        "GT-15" : "fd19b7eacd8cd71a",
+        "GT-16" : "9562ceb48738f9ac",
+        "GT-17" : "88bd9a504177a6c6",
+        "GT-18" : "480b6cc24435b816",
+        "GT-19" : "6149d71826673f21"
+      },
+      "matched_lenient" : {
+        "GT-01" : "170d328921beb405",
+        "GT-02" : "682dfcf89f786fb3",
+        "GT-04" : "c13bcbc0ab106c4a",
+        "GT-05" : "f032d79bd6c89abd",
+        "GT-07" : "f3d1c0721cfc27f3",
+        "GT-08" : "667b891dab7c861b",
+        "GT-09" : "5bd7e8694bda5648",
+        "GT-10" : "e155de696fcb6917",
+        "GT-11" : "489876e41225436a",
+        "GT-12" : "06d3d1f99b835144",
+        "GT-14" : "3ca364f610c51359",
+        "GT-15" : "fd19b7eacd8cd71a",
+        "GT-16" : "9562ceb48738f9ac",
+        "GT-17" : "88bd9a504177a6c6",
+        "GT-18" : "480b6cc24435b816",
+        "GT-19" : "6149d71826673f21"
+      },
+      "uncredited_strict" : [ "GT-03" ],
+      "unit_status" : {
+        "ok" : 1
+      },
+      "judge_calls" : 18,
+      "judge_errors" : 0,
+      "prefilter_dropped" : 290,
+      "screen_extra_pairs" : 1
+    } ],
+    "per_item" : [ {
+      "item_id" : "GT-01",
+      "title" : "Hardcoded Credentials",
+      "static_visibility" : "full",
+      "hits_strict" : {
+        "student_baseline" : "1/1",
+        "student_with_lessons" : "1/1",
+        "teacher" : "1/1"
+      },
+      "hits_lenient" : {
+        "student_baseline" : "1/1",
+        "student_with_lessons" : "1/1",
+        "teacher" : "1/1"
+      },
+      "uncredited" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "0/1",
+        "teacher" : "0/1"
+      }
+    }, {
+      "item_id" : "GT-02",
+      "title" : "Insufficient URL Validation",
+      "static_visibility" : "full",
+      "hits_strict" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "1/1",
+        "teacher" : "1/1"
+      },
+      "hits_lenient" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "1/1",
+        "teacher" : "1/1"
+      },
+      "uncredited" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "0/1",
+        "teacher" : "0/1"
+      }
+    }, {
+      "item_id" : "GT-03",
+      "title" : "Weak Host Validation Check",
+      "static_visibility" : "full",
+      "hits_strict" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "0/1",
+        "teacher" : "0/1"
+      },
+      "hits_lenient" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "0/1",
+        "teacher" : "0/1"
+      },
+      "uncredited" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "1/1",
+        "teacher" : "1/1"
+      }
+    }, {
+      "item_id" : "GT-04",
+      "title" : "Arbitrary Code Execution",
+      "static_visibility" : "full",
+      "hits_strict" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "1/1",
+        "teacher" : "1/1"
+      },
+      "hits_lenient" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "1/1",
+        "teacher" : "1/1"
+      },
+      "uncredited" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "0/1",
+        "teacher" : "0/1"
+      }
+    }, {
+      "item_id" : "GT-05",
+      "title" : "Access to Protected Components",
+      "static_visibility" : "full",
+      "hits_strict" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "1/1",
+        "teacher" : "1/1"
+      },
+      "hits_lenient" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "1/1",
+        "teacher" : "1/1"
+      },
+      "uncredited" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "0/1",
+        "teacher" : "0/1"
+      }
+    }, {
+      "item_id" : "GT-06",
+      "title" : "Unprotected Data URIs",
+      "static_visibility" : "full",
+      "hits_strict" : {
+        "student_baseline" : "1/1",
+        "student_with_lessons" : "0/1",
+        "teacher" : "1/1"
+      },
+      "hits_lenient" : {
+        "student_baseline" : "1/1",
+        "student_with_lessons" : "0/1",
+        "teacher" : "1/1"
+      },
+      "uncredited" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "0/1",
+        "teacher" : "0/1"
+      }
+    }, {
+      "item_id" : "GT-07",
+      "title" : "Theft of Arbitrary",
+      "static_visibility" : "full",
+      "hits_strict" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "1/1",
+        "teacher" : "1/1"
+      },
+      "hits_lenient" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "1/1",
+        "teacher" : "1/1"
+      },
+      "uncredited" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "0/1",
+        "teacher" : "0/1"
+      }
+    }, {
+      "item_id" : "GT-08",
+      "title" : "Using Components with Known Vulnerabilities",
+      "static_visibility" : "inventory_only",
+      "hits_strict" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "1/1",
+        "teacher" : "1/1"
+      },
+      "hits_lenient" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "1/1",
+        "teacher" : "1/1"
+      },
+      "uncredited" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "0/1",
+        "teacher" : "0/1"
+      }
+    }, {
+      "item_id" : "GT-09",
+      "title" : "Insecure Broadcast Receiver",
+      "static_visibility" : "full",
+      "hits_strict" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "1/1",
+        "teacher" : "1/1"
+      },
+      "hits_lenient" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "1/1",
+        "teacher" : "1/1"
+      },
+      "uncredited" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "0/1",
+        "teacher" : "0/1"
+      }
+    }, {
+      "item_id" : "GT-10",
+      "title" : "AWS Cognito Misconfiguration",
+      "static_visibility" : "partial",
+      "hits_strict" : {
+        "student_baseline" : "1/1",
+        "student_with_lessons" : "1/1",
+        "teacher" : "1/1"
+      },
+      "hits_lenient" : {
+        "student_baseline" : "1/1",
+        "student_with_lessons" : "1/1",
+        "teacher" : "1/1"
+      },
+      "uncredited" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "0/1",
+        "teacher" : "0/1"
+      }
+    }, {
+      "item_id" : "GT-11",
+      "title" : "Insecure use of FilePaths in FileProvider",
+      "static_visibility" : "full",
+      "hits_strict" : {
+        "student_baseline" : "1/1",
+        "student_with_lessons" : "1/1",
+        "teacher" : "1/1"
+      },
+      "hits_lenient" : {
+        "student_baseline" : "1/1",
+        "student_with_lessons" : "1/1",
+        "teacher" : "1/1"
+      },
+      "uncredited" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "0/1",
+        "teacher" : "0/1"
+      }
+    }, {
+      "item_id" : "GT-12",
+      "title" : "Use of Implicit intent to send a broadcast with sensitive data",
+      "static_visibility" : "full",
+      "hits_strict" : {
+        "student_baseline" : "1/1",
+        "student_with_lessons" : "1/1",
+        "teacher" : "1/1"
+      },
+      "hits_lenient" : {
+        "student_baseline" : "1/1",
+        "student_with_lessons" : "1/1",
+        "teacher" : "1/1"
+      },
+      "uncredited" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "0/1",
+        "teacher" : "0/1"
+      }
+    }, {
+      "item_id" : "GT-13",
+      "title" : "Intercepting Implicit intent to load arbitrary URL",
+      "static_visibility" : "full",
+      "hits_strict" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "0/1",
+        "teacher" : "0/1"
+      },
+      "hits_lenient" : {
+        "student_baseline" : "1/1",
+        "student_with_lessons" : "0/1",
+        "teacher" : "0/1"
+      },
+      "uncredited" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "0/1",
+        "teacher" : "0/1"
+      }
+    }, {
+      "item_id" : "GT-14",
+      "title" : "Insecure Implementation of SetResult in exported Activity",
+      "static_visibility" : "full",
+      "hits_strict" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "1/1",
+        "teacher" : "1/1"
+      },
+      "hits_lenient" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "1/1",
+        "teacher" : "1/1"
+      },
+      "uncredited" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "0/1",
+        "teacher" : "0/1"
+      }
+    }, {
+      "item_id" : "GT-15",
+      "title" : "Insecure Content Provider",
+      "static_visibility" : "full",
+      "hits_strict" : {
+        "student_baseline" : "1/1",
+        "student_with_lessons" : "1/1",
+        "teacher" : "1/1"
+      },
+      "hits_lenient" : {
+        "student_baseline" : "1/1",
+        "student_with_lessons" : "1/1",
+        "teacher" : "1/1"
+      },
+      "uncredited" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "0/1",
+        "teacher" : "0/1"
+      }
+    }, {
+      "item_id" : "GT-16",
+      "title" : "Lack of SSL Certificate Validation",
+      "static_visibility" : "full",
+      "hits_strict" : {
+        "student_baseline" : "1/1",
+        "student_with_lessons" : "1/1",
+        "teacher" : "1/1"
+      },
+      "hits_lenient" : {
+        "student_baseline" : "1/1",
+        "student_with_lessons" : "1/1",
+        "teacher" : "1/1"
+      },
+      "uncredited" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "0/1",
+        "teacher" : "0/1"
+      }
+    }, {
+      "item_id" : "GT-17",
+      "title" : "Insecure Webview Properties Enabled",
+      "static_visibility" : "full",
+      "hits_strict" : {
+        "student_baseline" : "1/1",
+        "student_with_lessons" : "1/1",
+        "teacher" : "1/1"
+      },
+      "hits_lenient" : {
+        "student_baseline" : "1/1",
+        "student_with_lessons" : "1/1",
+        "teacher" : "1/1"
+      },
+      "uncredited" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "0/1",
+        "teacher" : "0/1"
+      }
+    }, {
+      "item_id" : "GT-18",
+      "title" : "Insecure Data Storage",
+      "static_visibility" : "full",
+      "hits_strict" : {
+        "student_baseline" : "1/1",
+        "student_with_lessons" : "1/1",
+        "teacher" : "1/1"
+      },
+      "hits_lenient" : {
+        "student_baseline" : "1/1",
+        "student_with_lessons" : "1/1",
+        "teacher" : "1/1"
+      },
+      "uncredited" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "0/1",
+        "teacher" : "0/1"
+      }
+    }, {
+      "item_id" : "GT-19",
+      "title" : "Insecure Logging",
+      "static_visibility" : "full",
+      "hits_strict" : {
+        "student_baseline" : "1/1",
+        "student_with_lessons" : "1/1",
+        "teacher" : "1/1"
+      },
+      "hits_lenient" : {
+        "student_baseline" : "1/1",
+        "student_with_lessons" : "1/1",
+        "teacher" : "1/1"
+      },
+      "uncredited" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "0/1",
+        "teacher" : "0/1"
+      }
+    } ]
+  } ],
+  "lift" : {
+    "mode" : "readme",
+    "recall_by_arm" : {
+      "student_baseline" : {
+        "mean" : 0.47368421052631576,
+        "min" : 0.47368421052631576,
+        "max" : 0.47368421052631576,
+        "runs" : 1
+      },
+      "student_with_lessons" : {
+        "mean" : 0.7368421052631579,
+        "min" : 0.7368421052631579,
+        "max" : 0.7368421052631579,
+        "runs" : 1
+      },
+      "teacher" : {
+        "mean" : 0.7894736842105263,
+        "min" : 0.7894736842105263,
+        "max" : 0.7894736842105263,
+        "runs" : 1
+      }
+    },
+    "lift" : 0.2631578947368421
+  }
+}

@@ -1,0 +1,448 @@
+{
+  "schema_version" : 1,
+  "arm" : "student_baseline",
+  "run" : 1,
+  "model" : "qwen/qwen3.8-27b",
+  "findings" : [ {
+    "id" : "0e1cd1d69463848d",
+    "title" : "Debuggable build",
+    "vuln_class" : "Insecure Debugging",
+    "cwe" : "CWE-489",
+    "owasp_category" : "MASVS-RESILIENCE",
+    "severity" : "high",
+    "confidence" : 1.0,
+    "location" : {
+      "file" : "AndroidManifest.xml",
+      "component" : null,
+      "symbol" : null,
+      "line" : null,
+      "end_line" : null
+    },
+    "evidence" : "android:debuggable=\"true\"",
+    "rationale" : "The application is marked as debuggable. This allows an attacker with physical access to attach a debugger, dump the process memory, and extract sensitive data such as hardcoded credentials or session tokens.",
+    "kind" : "manifest",
+    "evidence_status" : "verified_exact",
+    "needs_advisory_check" : false,
+    "provenance" : {
+      "model_used" : "qwen/qwen3.8-27b",
+      "arm" : "student_baseline",
+      "run_id" : "2026-11-15T1036_insecureshop_fec4c875",
+      "repeat_index" : 0,
+      "unit_ids" : [ "fabe569ea4dfb14c" ],
+      "prompt_version" : "v4"
+    },
+    "also_at" : [ ]
+  }, {
+    "id" : "152f267a13d4adf3",
+    "title" : "Broadcast sends credentials",
+    "vuln_class" : "Insecure Broadcast",
+    "cwe" : "CWE-927",
+    "owasp_category" : "MASVS-PLATFORM",
+    "severity" : "high",
+    "confidence" : 1.0,
+    "location" : {
+      "file" : "sources/com/insecureshop/AboutUsActivity.java",
+      "component" : "com.insecureshop.AboutUsActivity",
+      "symbol" : "AboutUsActivity.onSendData",
+      "line" : 88,
+      "end_line" : 89
+    },
+    "evidence" : "intent.putExtra(\"password\", password);\nsendBroadcast(intent);",
+    "rationale" : "The app sends the user's credentials via a broadcast intent. Any app on the device can register a receiver for this action and intercept the credentials.",
+    "kind" : "code",
+    "evidence_status" : "verified_exact",
+    "needs_advisory_check" : false,
+    "provenance" : {
+      "model_used" : "qwen/qwen3.8-27b",
+      "arm" : "student_baseline",
+      "run_id" : "2026-11-15T1036_insecureshop_fec4c875",
+      "repeat_index" : 0,
+      "unit_ids" : [ "fabe569ea4dfb14c" ],
+      "prompt_version" : "v4"
+    },
+    "also_at" : [ ]
+  }, {
+    "id" : "1c3835926f021ed8",
+    "title" : "Exported Content Provider exposes credentials",
+    "vuln_class" : "Insecure Component",
+    "cwe" : "CWE-926",
+    "owasp_category" : "MASVS-PLATFORM",
+    "severity" : "critical",
+    "confidence" : 1.0,
+    "location" : {
+      "file" : "AndroidManifest.xml",
+      "component" : "com.insecureshop.contentProvider.InsecureShopProvider",
+      "symbol" : null,
+      "line" : null,
+      "end_line" : null
+    },
+    "evidence" : "<provider android:authorities=\"com.insecureshop.provider\" android:exported=\"true\" android:name=\"com.insecureshop.contentProvider.InsecureShopProvider\" android:readPermission=\"com.insecureshop.permission.READ\"/>",
+    "rationale" : "The Content Provider is exported and protected by a 'normal' permission. Any malicious app can request this permission and query the provider to retrieve the user's username and password stored in the app.",
+    "kind" : "manifest",
+    "evidence_status" : "verified_exact",
+    "needs_advisory_check" : false,
+    "provenance" : {
+      "model_used" : "qwen/qwen3.8-27b",
+      "arm" : "student_baseline",
+      "run_id" : "2026-11-15T1036_insecureshop_fec4c875",
+      "repeat_index" : 0,
+      "unit_ids" : [ "fabe569ea4dfb14c" ],
+      "prompt_version" : "v4"
+    },
+    "also_at" : [ ]
+  }, {
+    "id" : "2a6d471d4c504f92",
+    "title" : "Implicit intent with sensitive data",
+    "vuln_class" : "Insecure Intent",
+    "cwe" : "CWE-927",
+    "owasp_category" : "MASVS-PLATFORM",
+    "severity" : "medium",
+    "confidence" : 1.0,
+    "location" : {
+      "file" : "sources/com/insecureshop/ProductAdapter.java",
+      "component" : null,
+      "symbol" : "ProductAdapter.onBindViewHolder",
+      "line" : 123,
+      "end_line" : 124
+    },
+    "evidence" : "intent.putExtra(\"url\", prodDetail.getUrl());\ncontext.sendBroadcast(intent);",
+    "rationale" : "The app sends a broadcast with a URL. While the URL itself might not be highly sensitive, the action is not protected, and any app can intercept it. More critically, the receiving activity (WebView2Activity) is exported and can be triggered by any app.",
+    "kind" : "code",
+    "evidence_status" : "verified_exact",
+    "needs_advisory_check" : false,
+    "provenance" : {
+      "model_used" : "qwen/qwen3.8-27b",
+      "arm" : "student_baseline",
+      "run_id" : "2026-11-15T1036_insecureshop_fec4c875",
+      "repeat_index" : 0,
+      "unit_ids" : [ "fabe569ea4dfb14c" ],
+      "prompt_version" : "v4"
+    },
+    "also_at" : [ ]
+  }, {
+    "id" : "300d97e245af47fc",
+    "title" : "WebView ignores SSL errors",
+    "vuln_class" : "Insecure SSL Handling",
+    "cwe" : "CWE-295",
+    "owasp_category" : "MASVS-NETWORK",
+    "severity" : "high",
+    "confidence" : 1.0,
+    "location" : {
+      "file" : "sources/com/insecureshop/util/CustomWebViewClient.java",
+      "component" : null,
+      "symbol" : "CustomWebViewClient.onReceivedSslError",
+      "line" : 16,
+      "end_line" : 16
+    },
+    "evidence" : "handler.proceed();",
+    "rationale" : "The WebView client proceeds on SSL errors, effectively disabling certificate validation. This allows a man-in-the-middle attacker to intercept and modify traffic.",
+    "kind" : "code",
+    "evidence_status" : "verified_exact",
+    "needs_advisory_check" : false,
+    "provenance" : {
+      "model_used" : "qwen/qwen3.8-27b",
+      "arm" : "student_baseline",
+      "run_id" : "2026-11-15T1036_insecureshop_fec4c875",
+      "repeat_index" : 0,
+      "unit_ids" : [ "fabe569ea4dfb14c" ],
+      "prompt_version" : "v4"
+    },
+    "also_at" : [ ]
+  }, {
+    "id" : "58b6798db263958b",
+    "title" : "Cleartext traffic enabled",
+    "vuln_class" : "Insecure Network Communication",
+    "cwe" : "CWE-319",
+    "owasp_category" : "MASVS-NETWORK",
+    "severity" : "medium",
+    "confidence" : 1.0,
+    "location" : {
+      "file" : "AndroidManifest.xml",
+      "component" : null,
+      "symbol" : null,
+      "line" : null,
+      "end_line" : null
+    },
+    "evidence" : "android:usesCleartextTraffic=\"true\"",
+    "rationale" : "The manifest explicitly allows cleartext HTTP traffic. This permits a network attacker to intercept or modify sensitive data (such as credentials or product details) transmitted by the app.",
+    "kind" : "manifest",
+    "evidence_status" : "verified_exact",
+    "needs_advisory_check" : false,
+    "provenance" : {
+      "model_used" : "qwen/qwen3.8-27b",
+      "arm" : "student_baseline",
+      "run_id" : "2026-11-15T1036_insecureshop_fec4c875",
+      "repeat_index" : 0,
+      "unit_ids" : [ "fabe569ea4dfb14c" ],
+      "prompt_version" : "v4"
+    },
+    "also_at" : [ ]
+  }, {
+    "id" : "785e0938e1f3d61f",
+    "title" : "Backup enabled",
+    "vuln_class" : "Insecure Storage",
+    "cwe" : "CWE-921",
+    "owasp_category" : "MASVS-STORAGE",
+    "severity" : "medium",
+    "confidence" : 1.0,
+    "location" : {
+      "file" : "AndroidManifest.xml",
+      "component" : null,
+      "symbol" : null,
+      "line" : null,
+      "end_line" : null
+    },
+    "evidence" : "android:allowBackup=\"true\"",
+    "rationale" : "The application allows backups. Since the app stores sensitive data (credentials) in SharedPreferences, an attacker with access to the device or its backups can extract this data.",
+    "kind" : "manifest",
+    "evidence_status" : "verified_exact",
+    "needs_advisory_check" : false,
+    "provenance" : {
+      "model_used" : "qwen/qwen3.8-27b",
+      "arm" : "student_baseline",
+      "run_id" : "2026-11-15T1036_insecureshop_fec4c875",
+      "repeat_index" : 0,
+      "unit_ids" : [ "fabe569ea4dfb14c" ],
+      "prompt_version" : "v4"
+    },
+    "also_at" : [ ]
+  }, {
+    "id" : "7a8e7b74c40ec990",
+    "title" : "Hardcoded AWS Identity Pool ID",
+    "vuln_class" : "Hardcoded Secrets",
+    "cwe" : "CWE-798",
+    "owasp_category" : "MASVS-AUTH",
+    "severity" : "medium",
+    "confidence" : 1.0,
+    "location" : {
+      "file" : "res/values/strings.xml",
+      "component" : null,
+      "symbol" : null,
+      "line" : null,
+      "end_line" : null
+    },
+    "evidence" : "<string name=\"aws_Identity_pool_ID\">us-east-1:7e9426f7-42af-4717-8689-00a9a4b65c1c</string>",
+    "rationale" : "The AWS Identity Pool ID is hardcoded in the app. While this is a public identifier, it can be used by an attacker to target the specific AWS resources associated with the app.",
+    "kind" : "resource",
+    "evidence_status" : "verified_exact",
+    "needs_advisory_check" : false,
+    "provenance" : {
+      "model_used" : "qwen/qwen3.8-27b",
+      "arm" : "student_baseline",
+      "run_id" : "2026-11-15T1036_insecureshop_fec4c875",
+      "repeat_index" : 0,
+      "unit_ids" : [ "fabe569ea4dfb14c" ],
+      "prompt_version" : "v4"
+    },
+    "also_at" : [ ]
+  }, {
+    "id" : "84ecc2ab8f8c6d10",
+    "title" : "Sensitive data stored in plaintext",
+    "vuln_class" : "Insecure Storage",
+    "cwe" : "CWE-312",
+    "owasp_category" : "MASVS-STORAGE",
+    "severity" : "high",
+    "confidence" : 1.0,
+    "location" : {
+      "file" : "sources/com/insecureshop/util/Prefs.java",
+      "component" : null,
+      "symbol" : "Prefs.setPassword",
+      "line" : 100,
+      "end_line" : 100
+    },
+    "evidence" : "sharedPreferences.edit().putString(\"password\", value).apply();",
+    "rationale" : "The user's password is stored in plaintext in SharedPreferences. Combined with the enabled backup and debuggable settings, this allows an attacker to easily retrieve the user's credentials.",
+    "kind" : "code",
+    "evidence_status" : "verified_exact",
+    "needs_advisory_check" : false,
+    "provenance" : {
+      "model_used" : "qwen/qwen3.8-27b",
+      "arm" : "student_baseline",
+      "run_id" : "2026-11-15T1036_insecureshop_fec4c875",
+      "repeat_index" : 0,
+      "unit_ids" : [ "fabe569ea4dfb14c" ],
+      "prompt_version" : "v4"
+    },
+    "also_at" : [ ]
+  }, {
+    "id" : "9bfc866e98435831",
+    "title" : "Hardcoded credentials",
+    "vuln_class" : "Hardcoded Credentials",
+    "cwe" : "CWE-798",
+    "owasp_category" : "MASVS-AUTH",
+    "severity" : "critical",
+    "confidence" : 1.0,
+    "location" : {
+      "file" : "sources/com/insecureshop/util/Util.java",
+      "component" : null,
+      "symbol" : "Util.getUserCreds",
+      "line" : 25,
+      "end_line" : 25
+    },
+    "evidence" : "map.put(\"shopuser\", \"!ns3csh0p\");",
+    "rationale" : "The application uses hardcoded credentials for authentication. An attacker can decompile the app to find these credentials and bypass the login mechanism entirely.",
+    "kind" : "code",
+    "evidence_status" : "verified_exact",
+    "needs_advisory_check" : false,
+    "provenance" : {
+      "model_used" : "qwen/qwen3.8-27b",
+      "arm" : "student_baseline",
+      "run_id" : "2026-11-15T1036_insecureshop_fec4c875",
+      "repeat_index" : 0,
+      "unit_ids" : [ "fabe569ea4dfb14c" ],
+      "prompt_version" : "v4"
+    },
+    "also_at" : [ ]
+  }, {
+    "id" : "9e9f734edf5b6ea2",
+    "title" : "WebView allows universal file access",
+    "vuln_class" : "Insecure WebView",
+    "cwe" : "CWE-749",
+    "owasp_category" : "MASVS-PLATFORM",
+    "severity" : "high",
+    "confidence" : 1.0,
+    "location" : {
+      "file" : "sources/com/insecureshop/WebView2Activity.java",
+      "component" : "com.insecureshop.WebView2Activity",
+      "symbol" : "WebView2Activity.onCreate",
+      "line" : 73,
+      "end_line" : 73
+    },
+    "evidence" : "settings4.setAllowUniversalAccessFromFileURLs(true);",
+    "rationale" : "Enabling universal file access in WebView allows JavaScript to access local files. If the WebView loads untrusted content, an attacker could use this to read sensitive local files.",
+    "kind" : "code",
+    "evidence_status" : "verified_exact",
+    "needs_advisory_check" : false,
+    "provenance" : {
+      "model_used" : "qwen/qwen3.8-27b",
+      "arm" : "student_baseline",
+      "run_id" : "2026-11-15T1036_insecureshop_fec4c875",
+      "repeat_index" : 0,
+      "unit_ids" : [ "fabe569ea4dfb14c" ],
+      "prompt_version" : "v4"
+    },
+    "also_at" : [ {
+      "file" : "sources/com/insecureshop/WebView2Activity.java",
+      "component" : "com.insecureshop.PrivateActivity",
+      "symbol" : "PrivateActivity.onCreate",
+      "line" : 73,
+      "end_line" : 73
+    } ]
+  }, {
+    "id" : "a4ab05413a47a7e0",
+    "title" : "FileProvider exposes root path",
+    "vuln_class" : "Insecure File Sharing",
+    "cwe" : "CWE-22",
+    "owasp_category" : "MASVS-PLATFORM",
+    "severity" : "high",
+    "confidence" : 1.0,
+    "location" : {
+      "file" : "resources/res/xml/provider_paths.xml",
+      "component" : null,
+      "symbol" : null,
+      "line" : null,
+      "end_line" : null
+    },
+    "evidence" : "<root-path name=\"root\" path=\"/\"/>",
+    "rationale" : "The FileProvider is configured to expose the entire root filesystem. If the FileProvider is used to share files, an attacker could potentially access any file on the device.",
+    "kind" : "resource",
+    "evidence_status" : "verified_exact",
+    "needs_advisory_check" : false,
+    "provenance" : {
+      "model_used" : "qwen/qwen3.8-27b",
+      "arm" : "student_baseline",
+      "run_id" : "2026-11-15T1036_insecureshop_fec4c875",
+      "repeat_index" : 0,
+      "unit_ids" : [ "fabe569ea4dfb14c" ],
+      "prompt_version" : "v4"
+    },
+    "also_at" : [ ]
+  }, {
+    "id" : "b711ee5952580682",
+    "title" : "WebView loads untrusted URL",
+    "vuln_class" : "Insecure WebView",
+    "cwe" : "CWE-601",
+    "owasp_category" : "MASVS-PLATFORM",
+    "severity" : "high",
+    "confidence" : 1.0,
+    "location" : {
+      "file" : "sources/com/insecureshop/WebView2Activity.java",
+      "component" : "com.insecureshop.WebView2Activity",
+      "symbol" : "WebView2Activity.onCreate",
+      "line" : 83,
+      "end_line" : 83
+    },
+    "evidence" : "webview.loadUrl(intent2.getDataString());",
+    "rationale" : "The activity is exported and loads a URL directly from the intent data without validation. A malicious app can send an intent with a malicious URL, leading to potential XSS or data theft if the WebView has JavaScript enabled.",
+    "kind" : "code",
+    "evidence_status" : "verified_exact",
+    "needs_advisory_check" : false,
+    "provenance" : {
+      "model_used" : "qwen/qwen3.8-27b",
+      "arm" : "student_baseline",
+      "run_id" : "2026-11-15T1036_insecureshop_fec4c875",
+      "repeat_index" : 0,
+      "unit_ids" : [ "fabe569ea4dfb14c" ],
+      "prompt_version" : "v4"
+    },
+    "also_at" : [ ]
+  }, {
+    "id" : "bea00336c74ae639",
+    "title" : "Credentials logged",
+    "vuln_class" : "Sensitive Information in Logs",
+    "cwe" : "CWE-532",
+    "owasp_category" : "MASVS-STORAGE",
+    "severity" : "high",
+    "confidence" : 1.0,
+    "location" : {
+      "file" : "sources/com/insecureshop/LoginActivity.java",
+      "component" : null,
+      "symbol" : "LoginActivity.onLogin",
+      "line" : 88,
+      "end_line" : 88
+    },
+    "evidence" : "Log.d(\"password\", password);",
+    "rationale" : "The application logs the user's password to the system log. On non-rooted devices, this log can be accessed by other apps with the READ_LOGS permission or by an attacker with physical access to the device.",
+    "kind" : "code",
+    "evidence_status" : "verified_exact",
+    "needs_advisory_check" : false,
+    "provenance" : {
+      "model_used" : "qwen/qwen3.8-27b",
+      "arm" : "student_baseline",
+      "run_id" : "2026-11-15T1036_insecureshop_fec4c875",
+      "repeat_index" : 0,
+      "unit_ids" : [ "fabe569ea4dfb14c" ],
+      "prompt_version" : "v4"
+    },
+    "also_at" : [ ]
+  }, {
+    "id" : "c7bcea30a5fa83f8",
+    "title" : "WebView allows universal file access",
+    "vuln_class" : "Insecure WebView",
+    "cwe" : "CWE-749",
+    "owasp_category" : "MASVS-PLATFORM",
+    "severity" : "high",
+    "confidence" : 1.0,
+    "location" : {
+      "file" : "sources/com/insecureshop/WebViewActivity.java",
+      "component" : "com.insecureshop.WebViewActivity",
+      "symbol" : "WebViewActivity.onCreate",
+      "line" : 68,
+      "end_line" : 68
+    },
+    "evidence" : "settings4.setAllowUniversalAccessFromFileURLs(true);",
+    "rationale" : "Enabling universal file access in WebView allows JavaScript to access local files. If the WebView loads untrusted content, an attacker could use this to read sensitive local files.",
+    "kind" : "code",
+    "evidence_status" : "verified_exact",
+    "needs_advisory_check" : false,
+    "provenance" : {
+      "model_used" : "qwen/qwen3.8-27b",
+      "arm" : "student_baseline",
+      "run_id" : "2026-11-15T1036_insecureshop_fec4c875",
+      "repeat_index" : 0,
+      "unit_ids" : [ "fabe569ea4dfb14c" ],
+      "prompt_version" : "v4"
+    },
+    "also_at" : [ ]
+  } ]
+}

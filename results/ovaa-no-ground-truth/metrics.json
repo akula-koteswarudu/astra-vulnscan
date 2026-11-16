@@ -1,0 +1,477 @@
+{
+  "schema_version" : 1,
+  "headline_mode" : "teacher_findings",
+  "label" : "agreement with teacher",
+  "ground_truth" : false,
+  "modes" : [ {
+    "mode" : "teacher_findings",
+    "label" : "agreement with teacher",
+    "items" : 21,
+    "arm_runs" : [ {
+      "arm" : "student_baseline",
+      "run" : 1,
+      "model" : "qwen/qwen3.8-27b",
+      "findings_total" : 15,
+      "findings_verified" : 15,
+      "recall_strict" : 0.6666666666666666,
+      "recall_lenient" : 0.7142857142857143,
+      "recall_strict_incl_unverified" : 0.6666666666666666,
+      "precision_strict" : null,
+      "precision_lenient" : null,
+      "matched_strict" : {
+        "T-01" : "bc799447cdad4512",
+        "T-02" : "b6e952cbab1fae8a",
+        "T-03" : "ce35e71a87790c06",
+        "T-04" : "155781168c1ea7ae",
+        "T-05" : "000309c72d46829b",
+        "T-07" : "62bce64fea2808b6",
+        "T-08" : "be28105d21ec63a6",
+        "T-10" : "1e77f9dbd10d962e",
+        "T-12" : "80ad7fc6c640ca61",
+        "T-14" : "050449f6253bc28f",
+        "T-15" : "a113fd44286a30d7",
+        "T-18" : "48ac2fe8e12208bd",
+        "T-20" : "1c12b27231653c43",
+        "T-21" : "b3d6962733309996"
+      },
+      "matched_lenient" : {
+        "T-01" : "bc799447cdad4512",
+        "T-02" : "b6e952cbab1fae8a",
+        "T-03" : "ce35e71a87790c06",
+        "T-04" : "155781168c1ea7ae",
+        "T-05" : "000309c72d46829b",
+        "T-06" : "99c331d63e969b1d",
+        "T-07" : "62bce64fea2808b6",
+        "T-08" : "be28105d21ec63a6",
+        "T-10" : "1e77f9dbd10d962e",
+        "T-12" : "80ad7fc6c640ca61",
+        "T-14" : "050449f6253bc28f",
+        "T-15" : "a113fd44286a30d7",
+        "T-18" : "48ac2fe8e12208bd",
+        "T-20" : "1c12b27231653c43",
+        "T-21" : "b3d6962733309996"
+      },
+      "uncredited_strict" : [ ],
+      "unit_status" : {
+        "ok" : 1
+      },
+      "judge_calls" : 17,
+      "judge_errors" : 0,
+      "prefilter_dropped" : 0,
+      "screen_extra_pairs" : 0
+    }, {
+      "arm" : "student_with_lessons",
+      "run" : 1,
+      "model" : "qwen/qwen3.8-27b",
+      "findings_total" : 20,
+      "findings_verified" : 18,
+      "recall_strict" : 0.8095238095238095,
+      "recall_lenient" : 0.8571428571428571,
+      "recall_strict_incl_unverified" : 0.9047619047619048,
+      "precision_strict" : null,
+      "precision_lenient" : null,
+      "matched_strict" : {
+        "T-01" : "2a921d17ef489dcd",
+        "T-02" : "4ab4138424fa0a40",
+        "T-03" : "da2a31f00b2f1fe6",
+        "T-04" : "76bdbf03b457331c",
+        "T-05" : "acc02f88ca2156e3",
+        "T-07" : "81e36d633c6bf095",
+        "T-08" : "c82bec19f9211994",
+        "T-10" : "02c8390e3d3a42e2",
+        "T-11" : "cd53b1c9fce1794e",
+        "T-12" : "c9693058730bc392",
+        "T-13" : "d0523372e8e985c5",
+        "T-14" : "eaf5d61cf47707ee",
+        "T-15" : "fbb5bb4adbdd157b",
+        "T-16" : "a3f4e8afc0507668",
+        "T-17" : "d6cfdcd862fd9793",
+        "T-19" : "c4ddab091cbac39a",
+        "T-20" : "ecfb2d8e3a54021f"
+      },
+      "matched_lenient" : {
+        "T-01" : "2a921d17ef489dcd",
+        "T-02" : "4ab4138424fa0a40",
+        "T-03" : "da2a31f00b2f1fe6",
+        "T-04" : "76bdbf03b457331c",
+        "T-05" : "acc02f88ca2156e3",
+        "T-06" : "c2cac68bdb87a2a9",
+        "T-07" : "81e36d633c6bf095",
+        "T-08" : "c82bec19f9211994",
+        "T-10" : "02c8390e3d3a42e2",
+        "T-11" : "cd53b1c9fce1794e",
+        "T-12" : "c9693058730bc392",
+        "T-13" : "d0523372e8e985c5",
+        "T-14" : "eaf5d61cf47707ee",
+        "T-15" : "fbb5bb4adbdd157b",
+        "T-16" : "a3f4e8afc0507668",
+        "T-17" : "d6cfdcd862fd9793",
+        "T-19" : "c4ddab091cbac39a",
+        "T-20" : "ecfb2d8e3a54021f"
+      },
+      "uncredited_strict" : [ ],
+      "unit_status" : {
+        "ok" : 1
+      },
+      "judge_calls" : 21,
+      "judge_errors" : 0,
+      "prefilter_dropped" : 0,
+      "screen_extra_pairs" : 0
+    } ],
+    "per_item" : [ {
+      "item_id" : "T-01",
+      "title" : "Exported provider opens arbitrary files via an unvalidated path segment, with read/write",
+      "static_visibility" : "full",
+      "hits_strict" : {
+        "student_baseline" : "1/1",
+        "student_with_lessons" : "1/1"
+      },
+      "hits_lenient" : {
+        "student_baseline" : "1/1",
+        "student_with_lessons" : "1/1"
+      },
+      "uncredited" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "0/1"
+      }
+    }, {
+      "item_id" : "T-02",
+      "title" : "Exported service writes logcat to a caller-supplied path",
+      "static_visibility" : "full",
+      "hits_strict" : {
+        "student_baseline" : "1/1",
+        "student_with_lessons" : "1/1"
+      },
+      "hits_lenient" : {
+        "student_baseline" : "1/1",
+        "student_with_lessons" : "1/1"
+      },
+      "uncredited" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "0/1"
+      }
+    }, {
+      "item_id" : "T-03",
+      "title" : "Exported LoginActivity starts an attacker-supplied intent",
+      "static_visibility" : "full",
+      "hits_strict" : {
+        "student_baseline" : "1/1",
+        "student_with_lessons" : "1/1"
+      },
+      "hits_lenient" : {
+        "student_baseline" : "1/1",
+        "student_with_lessons" : "1/1"
+      },
+      "uncredited" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "0/1"
+      }
+    }, {
+      "item_id" : "T-04",
+      "title" : "Credentials sent over cleartext HTTP",
+      "static_visibility" : "full",
+      "hits_strict" : {
+        "student_baseline" : "1/1",
+        "student_with_lessons" : "1/1"
+      },
+      "hits_lenient" : {
+        "student_baseline" : "1/1",
+        "student_with_lessons" : "1/1"
+      },
+      "uncredited" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "0/1"
+      }
+    }, {
+      "item_id" : "T-05",
+      "title" : "Credentials sent in an implicit broadcast with no permission",
+      "static_visibility" : "full",
+      "hits_strict" : {
+        "student_baseline" : "1/1",
+        "student_with_lessons" : "1/1"
+      },
+      "hits_lenient" : {
+        "student_baseline" : "1/1",
+        "student_with_lessons" : "1/1"
+      },
+      "uncredited" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "0/1"
+      }
+    }, {
+      "item_id" : "T-06",
+      "title" : "Credentials written to logcat",
+      "static_visibility" : "full",
+      "hits_strict" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "0/1"
+      },
+      "hits_lenient" : {
+        "student_baseline" : "1/1",
+        "student_with_lessons" : "1/1"
+      },
+      "uncredited" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "0/1"
+      }
+    }, {
+      "item_id" : "T-07",
+      "title" : "Deeplink can set the login URL to an attacker server",
+      "static_visibility" : "full",
+      "hits_strict" : {
+        "student_baseline" : "1/1",
+        "student_with_lessons" : "1/1"
+      },
+      "hits_lenient" : {
+        "student_baseline" : "1/1",
+        "student_with_lessons" : "1/1"
+      },
+      "uncredited" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "0/1"
+      }
+    }, {
+      "item_id" : "T-08",
+      "title" : "Hardcoded credentials in a URL resource",
+      "static_visibility" : "full",
+      "hits_strict" : {
+        "student_baseline" : "1/1",
+        "student_with_lessons" : "1/1"
+      },
+      "hits_lenient" : {
+        "student_baseline" : "1/1",
+        "student_with_lessons" : "1/1"
+      },
+      "uncredited" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "0/1"
+      }
+    }, {
+      "item_id" : "T-09",
+      "title" : "Credential token sent in a URL over HTTP",
+      "static_visibility" : "full",
+      "hits_strict" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "0/1"
+      },
+      "hits_lenient" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "0/1"
+      },
+      "uncredited" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "0/1"
+      }
+    }, {
+      "item_id" : "T-10",
+      "title" : "Hardcoded AES key",
+      "static_visibility" : "full",
+      "hits_strict" : {
+        "student_baseline" : "1/1",
+        "student_with_lessons" : "1/1"
+      },
+      "hits_lenient" : {
+        "student_baseline" : "1/1",
+        "student_with_lessons" : "1/1"
+      },
+      "uncredited" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "0/1"
+      }
+    }, {
+      "item_id" : "T-11",
+      "title" : "Parcelable instantiates an attacker-chosen class from a Parcel string",
+      "static_visibility" : "full",
+      "hits_strict" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "1/1"
+      },
+      "hits_lenient" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "1/1"
+      },
+      "uncredited" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "0/1"
+      }
+    }, {
+      "item_id" : "T-12",
+      "title" : "Plugin code loaded from any package matching a name prefix",
+      "static_visibility" : "full",
+      "hits_strict" : {
+        "student_baseline" : "1/1",
+        "student_with_lessons" : "1/1"
+      },
+      "hits_lenient" : {
+        "student_baseline" : "1/1",
+        "student_with_lessons" : "1/1"
+      },
+      "uncredited" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "0/1"
+      }
+    }, {
+      "item_id" : "T-13",
+      "title" : "Deeplink WebView URL check bypassable via endsWith suffix",
+      "static_visibility" : "full",
+      "hits_strict" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "1/1"
+      },
+      "hits_lenient" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "1/1"
+      },
+      "uncredited" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "0/1"
+      }
+    }, {
+      "item_id" : "T-14",
+      "title" : "DexClassLoader loads code from world-writable /sdcard/updater.apk",
+      "static_visibility" : "full",
+      "hits_strict" : {
+        "student_baseline" : "1/1",
+        "student_with_lessons" : "1/1"
+      },
+      "hits_lenient" : {
+        "student_baseline" : "1/1",
+        "student_with_lessons" : "1/1"
+      },
+      "uncredited" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "0/1"
+      }
+    }, {
+      "item_id" : "T-15",
+      "title" : "Password stored in plaintext SharedPreferences",
+      "static_visibility" : "full",
+      "hits_strict" : {
+        "student_baseline" : "1/1",
+        "student_with_lessons" : "1/1"
+      },
+      "hits_lenient" : {
+        "student_baseline" : "1/1",
+        "student_with_lessons" : "1/1"
+      },
+      "uncredited" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "0/1"
+      }
+    }, {
+      "item_id" : "T-16",
+      "title" : "AES used with the default ECB mode",
+      "static_visibility" : "full",
+      "hits_strict" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "1/1"
+      },
+      "hits_lenient" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "1/1"
+      },
+      "uncredited" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "0/1"
+      }
+    }, {
+      "item_id" : "T-17",
+      "title" : "Serializable deletes files named in the stream on deserialization",
+      "static_visibility" : "full",
+      "hits_strict" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "1/1"
+      },
+      "hits_lenient" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "1/1"
+      },
+      "uncredited" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "0/1"
+      }
+    }, {
+      "item_id" : "T-18",
+      "title" : "FileProvider exposes the entire filesystem root",
+      "static_visibility" : "full",
+      "hits_strict" : {
+        "student_baseline" : "1/1",
+        "student_with_lessons" : "0/1"
+      },
+      "hits_lenient" : {
+        "student_baseline" : "1/1",
+        "student_with_lessons" : "0/1"
+      },
+      "uncredited" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "0/1"
+      }
+    }, {
+      "item_id" : "T-19",
+      "title" : "Result from an implicit intent is reflected to the caller, leaking URI grants",
+      "static_visibility" : "full",
+      "hits_strict" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "1/1"
+      },
+      "hits_lenient" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "1/1"
+      },
+      "uncredited" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "0/1"
+      }
+    }, {
+      "item_id" : "T-20",
+      "title" : "WebView with JS and file access from file URLs loads intent URL",
+      "static_visibility" : "full",
+      "hits_strict" : {
+        "student_baseline" : "1/1",
+        "student_with_lessons" : "1/1"
+      },
+      "hits_lenient" : {
+        "student_baseline" : "1/1",
+        "student_with_lessons" : "1/1"
+      },
+      "uncredited" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "0/1"
+      }
+    }, {
+      "item_id" : "T-21",
+      "title" : "Application is debuggable and allows backup",
+      "static_visibility" : "full",
+      "hits_strict" : {
+        "student_baseline" : "1/1",
+        "student_with_lessons" : "0/1"
+      },
+      "hits_lenient" : {
+        "student_baseline" : "1/1",
+        "student_with_lessons" : "0/1"
+      },
+      "uncredited" : {
+        "student_baseline" : "0/1",
+        "student_with_lessons" : "0/1"
+      }
+    } ]
+  } ],
+  "lift" : {
+    "mode" : "teacher_findings",
+    "recall_by_arm" : {
+      "student_baseline" : {
+        "mean" : 0.6666666666666666,
+        "min" : 0.6666666666666666,
+        "max" : 0.6666666666666666,
+        "runs" : 1
+      },
+      "student_with_lessons" : {
+        "mean" : 0.8095238095238095,
+        "min" : 0.8095238095238095,
+        "max" : 0.8095238095238095,
+        "runs" : 1
+      }
+    },
+    "lift" : 0.1428571428571429
+  }
+}

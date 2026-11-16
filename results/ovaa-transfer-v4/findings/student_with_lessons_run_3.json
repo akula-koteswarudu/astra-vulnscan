@@ -1,0 +1,471 @@
+{
+  "schema_version" : 1,
+  "arm" : "student_with_lessons",
+  "run" : 3,
+  "model" : "qwen/qwen3.8-27b",
+  "findings" : [ {
+    "id" : "13f8aaac0d573cc3",
+    "title" : "Plaintext credentials stored in SharedPreferences",
+    "vuln_class" : "Insecure Data Storage",
+    "cwe" : "CWE-312",
+    "owasp_category" : "MASVS-STORAGE",
+    "severity" : "medium",
+    "confidence" : 0.9,
+    "location" : {
+      "file" : "sources/oversecured/ovaa/utils/LoginUtils.java",
+      "component" : null,
+      "symbol" : "LoginUtils.saveCredentials",
+      "line" : 37,
+      "end_line" : 37
+    },
+    "evidence" : "this.editor.putString(\"email\", loginData.email).putString(PASSWORD_KEY, loginData.password).commit();",
+    "rationale" : "LoginUtils stores email and password in plaintext in SharedPreferences. Since the app is debuggable and allows backup, these credentials can be easily extracted from the device or backup files.",
+    "kind" : "code",
+    "evidence_status" : "verified_exact",
+    "needs_advisory_check" : false,
+    "provenance" : {
+      "model_used" : "qwen/qwen3.8-27b",
+      "arm" : "student_with_lessons",
+      "run_id" : "2026-11-15T1043_ovaa_d4186f7b",
+      "repeat_index" : 2,
+      "unit_ids" : [ "66e1ac3d2bca4ced" ],
+      "prompt_version" : "v4"
+    },
+    "also_at" : [ ]
+  }, {
+    "id" : "1fbdd229829df7f4",
+    "title" : "Cleartext traffic allowed",
+    "vuln_class" : "Cleartext Transmission of Sensitive Information",
+    "cwe" : "CWE-319",
+    "owasp_category" : "MASVS-NETWORK",
+    "severity" : "high",
+    "confidence" : 0.9,
+    "location" : {
+      "file" : "sources/oversecured/ovaa/network/RetrofitInstance.java",
+      "component" : null,
+      "symbol" : "RetrofitInstance",
+      "line" : 8,
+      "end_line" : 8
+    },
+    "evidence" : "private static final String BASE_URL = \"http://example.com./api/v1/\";",
+    "rationale" : "The app uses HTTP (cleartext) for its API base URL. This allows network attackers to intercept and modify the traffic, including login credentials and other sensitive data.",
+    "kind" : "code",
+    "evidence_status" : "verified_exact",
+    "needs_advisory_check" : false,
+    "provenance" : {
+      "model_used" : "qwen/qwen3.8-27b",
+      "arm" : "student_with_lessons",
+      "run_id" : "2026-11-15T1043_ovaa_d4186f7b",
+      "repeat_index" : 2,
+      "unit_ids" : [ "66e1ac3d2bca4ced" ],
+      "prompt_version" : "v4"
+    },
+    "also_at" : [ ]
+  }, {
+    "id" : "46f6ceac3ec8b00a",
+    "title" : "Weak host validation in DeeplinkActivity",
+    "vuln_class" : "Improper Input Validation",
+    "cwe" : "CWE-939",
+    "owasp_category" : "MASVS-PLATFORM",
+    "severity" : "high",
+    "confidence" : 0.9,
+    "location" : {
+      "file" : "sources/oversecured/ovaa/activities/DeeplinkActivity.java",
+      "component" : "oversecured.ovaa.activities.DeeplinkActivity",
+      "symbol" : "DeeplinkActivity.processDeeplink",
+      "line" : 52,
+      "end_line" : 52
+    },
+    "evidence" : "if (\"/webview\".equals(path) && (url = uri.getQueryParameter(\"url\")) != null && (host = Uri.parse(url).getHost()) != null && host.endsWith(\"example.com\")) {",
+    "rationale" : "The deep link handler uses `endsWith` to validate the host of the URL passed to the WebView. An attacker can craft a URL with a host like `attacker.com/example.com` or `evil.example.com.evil.com` (if the check was different) to bypass the validation. In this case, `host.endsWith(\"example.com\")` allows `attacker.example.com` or similar, but more critically, if the URL is `http://attacker.com/?host=example.com`, the host is `attacker.com` which does not end with `example.com`. However, if the URL is `http://evil.example.com`, it passes. The main issue is that `endsWith` is a weak check. More importantly, the URL is passed to a WebView with file access. An attacker can use a subdomain of example.com if they control it, or if the check is bypassed (e.g., via IDN or other tricks), they can load arbitrary content. Actually, `Uri.parse(url).getHost()` returns the host. If the host is `attacker.com`, it fails. If it is `example.com.attacker.com`, it fails. If it is `attacker.example.com`, it passes. If the attacker controls `attacker.example.com`, they can load malicious content. This is a valid bypass if the attacker can register a subdomain. But typically, `endsWith` is considered weak because it doesn't ensure the domain is exactly `example.com`. It allows subdomains. If the app intends to only allow `example.com`, this is a vulnerability. Given the context of 'weak host validation', this is a finding.",
+    "kind" : "code",
+    "evidence_status" : "verified_exact",
+    "needs_advisory_check" : false,
+    "provenance" : {
+      "model_used" : "qwen/qwen3.8-27b",
+      "arm" : "student_with_lessons",
+      "run_id" : "2026-11-15T1043_ovaa_d4186f7b",
+      "repeat_index" : 2,
+      "unit_ids" : [ "66e1ac3d2bca4ced" ],
+      "prompt_version" : "v4"
+    },
+    "also_at" : [ ]
+  }, {
+    "id" : "4bc56eb4f4b91e33",
+    "title" : "Intent Redirection in LoginActivity",
+    "vuln_class" : "Intent Redirection",
+    "cwe" : "CWE-749",
+    "owasp_category" : "MASVS-PLATFORM",
+    "severity" : "high",
+    "confidence" : 0.95,
+    "location" : {
+      "file" : "sources/oversecured/ovaa/activities/LoginActivity.java",
+      "component" : "oversecured.ovaa.activities.LoginActivity",
+      "symbol" : "LoginActivity.onLoginFinished",
+      "line" : 75,
+      "end_line" : 76
+    },
+    "evidence" : "Intent redirectIntent = (Intent) IntentCompat.getParcelableExtra(getIntent(), INTENT_REDIRECT_KEY, Intent.class);\nstartActivity((Intent) LoginActivity$$ExternalSyntheticBackport0.m(redirectIntent, new Supplier() {",
+    "rationale" : "LoginActivity is exported and accepts a nested Intent from the 'redirect_intent' extra. It launches this Intent without validating the target component. An attacker can craft an Intent to launch any activity in the app (including non-exported ones) or other apps, potentially bypassing security controls or accessing sensitive components.",
+    "kind" : "code",
+    "evidence_status" : "verified_exact",
+    "needs_advisory_check" : false,
+    "provenance" : {
+      "model_used" : "qwen/qwen3.8-27b",
+      "arm" : "student_with_lessons",
+      "run_id" : "2026-11-15T1043_ovaa_d4186f7b",
+      "repeat_index" : 2,
+      "unit_ids" : [ "66e1ac3d2bca4ced" ],
+      "prompt_version" : "v4"
+    },
+    "also_at" : [ ]
+  }, {
+    "id" : "5e5c44da612393ab",
+    "title" : "Credentials written to logcat",
+    "vuln_class" : "Information Exposure",
+    "cwe" : "CWE-532",
+    "owasp_category" : "MASVS-STORAGE",
+    "severity" : "medium",
+    "confidence" : 0.9,
+    "location" : {
+      "file" : "sources/oversecured/ovaa/activities/LoginActivity.java",
+      "component" : "oversecured.ovaa.activities.LoginActivity",
+      "symbol" : "LoginActivity.processLogin",
+      "line" : 59,
+      "end_line" : 59
+    },
+    "evidence" : "Log.d(\"ovaa\", \"Processing \" + loginData);",
+    "rationale" : "LoginActivity logs the login data (email and password) to logcat. On debuggable devices or with appropriate permissions, this can be read by other apps or users, exposing credentials.",
+    "kind" : "code",
+    "evidence_status" : "verified_exact",
+    "needs_advisory_check" : false,
+    "provenance" : {
+      "model_used" : "qwen/qwen3.8-27b",
+      "arm" : "student_with_lessons",
+      "run_id" : "2026-11-15T1043_ovaa_d4186f7b",
+      "repeat_index" : 2,
+      "unit_ids" : [ "66e1ac3d2bca4ced" ],
+      "prompt_version" : "v4"
+    },
+    "also_at" : [ ]
+  }, {
+    "id" : "61cefe8b925f394d",
+    "title" : "FileProvider configured with overly broad root path",
+    "vuln_class" : "Insecure Configuration",
+    "cwe" : "CWE-668",
+    "owasp_category" : "MASVS-PLATFORM",
+    "severity" : "high",
+    "confidence" : 0.9,
+    "location" : {
+      "file" : "resources/res/xml/provider_paths.xml",
+      "component" : null,
+      "symbol" : null,
+      "line" : null,
+      "end_line" : null
+    },
+    "evidence" : "<root-path name=\"root\" path=\"/\"/>",
+    "rationale" : "The FileProvider is configured to expose the entire root filesystem. If an attacker can obtain a URI grant (e.g., via intent redirection or reflected results), they can access any file readable by the app, including private data.",
+    "kind" : "resource",
+    "evidence_status" : "verified_exact",
+    "needs_advisory_check" : false,
+    "provenance" : {
+      "model_used" : "qwen/qwen3.8-27b",
+      "arm" : "student_with_lessons",
+      "run_id" : "2026-11-15T1043_ovaa_d4186f7b",
+      "repeat_index" : 2,
+      "unit_ids" : [ "66e1ac3d2bca4ced" ],
+      "prompt_version" : "v4"
+    },
+    "also_at" : [ ]
+  }, {
+    "id" : "6387bdc6949892be",
+    "title" : "WebView loads unvalidated URL with file access enabled",
+    "vuln_class" : "Cross-Site Scripting (XSS)",
+    "cwe" : "CWE-79",
+    "owasp_category" : "MASVS-PLATFORM",
+    "severity" : "high",
+    "confidence" : 0.9,
+    "location" : {
+      "file" : "sources/oversecured/ovaa/activities/WebViewActivity.java",
+      "component" : "oversecured.ovaa.activities.WebViewActivity",
+      "symbol" : "WebViewActivity.onCreate",
+      "line" : 18,
+      "end_line" : 25
+    },
+    "evidence" : "webView.getSettings().setJavaScriptEnabled(true);\nwebView.getSettings().setAllowFileAccessFromFileURLs(true);\n... \nwebView.loadUrl(getIntent().getStringExtra(\"url\"));",
+    "rationale" : "WebViewActivity enables JavaScript and file access from file URLs. It loads a URL from an Intent extra without validation. Although the activity is not exported, it can be reached via the DeeplinkActivity (which has weak host validation) or potentially via intent redirection. An attacker can load a malicious URL that executes JavaScript with access to local files, leading to data exfiltration.",
+    "kind" : "code",
+    "evidence_status" : "verified_fuzzy",
+    "needs_advisory_check" : false,
+    "provenance" : {
+      "model_used" : "qwen/qwen3.8-27b",
+      "arm" : "student_with_lessons",
+      "run_id" : "2026-11-15T1043_ovaa_d4186f7b",
+      "repeat_index" : 2,
+      "unit_ids" : [ "66e1ac3d2bca4ced" ],
+      "prompt_version" : "v4"
+    },
+    "also_at" : [ ]
+  }, {
+    "id" : "71be3ee1e4541976",
+    "title" : "Dynamic code loading from unverified third-party packages",
+    "vuln_class" : "Code Injection",
+    "cwe" : "CWE-94",
+    "owasp_category" : "MASVS-CODE",
+    "severity" : "high",
+    "confidence" : 0.9,
+    "location" : {
+      "file" : "sources/oversecured/ovaa/OversecuredApplication.java",
+      "component" : null,
+      "symbol" : "OversecuredApplication.invokePlugins",
+      "line" : 25,
+      "end_line" : 27
+    },
+    "evidence" : "if (packageName.startsWith(\"oversecured.plugin.\") && meta.getInt(\"version\", -1) >= 10) {\n    try {\n        Context packageContext = createPackageContext(packageName, 3);",
+    "rationale" : "The app loads code from any installed package starting with 'oversecured.plugin.' without verifying the package signature. An attacker can install a malicious app with a matching package name and metadata, causing the app to load and execute the attacker's code.",
+    "kind" : "code",
+    "evidence_status" : "verified_exact",
+    "needs_advisory_check" : false,
+    "provenance" : {
+      "model_used" : "qwen/qwen3.8-27b",
+      "arm" : "student_with_lessons",
+      "run_id" : "2026-11-15T1043_ovaa_d4186f7b",
+      "repeat_index" : 2,
+      "unit_ids" : [ "66e1ac3d2bca4ced" ],
+      "prompt_version" : "v4"
+    },
+    "also_at" : [ ]
+  }, {
+    "id" : "78558018629d816d",
+    "title" : "Hardcoded encryption key",
+    "vuln_class" : "Hardcoded Credentials",
+    "cwe" : "CWE-798",
+    "owasp_category" : "MASVS-CRYPTO",
+    "severity" : "high",
+    "confidence" : 0.95,
+    "location" : {
+      "file" : "sources/oversecured/ovaa/utils/WeakCrypto.java",
+      "component" : null,
+      "symbol" : "WeakCrypto",
+      "line" : 9,
+      "end_line" : 9
+    },
+    "evidence" : "private static final String KEY = \"49u5gh249gh24985ghf429gh4ch8f23f\";",
+    "rationale" : "WeakCrypto uses a hardcoded AES key. Anyone who decompiles the app can extract this key and decrypt any data encrypted with it, such as the token sent to the WebView.",
+    "kind" : "code",
+    "evidence_status" : "verified_exact",
+    "needs_advisory_check" : false,
+    "provenance" : {
+      "model_used" : "qwen/qwen3.8-27b",
+      "arm" : "student_with_lessons",
+      "run_id" : "2026-11-15T1043_ovaa_d4186f7b",
+      "repeat_index" : 2,
+      "unit_ids" : [ "66e1ac3d2bca4ced" ],
+      "prompt_version" : "v4"
+    },
+    "also_at" : [ ]
+  }, {
+    "id" : "8ae19b3010933930",
+    "title" : "Dynamic code loading from untrusted external file",
+    "vuln_class" : "Code Injection",
+    "cwe" : "CWE-94",
+    "owasp_category" : "MASVS-CODE",
+    "severity" : "critical",
+    "confidence" : 0.95,
+    "location" : {
+      "file" : "sources/oversecured/ovaa/OversecuredApplication.java",
+      "component" : null,
+      "symbol" : "OversecuredApplication.updateChecker",
+      "line" : 38,
+      "end_line" : 40
+    },
+    "evidence" : "File file = new File(\"/sdcard/updater.apk\");\nif (file.exists() && file.isFile() && file.length() <= 1000) {\n    DexClassLoader cl = new DexClassLoader(file.getAbsolutePath(), getCacheDir().getAbsolutePath(), null, getClassLoader());",
+    "rationale" : "The application loads and executes code from a file located in world-writable external storage (/sdcard/updater.apk). An attacker with write access to the device storage can place a malicious APK there, which will be loaded into the app's process, leading to arbitrary code execution with the app's permissions.",
+    "kind" : "code",
+    "evidence_status" : "verified_exact",
+    "needs_advisory_check" : false,
+    "provenance" : {
+      "model_used" : "qwen/qwen3.8-27b",
+      "arm" : "student_with_lessons",
+      "run_id" : "2026-11-15T1043_ovaa_d4186f7b",
+      "repeat_index" : 2,
+      "unit_ids" : [ "66e1ac3d2bca4ced" ],
+      "prompt_version" : "v4"
+    },
+    "also_at" : [ ]
+  }, {
+    "id" : "8dd379f3419dabd4",
+    "title" : "Exported Service allows arbitrary file write",
+    "vuln_class" : "Insecure Direct Object Reference",
+    "cwe" : "CWE-22",
+    "owasp_category" : "MASVS-PLATFORM",
+    "severity" : "high",
+    "confidence" : 0.95,
+    "location" : {
+      "file" : "sources/oversecured/ovaa/services/InsecureLoggerService.java",
+      "component" : "oversecured.ovaa.services.InsecureLoggerService",
+      "symbol" : "InsecureLoggerService.getDumpFile",
+      "line" : 29,
+      "end_line" : 31
+    },
+    "evidence" : "Object file = intent.getExtras().get(EXTRA_FILE);\nif (file instanceof String) {\n    return new File((String) file);",
+    "rationale" : "InsecureLoggerService is exported and accepts a file path from an Intent extra. It writes the logcat output to this file. An attacker can specify an arbitrary file path, allowing them to overwrite any file on the device that the app has write access to, potentially leading to privilege escalation or data corruption.",
+    "kind" : "code",
+    "evidence_status" : "verified_exact",
+    "needs_advisory_check" : false,
+    "provenance" : {
+      "model_used" : "qwen/qwen3.8-27b",
+      "arm" : "student_with_lessons",
+      "run_id" : "2026-11-15T1043_ovaa_d4186f7b",
+      "repeat_index" : 2,
+      "unit_ids" : [ "66e1ac3d2bca4ced" ],
+      "prompt_version" : "v4"
+    },
+    "also_at" : [ ]
+  }, {
+    "id" : "a1391cda72854a33",
+    "title" : "Weak encryption algorithm (AES/ECB)",
+    "vuln_class" : "Use of a Broken or Risky Cryptographic Algorithm",
+    "cwe" : "CWE-327",
+    "owasp_category" : "MASVS-CRYPTO",
+    "severity" : "high",
+    "confidence" : 0.95,
+    "location" : {
+      "file" : "sources/oversecured/ovaa/utils/WeakCrypto.java",
+      "component" : null,
+      "symbol" : "WeakCrypto.encrypt",
+      "line" : 17,
+      "end_line" : 17
+    },
+    "evidence" : "Cipher instance = Cipher.getInstance(\"AES\");",
+    "rationale" : "WeakCrypto uses AES in ECB mode (default for 'AES' in Java). ECB mode is insecure as it does not provide semantic security and can reveal patterns in the data. This makes the encryption vulnerable to analysis and decryption.",
+    "kind" : "code",
+    "evidence_status" : "verified_exact",
+    "needs_advisory_check" : false,
+    "provenance" : {
+      "model_used" : "qwen/qwen3.8-27b",
+      "arm" : "student_with_lessons",
+      "run_id" : "2026-11-15T1043_ovaa_d4186f7b",
+      "repeat_index" : 2,
+      "unit_ids" : [ "66e1ac3d2bca4ced" ],
+      "prompt_version" : "v4"
+    },
+    "also_at" : [ ]
+  }, {
+    "id" : "db564176929e96fd",
+    "title" : "Untrusted stream URI copied to shared storage",
+    "vuln_class" : "Path Traversal",
+    "cwe" : "CWE-22",
+    "owasp_category" : "MASVS-PLATFORM",
+    "severity" : "medium",
+    "confidence" : 0.8,
+    "location" : {
+      "file" : "sources/oversecured/ovaa/utils/FileUtils.java",
+      "component" : null,
+      "symbol" : "FileUtils.copyToCache",
+      "line" : 27,
+      "end_line" : 28
+    },
+    "evidence" : "File out = new File(context.getExternalCacheDir(), \"\" + System.currentTimeMillis());\nInputStream i = context.getContentResolver().openInputStream(uri);",
+    "rationale" : "FileUtils.copyToCache copies data from a URI provided by an activity result to external cache. While the filename is generated, the source URI is not validated. If the URI points to a sensitive file (e.g., via a malicious app that provides the result), the data could be copied to a world-readable location. However, the main risk is if the URI is manipulated to read private files. The destination is external cache, which is world-readable on older Android versions. This is a medium risk.",
+    "kind" : "code",
+    "evidence_status" : "verified_exact",
+    "needs_advisory_check" : false,
+    "provenance" : {
+      "model_used" : "qwen/qwen3.8-27b",
+      "arm" : "student_with_lessons",
+      "run_id" : "2026-11-15T1043_ovaa_d4186f7b",
+      "repeat_index" : 2,
+      "unit_ids" : [ "66e1ac3d2bca4ced" ],
+      "prompt_version" : "v4"
+    },
+    "also_at" : [ ]
+  }, {
+    "id" : "e5f899d8957d39eb",
+    "title" : "Exported ContentProvider allows arbitrary file read/write",
+    "vuln_class" : "Insecure Direct Object Reference",
+    "cwe" : "CWE-22",
+    "owasp_category" : "MASVS-PLATFORM",
+    "severity" : "critical",
+    "confidence" : 0.95,
+    "location" : {
+      "file" : "sources/oversecured/ovaa/providers/TheftOverwriteProvider.java",
+      "component" : "oversecured.ovaa.providers.TheftOverwriteProvider",
+      "symbol" : "TheftOverwriteProvider.openFile",
+      "line" : 46,
+      "end_line" : 47
+    },
+    "evidence" : "File file = new File(Environment.getExternalStorageDirectory(), uri.getLastPathSegment());\nreturn ParcelFileDescriptor.open(file, 805306368);",
+    "rationale" : "TheftOverwriteProvider is exported and allows any app to open files on external storage by specifying the file name in the URI path. The mode 805306368 (0x30000000) corresponds to READ|WRITE|CREATE. This allows an attacker to read or write any file on external storage that the app has access to, leading to data theft or modification.",
+    "kind" : "code",
+    "evidence_status" : "verified_exact",
+    "needs_advisory_check" : false,
+    "provenance" : {
+      "model_used" : "qwen/qwen3.8-27b",
+      "arm" : "student_with_lessons",
+      "run_id" : "2026-11-15T1043_ovaa_d4186f7b",
+      "repeat_index" : 2,
+      "unit_ids" : [ "66e1ac3d2bca4ced" ],
+      "prompt_version" : "v4"
+    },
+    "also_at" : [ ]
+  }, {
+    "id" : "e99fc649a78df4c3",
+    "title" : "Sensitive data sent in implicit broadcast",
+    "vuln_class" : "Information Exposure",
+    "cwe" : "CWE-927",
+    "owasp_category" : "MASVS-PLATFORM",
+    "severity" : "medium",
+    "confidence" : 0.9,
+    "location" : {
+      "file" : "sources/oversecured/ovaa/activities/MainActivity.java",
+      "component" : "oversecured.ovaa.activities.MainActivity",
+      "symbol" : "MainActivity.onCreate",
+      "line" : 39,
+      "end_line" : 41
+    },
+    "evidence" : "Intent i = new Intent(\"oversecured.ovaa.action.UNPROTECTED_CREDENTIALS_DATA\");\ni.putExtra(\"payload\", MainActivity.this.loginUtils.getLoginData());\nMainActivity.this.sendBroadcast(i);",
+    "rationale" : "MainActivity sends an implicit broadcast containing login credentials (email and password) in the extras. Any app on the device can register a receiver for this action and intercept the credentials.",
+    "kind" : "code",
+    "evidence_status" : "verified_exact",
+    "needs_advisory_check" : false,
+    "provenance" : {
+      "model_used" : "qwen/qwen3.8-27b",
+      "arm" : "student_with_lessons",
+      "run_id" : "2026-11-15T1043_ovaa_d4186f7b",
+      "repeat_index" : 2,
+      "unit_ids" : [ "66e1ac3d2bca4ced" ],
+      "prompt_version" : "v4"
+    },
+    "also_at" : [ ]
+  }, {
+    "id" : "ec8aa1a3ce3edf8a",
+    "title" : "Debuggable build enabled",
+    "vuln_class" : "Security Misconfiguration",
+    "cwe" : "CWE-489",
+    "owasp_category" : "MASVS-RESILIENCE",
+    "severity" : "high",
+    "confidence" : 0.95,
+    "location" : {
+      "file" : "AndroidManifest.xml",
+      "component" : null,
+      "symbol" : null,
+      "line" : null,
+      "end_line" : null
+    },
+    "evidence" : "android:debuggable=\"true\"",
+    "rationale" : "The app is built with debuggable=true. This allows any app with the same UID or root access to attach a debugger, read private files, and potentially modify the app's behavior. It significantly weakens the security of the app.",
+    "kind" : "manifest",
+    "evidence_status" : "verified_exact",
+    "needs_advisory_check" : false,
+    "provenance" : {
+      "model_used" : "qwen/qwen3.8-27b",
+      "arm" : "student_with_lessons",
+      "run_id" : "2026-11-15T1043_ovaa_d4186f7b",
+      "repeat_index" : 2,
+      "unit_ids" : [ "66e1ac3d2bca4ced" ],
+      "prompt_version" : "v4"
+    },
+    "also_at" : [ ]
+  } ]
+}

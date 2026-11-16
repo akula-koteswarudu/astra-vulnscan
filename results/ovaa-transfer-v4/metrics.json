@@ -1,0 +1,701 @@
+{
+  "schema_version" : 1,
+  "headline_mode" : "readme",
+  "label" : "recall",
+  "ground_truth" : true,
+  "modes" : [ {
+    "mode" : "readme",
+    "label" : "recall",
+    "items" : 18,
+    "arm_runs" : [ {
+      "arm" : "teacher",
+      "run" : 1,
+      "model" : "claude-sonnet-5-5",
+      "findings_total" : 21,
+      "findings_verified" : 21,
+      "recall_strict" : 0.8333333333333334,
+      "recall_lenient" : 0.8333333333333334,
+      "recall_strict_incl_unverified" : 0.8333333333333334,
+      "precision_strict" : 0.7142857142857143,
+      "precision_lenient" : 0.7619047619047619,
+      "matched_strict" : {
+        "GT-01" : "faaf9e74ee20eecf",
+        "GT-02" : "1c1c79edeb51b554",
+        "GT-03" : "7ce7770b40e17d48",
+        "GT-04" : "e523b6f264155238",
+        "GT-05" : "0f119a052defc052",
+        "GT-07" : "fd4fd92cf6159bcd",
+        "GT-09" : "6f00d59185088873",
+        "GT-10" : "a5c21b0e7d8c2a14",
+        "GT-12" : "819a2296f2cb67f3",
+        "GT-13" : "9f788f687a820642",
+        "GT-14" : "3ab46462f3a381ed",
+        "GT-15" : "1f68203220fcce4c",
+        "GT-16" : "0f80c5e06b8b288d",
+        "GT-17" : "bf3e900528802c79",
+        "GT-18" : "06ffc5d2cae87b93"
+      },
+      "matched_lenient" : {
+        "GT-01" : "faaf9e74ee20eecf",
+        "GT-02" : "1c1c79edeb51b554",
+        "GT-03" : "7ce7770b40e17d48",
+        "GT-04" : "e523b6f264155238",
+        "GT-05" : "0f119a052defc052",
+        "GT-07" : "fd4fd92cf6159bcd",
+        "GT-09" : "6f00d59185088873",
+        "GT-10" : "a5c21b0e7d8c2a14",
+        "GT-12" : "819a2296f2cb67f3",
+        "GT-13" : "9f788f687a820642",
+        "GT-14" : "3ab46462f3a381ed",
+        "GT-15" : "1f68203220fcce4c",
+        "GT-16" : "0f80c5e06b8b288d",
+        "GT-17" : "bf3e900528802c79",
+        "GT-18" : "06ffc5d2cae87b93"
+      },
+      "uncredited_strict" : [ ],
+      "unit_status" : {
+        "ok" : 1
+      },
+      "judge_calls" : 22,
+      "judge_errors" : 0,
+      "prefilter_dropped" : 0,
+      "screen_extra_pairs" : 3
+    }, {
+      "arm" : "student_baseline",
+      "run" : 1,
+      "model" : "qwen/qwen3.8-27b",
+      "findings_total" : 15,
+      "findings_verified" : 15,
+      "recall_strict" : 0.6111111111111112,
+      "recall_lenient" : 0.6111111111111112,
+      "recall_strict_incl_unverified" : 0.6111111111111112,
+      "precision_strict" : 0.7333333333333333,
+      "precision_lenient" : 0.7333333333333333,
+      "matched_strict" : {
+        "GT-01" : "f8787ed32af2d9c9",
+        "GT-04" : "e404581785c3c7fb",
+        "GT-05" : "deacae77a18e394f",
+        "GT-07" : "ea18dc27624873dc",
+        "GT-12" : "35bb87da2a46bffd",
+        "GT-13" : "892872f7341790dc",
+        "GT-14" : "fb6e845d074ddfe2",
+        "GT-15" : "9f16e3d1e5e272b9",
+        "GT-16" : "d3c78f97658e33bb",
+        "GT-17" : "ea4cce67e44186a8",
+        "GT-18" : "98916c2f0b8f22af"
+      },
+      "matched_lenient" : {
+        "GT-01" : "f8787ed32af2d9c9",
+        "GT-04" : "e404581785c3c7fb",
+        "GT-05" : "deacae77a18e394f",
+        "GT-07" : "ea18dc27624873dc",
+        "GT-12" : "35bb87da2a46bffd",
+        "GT-13" : "892872f7341790dc",
+        "GT-14" : "fb6e845d074ddfe2",
+        "GT-15" : "9f16e3d1e5e272b9",
+        "GT-16" : "d3c78f97658e33bb",
+        "GT-17" : "ea4cce67e44186a8",
+        "GT-18" : "98916c2f0b8f22af"
+      },
+      "uncredited_strict" : [ ],
+      "unit_status" : {
+        "ok" : 1
+      },
+      "judge_calls" : 13,
+      "judge_errors" : 0,
+      "prefilter_dropped" : 0,
+      "screen_extra_pairs" : 1
+    }, {
+      "arm" : "student_baseline",
+      "run" : 2,
+      "model" : "qwen/qwen3.8-27b",
+      "findings_total" : 15,
+      "findings_verified" : 15,
+      "recall_strict" : 0.5555555555555556,
+      "recall_lenient" : 0.5555555555555556,
+      "recall_strict_incl_unverified" : 0.5555555555555556,
+      "precision_strict" : 0.6666666666666666,
+      "precision_lenient" : 0.8,
+      "matched_strict" : {
+        "GT-01" : "c9ea06b1e7c0e2f8",
+        "GT-04" : "4307e1b93800af83",
+        "GT-05" : "2a36e4b5b253731f",
+        "GT-07" : "fecf439d3a03b76e",
+        "GT-12" : "9f83df9dc17f8d89",
+        "GT-13" : "c035aa50eeac7e0d",
+        "GT-14" : "eaa6e71b6c67ece9",
+        "GT-15" : "aa77c7d5d7d56949",
+        "GT-16" : "ab0eb96ef5c57b0b",
+        "GT-18" : "1efe3439fc8e28e8"
+      },
+      "matched_lenient" : {
+        "GT-01" : "c9ea06b1e7c0e2f8",
+        "GT-04" : "4307e1b93800af83",
+        "GT-05" : "2a36e4b5b253731f",
+        "GT-07" : "fecf439d3a03b76e",
+        "GT-12" : "9f83df9dc17f8d89",
+        "GT-13" : "8f394780573248de",
+        "GT-14" : "9e4f809566be8b1e",
+        "GT-15" : "aa77c7d5d7d56949",
+        "GT-16" : "ab0eb96ef5c57b0b",
+        "GT-18" : "1efe3439fc8e28e8"
+      },
+      "uncredited_strict" : [ ],
+      "unit_status" : {
+        "ok" : 1
+      },
+      "judge_calls" : 13,
+      "judge_errors" : 0,
+      "prefilter_dropped" : 0,
+      "screen_extra_pairs" : 1
+    }, {
+      "arm" : "student_baseline",
+      "run" : 3,
+      "model" : "qwen/qwen3.8-27b",
+      "findings_total" : 16,
+      "findings_verified" : 16,
+      "recall_strict" : 0.6111111111111112,
+      "recall_lenient" : 0.6111111111111112,
+      "recall_strict_incl_unverified" : 0.6111111111111112,
+      "precision_strict" : 0.75,
+      "precision_lenient" : 0.8125,
+      "matched_strict" : {
+        "GT-01" : "78fc03145d663efb",
+        "GT-04" : "c69af9a80d159a7d",
+        "GT-05" : "eba22e9e2f7f43e1",
+        "GT-09" : "12337ac1556d249b",
+        "GT-10" : "b5b0f699b58ce4cf",
+        "GT-12" : "2c696384e18a8d63",
+        "GT-13" : "268701c54e72bd63",
+        "GT-14" : "276d0fad66dc3ea1",
+        "GT-15" : "da31c6ddb365175b",
+        "GT-16" : "157e410437506982",
+        "GT-18" : "b533a09f34c27b18"
+      },
+      "matched_lenient" : {
+        "GT-01" : "78fc03145d663efb",
+        "GT-04" : "c69af9a80d159a7d",
+        "GT-05" : "eba22e9e2f7f43e1",
+        "GT-09" : "12337ac1556d249b",
+        "GT-10" : "b5b0f699b58ce4cf",
+        "GT-12" : "2c696384e18a8d63",
+        "GT-13" : "268701c54e72bd63",
+        "GT-14" : "276d0fad66dc3ea1",
+        "GT-15" : "da31c6ddb365175b",
+        "GT-16" : "157e410437506982",
+        "GT-18" : "b533a09f34c27b18"
+      },
+      "uncredited_strict" : [ ],
+      "unit_status" : {
+        "ok" : 1
+      },
+      "judge_calls" : 15,
+      "judge_errors" : 0,
+      "prefilter_dropped" : 0,
+      "screen_extra_pairs" : 0
+    }, {
+      "arm" : "student_with_lessons",
+      "run" : 1,
+      "model" : "qwen/qwen3.8-27b",
+      "findings_total" : 16,
+      "findings_verified" : 14,
+      "recall_strict" : 0.6666666666666666,
+      "recall_lenient" : 0.6666666666666666,
+      "recall_strict_incl_unverified" : 0.6666666666666666,
+      "precision_strict" : 0.8571428571428571,
+      "precision_lenient" : 0.8571428571428571,
+      "matched_strict" : {
+        "GT-01" : "d771ce4a11eec9ea",
+        "GT-03" : "5af17bb43b666410",
+        "GT-04" : "d4ae05f085fb1b0d",
+        "GT-05" : "389b6f8f63f1839a",
+        "GT-07" : "edaff4b6934c6859",
+        "GT-12" : "15036e5fc1484f02",
+        "GT-13" : "3b1286c8f3db6981",
+        "GT-14" : "a1ba6dfec4b46669",
+        "GT-15" : "ad36f48ea73bc2d0",
+        "GT-16" : "cb1c8fd842af2f3e",
+        "GT-17" : "1a53ab1fd7adedfd",
+        "GT-18" : "285195fc30b78d84"
+      },
+      "matched_lenient" : {
+        "GT-01" : "d771ce4a11eec9ea",
+        "GT-03" : "5af17bb43b666410",
+        "GT-04" : "d4ae05f085fb1b0d",
+        "GT-05" : "389b6f8f63f1839a",
+        "GT-07" : "edaff4b6934c6859",
+        "GT-12" : "15036e5fc1484f02",
+        "GT-13" : "3b1286c8f3db6981",
+        "GT-14" : "a1ba6dfec4b46669",
+        "GT-15" : "ad36f48ea73bc2d0",
+        "GT-16" : "cb1c8fd842af2f3e",
+        "GT-17" : "1a53ab1fd7adedfd",
+        "GT-18" : "285195fc30b78d84"
+      },
+      "uncredited_strict" : [ ],
+      "unit_status" : {
+        "ok" : 1
+      },
+      "judge_calls" : 15,
+      "judge_errors" : 0,
+      "prefilter_dropped" : 0,
+      "screen_extra_pairs" : 2
+    }, {
+      "arm" : "student_with_lessons",
+      "run" : 2,
+      "model" : "qwen/qwen3.8-27b",
+      "findings_total" : 16,
+      "findings_verified" : 16,
+      "recall_strict" : 0.6111111111111112,
+      "recall_lenient" : 0.6111111111111112,
+      "recall_strict_incl_unverified" : 0.6111111111111112,
+      "precision_strict" : 0.6875,
+      "precision_lenient" : 0.75,
+      "matched_strict" : {
+        "GT-03" : "0ff7e2eccb0e1483",
+        "GT-04" : "71dc02f5a30ecc62",
+        "GT-05" : "89edfb99b68afbcc",
+        "GT-07" : "e9a729687f353038",
+        "GT-12" : "75fdce4bddb4a21f",
+        "GT-13" : "776c708ca3f72835",
+        "GT-14" : "8e55f357c733b76c",
+        "GT-15" : "ff0d712fa2bc351e",
+        "GT-16" : "b39b6ed261cce10d",
+        "GT-17" : "86b9f13c40e5cbe2",
+        "GT-18" : "b3870869fb1fab63"
+      },
+      "matched_lenient" : {
+        "GT-03" : "0ff7e2eccb0e1483",
+        "GT-04" : "71dc02f5a30ecc62",
+        "GT-05" : "89edfb99b68afbcc",
+        "GT-07" : "e9a729687f353038",
+        "GT-12" : "75fdce4bddb4a21f",
+        "GT-13" : "776c708ca3f72835",
+        "GT-14" : "51e97923bf4d5d83",
+        "GT-15" : "ff0d712fa2bc351e",
+        "GT-16" : "b39b6ed261cce10d",
+        "GT-17" : "86b9f13c40e5cbe2",
+        "GT-18" : "b3870869fb1fab63"
+      },
+      "uncredited_strict" : [ ],
+      "unit_status" : {
+        "ok" : 1
+      },
+      "judge_calls" : 14,
+      "judge_errors" : 0,
+      "prefilter_dropped" : 0,
+      "screen_extra_pairs" : 0
+    }, {
+      "arm" : "student_with_lessons",
+      "run" : 3,
+      "model" : "qwen/qwen3.8-27b",
+      "findings_total" : 16,
+      "findings_verified" : 16,
+      "recall_strict" : 0.5555555555555556,
+      "recall_lenient" : 0.6111111111111112,
+      "recall_strict_incl_unverified" : 0.5555555555555556,
+      "precision_strict" : 0.625,
+      "precision_lenient" : 0.75,
+      "matched_strict" : {
+        "GT-03" : "46f6ceac3ec8b00a",
+        "GT-04" : "6387bdc6949892be",
+        "GT-05" : "4bc56eb4f4b91e33",
+        "GT-07" : "e99fc649a78df4c3",
+        "GT-12" : "e5f899d8957d39eb",
+        "GT-13" : "5e5c44da612393ab",
+        "GT-14" : "78558018629d816d",
+        "GT-15" : "71be3ee1e4541976",
+        "GT-16" : "61cefe8b925f394d",
+        "GT-18" : "8ae19b3010933930"
+      },
+      "matched_lenient" : {
+        "GT-03" : "46f6ceac3ec8b00a",
+        "GT-04" : "6387bdc6949892be",
+        "GT-05" : "4bc56eb4f4b91e33",
+        "GT-06" : "db564176929e96fd",
+        "GT-07" : "e99fc649a78df4c3",
+        "GT-12" : "e5f899d8957d39eb",
+        "GT-13" : "5e5c44da612393ab",
+        "GT-14" : "78558018629d816d",
+        "GT-15" : "71be3ee1e4541976",
+        "GT-16" : "61cefe8b925f394d",
+        "GT-18" : "8ae19b3010933930"
+      },
+      "uncredited_strict" : [ ],
+      "unit_status" : {
+        "ok" : 1
+      },
+      "judge_calls" : 15,
+      "judge_errors" : 0,
+      "prefilter_dropped" : 0,
+      "screen_extra_pairs" : 2
+    } ],
+    "per_item" : [ {
+      "item_id" : "GT-01",
+      "title" : "Installation of an arbitrary `login_url` via deeplink `oversecured://ovaa/login?url=http://evil.com/`",
+      "static_visibility" : null,
+      "hits_strict" : {
+        "student_baseline" : "3/3",
+        "student_with_lessons" : "1/3",
+        "teacher" : "1/1"
+      },
+      "hits_lenient" : {
+        "student_baseline" : "3/3",
+        "student_with_lessons" : "1/3",
+        "teacher" : "1/1"
+      },
+      "uncredited" : {
+        "student_baseline" : "0/3",
+        "student_with_lessons" : "0/3",
+        "teacher" : "0/1"
+      }
+    }, {
+      "item_id" : "GT-02",
+      "title" : "Obtaining access to arbitrary content providers (not exported, but with the attribute `android:grantUriPermissions=\"true\"`) via deeplink `oversecured://ovaa/grant_uri_permissions`",
+      "static_visibility" : null,
+      "hits_strict" : {
+        "student_baseline" : "0/3",
+        "student_with_lessons" : "0/3",
+        "teacher" : "1/1"
+      },
+      "hits_lenient" : {
+        "student_baseline" : "0/3",
+        "student_with_lessons" : "0/3",
+        "teacher" : "1/1"
+      },
+      "uncredited" : {
+        "student_baseline" : "0/3",
+        "student_with_lessons" : "0/3",
+        "teacher" : "0/1"
+      }
+    }, {
+      "item_id" : "GT-03",
+      "title" : "Vulnerable host validation when processing deeplink `oversecured://ovaa/webview?url=...`",
+      "static_visibility" : null,
+      "hits_strict" : {
+        "student_baseline" : "0/3",
+        "student_with_lessons" : "3/3",
+        "teacher" : "1/1"
+      },
+      "hits_lenient" : {
+        "student_baseline" : "0/3",
+        "student_with_lessons" : "3/3",
+        "teacher" : "1/1"
+      },
+      "uncredited" : {
+        "student_baseline" : "0/3",
+        "student_with_lessons" : "0/3",
+        "teacher" : "0/1"
+      }
+    }, {
+      "item_id" : "GT-04",
+      "title" : "Opening arbitrary URLs via deeplink `oversecured://ovaa/webview?url=http://evilexample.com`",
+      "static_visibility" : null,
+      "hits_strict" : {
+        "student_baseline" : "3/3",
+        "student_with_lessons" : "3/3",
+        "teacher" : "1/1"
+      },
+      "hits_lenient" : {
+        "student_baseline" : "3/3",
+        "student_with_lessons" : "3/3",
+        "teacher" : "1/1"
+      },
+      "uncredited" : {
+        "student_baseline" : "0/3",
+        "student_with_lessons" : "0/3",
+        "teacher" : "0/1"
+      }
+    }, {
+      "item_id" : "GT-05",
+      "title" : "Access to arbitrary activities and acquiring access to arbitrary content providers in `LoginActivity` by supplying an arbitrary Intent object to `redirect_intent`",
+      "static_visibility" : null,
+      "hits_strict" : {
+        "student_baseline" : "3/3",
+        "student_with_lessons" : "3/3",
+        "teacher" : "1/1"
+      },
+      "hits_lenient" : {
+        "student_baseline" : "3/3",
+        "student_with_lessons" : "3/3",
+        "teacher" : "1/1"
+      },
+      "uncredited" : {
+        "student_baseline" : "0/3",
+        "student_with_lessons" : "0/3",
+        "teacher" : "0/1"
+      }
+    }, {
+      "item_id" : "GT-06",
+      "title" : "Theft of arbitrary files in `MainActivity` by intercepting an activity launch from `Intent.ACTION_PICK` and passing the URI to any file as data",
+      "static_visibility" : null,
+      "hits_strict" : {
+        "student_baseline" : "0/3",
+        "student_with_lessons" : "0/3",
+        "teacher" : "0/1"
+      },
+      "hits_lenient" : {
+        "student_baseline" : "0/3",
+        "student_with_lessons" : "1/3",
+        "teacher" : "0/1"
+      },
+      "uncredited" : {
+        "student_baseline" : "0/3",
+        "student_with_lessons" : "0/3",
+        "teacher" : "0/1"
+      }
+    }, {
+      "item_id" : "GT-07",
+      "title" : "Insecure broadcast to `MainActivity` containing credentials",
+      "static_visibility" : null,
+      "hits_strict" : {
+        "student_baseline" : "2/3",
+        "student_with_lessons" : "3/3",
+        "teacher" : "1/1"
+      },
+      "hits_lenient" : {
+        "student_baseline" : "2/3",
+        "student_with_lessons" : "3/3",
+        "teacher" : "1/1"
+      },
+      "uncredited" : {
+        "student_baseline" : "0/3",
+        "student_with_lessons" : "0/3",
+        "teacher" : "0/1"
+      }
+    }, {
+      "item_id" : "GT-08",
+      "title" : "Insecure activity launch in `MainActivity` with action `oversecured.ovaa.action.WEBVIEW`, containing the user's encrypted data in the query parameter `token`",
+      "static_visibility" : null,
+      "hits_strict" : {
+        "student_baseline" : "0/3",
+        "student_with_lessons" : "0/3",
+        "teacher" : "0/1"
+      },
+      "hits_lenient" : {
+        "student_baseline" : "0/3",
+        "student_with_lessons" : "0/3",
+        "teacher" : "0/1"
+      },
+      "uncredited" : {
+        "student_baseline" : "0/3",
+        "student_with_lessons" : "0/3",
+        "teacher" : "0/1"
+      }
+    }, {
+      "item_id" : "GT-09",
+      "title" : "Deletion of arbitrary files via the insecure `DeleteFilesSerializable` deserialization object",
+      "static_visibility" : null,
+      "hits_strict" : {
+        "student_baseline" : "1/3",
+        "student_with_lessons" : "0/3",
+        "teacher" : "1/1"
+      },
+      "hits_lenient" : {
+        "student_baseline" : "1/3",
+        "student_with_lessons" : "0/3",
+        "teacher" : "1/1"
+      },
+      "uncredited" : {
+        "student_baseline" : "0/3",
+        "student_with_lessons" : "0/3",
+        "teacher" : "0/1"
+      }
+    }, {
+      "item_id" : "GT-10",
+      "title" : "Memory corruption via the `MemoryCorruptionParcelable` object",
+      "static_visibility" : null,
+      "hits_strict" : {
+        "student_baseline" : "1/3",
+        "student_with_lessons" : "0/3",
+        "teacher" : "1/1"
+      },
+      "hits_lenient" : {
+        "student_baseline" : "1/3",
+        "student_with_lessons" : "0/3",
+        "teacher" : "1/1"
+      },
+      "uncredited" : {
+        "student_baseline" : "0/3",
+        "student_with_lessons" : "0/3",
+        "teacher" : "0/1"
+      }
+    }, {
+      "item_id" : "GT-11",
+      "title" : "Memory corruption via the `MemoryCorruptionSerializable` object",
+      "static_visibility" : null,
+      "hits_strict" : {
+        "student_baseline" : "0/3",
+        "student_with_lessons" : "0/3",
+        "teacher" : "0/1"
+      },
+      "hits_lenient" : {
+        "student_baseline" : "0/3",
+        "student_with_lessons" : "0/3",
+        "teacher" : "0/1"
+      },
+      "uncredited" : {
+        "student_baseline" : "0/3",
+        "student_with_lessons" : "0/3",
+        "teacher" : "0/1"
+      }
+    }, {
+      "item_id" : "GT-12",
+      "title" : "Obtaining read/write access to arbitrary files in `TheftOverwriteProvider` via path-traversal in the value `uri.getLastPathSegment()`",
+      "static_visibility" : null,
+      "hits_strict" : {
+        "student_baseline" : "3/3",
+        "student_with_lessons" : "3/3",
+        "teacher" : "1/1"
+      },
+      "hits_lenient" : {
+        "student_baseline" : "3/3",
+        "student_with_lessons" : "3/3",
+        "teacher" : "1/1"
+      },
+      "uncredited" : {
+        "student_baseline" : "0/3",
+        "student_with_lessons" : "0/3",
+        "teacher" : "0/1"
+      }
+    }, {
+      "item_id" : "GT-13",
+      "title" : "Obtaining access to app logs via `InsecureLoggerService`",
+      "static_visibility" : null,
+      "hits_strict" : {
+        "student_baseline" : "3/3",
+        "student_with_lessons" : "3/3",
+        "teacher" : "1/1"
+      },
+      "hits_lenient" : {
+        "student_baseline" : "3/3",
+        "student_with_lessons" : "3/3",
+        "teacher" : "1/1"
+      },
+      "uncredited" : {
+        "student_baseline" : "0/3",
+        "student_with_lessons" : "0/3",
+        "teacher" : "0/1"
+      }
+    }, {
+      "item_id" : "GT-14",
+      "title" : "Use of the hardcoded AES key in `WeakCrypto`",
+      "static_visibility" : null,
+      "hits_strict" : {
+        "student_baseline" : "3/3",
+        "student_with_lessons" : "3/3",
+        "teacher" : "1/1"
+      },
+      "hits_lenient" : {
+        "student_baseline" : "3/3",
+        "student_with_lessons" : "3/3",
+        "teacher" : "1/1"
+      },
+      "uncredited" : {
+        "student_baseline" : "0/3",
+        "student_with_lessons" : "0/3",
+        "teacher" : "0/1"
+      }
+    }, {
+      "item_id" : "GT-15",
+      "title" : "Arbitrary Code Execution in `OversecuredApplication` by launching code from third-party apps with no security checks",
+      "static_visibility" : null,
+      "hits_strict" : {
+        "student_baseline" : "3/3",
+        "student_with_lessons" : "3/3",
+        "teacher" : "1/1"
+      },
+      "hits_lenient" : {
+        "student_baseline" : "3/3",
+        "student_with_lessons" : "3/3",
+        "teacher" : "1/1"
+      },
+      "uncredited" : {
+        "student_baseline" : "0/3",
+        "student_with_lessons" : "0/3",
+        "teacher" : "0/1"
+      }
+    }, {
+      "item_id" : "GT-16",
+      "title" : "Use of very wide file sharing declaration for `oversecured.ovaa.fileprovider` content provider in `root` entry",
+      "static_visibility" : null,
+      "hits_strict" : {
+        "student_baseline" : "3/3",
+        "student_with_lessons" : "3/3",
+        "teacher" : "1/1"
+      },
+      "hits_lenient" : {
+        "student_baseline" : "3/3",
+        "student_with_lessons" : "3/3",
+        "teacher" : "1/1"
+      },
+      "uncredited" : {
+        "student_baseline" : "0/3",
+        "student_with_lessons" : "0/3",
+        "teacher" : "0/1"
+      }
+    }, {
+      "item_id" : "GT-17",
+      "title" : "Hardcoded credentials to a dev environment endpoint in `strings.xml` in `test_url` entry",
+      "static_visibility" : null,
+      "hits_strict" : {
+        "student_baseline" : "1/3",
+        "student_with_lessons" : "2/3",
+        "teacher" : "1/1"
+      },
+      "hits_lenient" : {
+        "student_baseline" : "1/3",
+        "student_with_lessons" : "2/3",
+        "teacher" : "1/1"
+      },
+      "uncredited" : {
+        "student_baseline" : "0/3",
+        "student_with_lessons" : "0/3",
+        "teacher" : "0/1"
+      }
+    }, {
+      "item_id" : "GT-18",
+      "title" : "Arbitrary code execution via a DEX library located in a world-readable/writable directory",
+      "static_visibility" : null,
+      "hits_strict" : {
+        "student_baseline" : "3/3",
+        "student_with_lessons" : "3/3",
+        "teacher" : "1/1"
+      },
+      "hits_lenient" : {
+        "student_baseline" : "3/3",
+        "student_with_lessons" : "3/3",
+        "teacher" : "1/1"
+      },
+      "uncredited" : {
+        "student_baseline" : "0/3",
+        "student_with_lessons" : "0/3",
+        "teacher" : "0/1"
+      }
+    } ]
+  } ],
+  "lift" : {
+    "mode" : "readme",
+    "recall_by_arm" : {
+      "student_baseline" : {
+        "mean" : 0.5925925925925927,
+        "min" : 0.5555555555555556,
+        "max" : 0.6111111111111112,
+        "runs" : 3
+      },
+      "student_with_lessons" : {
+        "mean" : 0.6111111111111112,
+        "min" : 0.5555555555555556,
+        "max" : 0.6666666666666666,
+        "runs" : 3
+      },
+      "teacher" : {
+        "mean" : 0.8333333333333334,
+        "min" : 0.8333333333333334,
+        "max" : 0.8333333333333334,
+        "runs" : 1
+      }
+    },
+    "lift" : 0.01851851851851849
+  }
+}

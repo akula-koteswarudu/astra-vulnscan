@@ -50,14 +50,26 @@ Measured today: InsecureShop decompiles to 350,791 lines, of which 2,166 are the
 
 Hard parts, said plainly: flows that cross many units (method summaries composed across the call graph, or letting the model ask for callers and callees within a budget); reflection and string-named intents that break the call graph; obfuscation; native code, which this scanner does not read.
 
-## 4. Models used and why
+## 4. Optional: the frontier scan on a real APK
+
+Markor 2026.10.0, an open-source Markdown editor from F-Droid. An open-source app was chosen over a store app: its licence allows analysis, findings can be checked against the public source, and nothing unfixed in someone's commercial product gets published. The teacher scanned 39 units (1.22M input tokens, $2.90).
+
+- **Real vs noise:** 31 findings = 11 distinct issues (the rest were duplicates). 6 real (1 high, 5 low), 5 noise. One noise finding came from missing context: the data was handled safely inside a third-party library outside the scanned code. Details of the real issues are withheld until the maintainers have been notified. Labels were checked against the decompiled code, not exploited at runtime.
+- **What broke, and the fixes:**
+  - First-party detection missed the author's own utility library (built from the same repo); fixed by one config line.
+  - The same app-wide manifest setting came back from every unit with different CWEs or none, so dedup missed it (7 copies of one issue); dedup now merges the same quoted evidence.
+  - Teacher and student were planned on different budgets, so 11 of 39 units differed; both now get the same units.
+  - The token estimate was about 1.5× too low for Claude's tokenizer, so the cost came in at $2.90, not the estimated ~$1.65 of input.
+  - The internet dropped during the student scan; the retry layer recovered with no lost unit.
+
+## 5. Models used and why
 
 - **Teacher: claude-sonnet-5-5** ($2/$10 per million tokens), adaptive thinking, effort high. The brief asks for Sonnet class. Its temperature cannot be set, so the teacher runs once and is cached.
 - **Student: qwen3.8-27b**, open weights. Started on Groq's free tier; its limits (8K tokens per minute for this model) forced small chunks, and the student lost cross-file context. Moved to Pollinations (one 120K-token request per app). Needs `reasoning_effort: none`, otherwise it spends its whole output budget thinking and returns nothing. Temperature 0 with a fixed seed; variance is produced on purpose by shuffling file order (and, in a separate experiment, by sampling at 0.7).
 - **Judge: deepseek-v4.1-flash**, chosen to be a third family so neither the teacher's nor the student's family grades itself; cheap enough to judge every pair.
 - **Adding a model** is a config entry; a new provider is one adapter class plus one registry line.
 
-## 5. Limitations (short list for the doc)
+## 6. Limitations (short list for the doc)
 
 - In-sample lift: lessons come from the app they are tested on. The one cross-app test (OVAA) showed no transfer.
 - InsecureShop and its list are public; models may have seen them.
@@ -66,7 +78,7 @@ Hard parts, said plainly: flows that cross many units (method summaries composed
 - Small N: 3 repeats per arm, no significance test.
 - Static only; native code and Flutter/React Native bundles are not read.
 
-## 6. Held-out testing (for the interview)
+## 7. Held-out testing (for the interview)
 
 - Leave-one-app-out over several deliberately vulnerable apps (OVAA, InsecureBankv2, DIVA, AndroGoat and others): distil lessons from the other apps, test on the held-out one.
 - Hold out vulnerability classes too: does a lesson about exported components help on a class the teacher never saw?

@@ -15,4 +15,4 @@ scan:
 planning:
   prompt_overhead_tokens: 1200
 distill:
-  lessons_from: runs/2026-11-14T1846_insecureshop_9f96bd98/05_learn/lessons.json
+  lessons_from: lessons/insecureshop_v3_run_2026-11-14T1846.json   # distilled in run 2026-11-14T1846_insecureshop_9f96bd98

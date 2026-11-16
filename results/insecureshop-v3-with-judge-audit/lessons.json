@@ -1,0 +1,236 @@
+{
+  "schema_version" : 1,
+  "source" : "distilled",
+  "prompt_version" : "v2",
+  "input_findings" : 19,
+  "input_cap_from" : null,
+  "lessons" : [ {
+    "id" : "L01",
+    "title" : "Exported ContentProvider leaks data behind weak permission",
+    "applies_to" : {
+      "component_types" : [ "ContentProvider" ],
+      "apis" : [ "ContentProvider.query", "android:readPermission", "android:protectionLevel" ]
+    },
+    "signals" : [ "<provider> exported=true with readPermission whose protectionLevel is normal or undeclared", "query() returns credentials, tokens or user records", "No caller or path checks inside query()" ],
+    "why_exploitable" : "Normal-level permissions are granted automatically to any app that requests them, so they are no barrier. Any installed app can query the provider and read the sensitive columns.",
+    "false_positive_guards" : [ "Permission is signature-level or the provider is not exported", "Returned columns contain no sensitive data" ],
+    "cwe" : "CWE-200",
+    "owasp_category" : "M8: Security Misconfiguration",
+    "severity_guidance" : "High when credentials or PII are returned.",
+    "abstract_example" : "<provider exported=true readPermission=<normalPerm>/>\nquery(...) -> Cursor with <secretColumn>",
+    "source_finding_ids" : [ "11edd44f6b5e4e21" ]
+  }, {
+    "id" : "L02",
+    "title" : "Intent redirection via nested Intent extra",
+    "applies_to" : {
+      "component_types" : [ "Activity", "Service", "BroadcastReceiver" ],
+      "apis" : [ "getParcelableExtra", "startActivity", "startService", "sendBroadcast" ]
+    },
+    "signals" : [ "Exported component reads an Intent from an extra and launches it", "No check on target component, package or grant flags", "Nested Intent passed straight to startActivity" ],
+    "why_exploitable" : "The app launches the attacker-built Intent with its own identity. This reaches non-exported components and can carry URI grant flags, bypassing the exported=false boundary.",
+    "false_positive_guards" : [ "Target component is resolved and checked against an allowlist before launch", "Component is not exported and only receives intents from trusted code" ],
+    "cwe" : "CWE-749",
+    "owasp_category" : "M8: Security Misconfiguration",
+    "severity_guidance" : "High when private components or URI grants become reachable.",
+    "abstract_example" : null,
+    "source_finding_ids" : [ "2c50461813a507ef" ]
+  }, {
+    "id" : "L03",
+    "title" : "Exported WebView component loads unvalidated URL with file access",
+    "applies_to" : {
+      "component_types" : [ "Activity" ],
+      "apis" : [ "WebView.loadUrl", "setJavaScriptEnabled", "setAllowUniversalAccessFromFileURLs", "getDataString" ]
+    },
+    "signals" : [ "loadUrl() argument taken from intent data or extras without validation", "JavaScript enabled plus setAllowUniversalAccessFromFileURLs(true) or file access allowed", "Component exported or reachable through intent redirection" ],
+    "why_exploitable" : "An attacker supplies a file:// or remote page URL. Script runs with universal file access, reads private app files such as prefs and exfiltrates them.",
+    "false_positive_guards" : [ "URL is checked against a strict scheme and host allowlist before loadUrl", "File access settings are disabled and JavaScript is off" ],
+    "cwe" : "CWE-79",
+    "owasp_category" : "M4: Insufficient Input/Output Validation",
+    "severity_guidance" : "High if exported or reachable by a third party; medium if only internal.",
+    "abstract_example" : "ws.setAllowUniversalAccessFromFileURLs(true);\nwebView.loadUrl(getIntent().getStringExtra(<urlKey>));",
+    "source_finding_ids" : [ "8c5837e00af8dac3", "71fea81b602dafb2" ]
+  }, {
+    "id" : "L04",
+    "title" : "Deep link URL check bypassable via weak host validation",
+    "applies_to" : {
+      "component_types" : [ "Activity", "Deep link handler" ],
+      "apis" : [ "Uri.getQueryParameter", "String.endsWith", "String.contains", "WebView.loadUrl" ]
+    },
+    "signals" : [ "Browsable intent-filter with custom scheme or host feeding a WebView", "Validation uses endsWith/contains/startsWith on the raw URL string", "Another deep link path loads the <String> parameter without any check" ],
+    "why_exploitable" : "String suffix or substring checks are satisfied by attacker URLs that merely include the trusted name in the query or path. Any web link can then load arbitrary content into the privileged WebView.",
+    "false_positive_guards" : [ "Host parsed with Uri.getHost and compared by exact equality with https scheme", "WebView is hardened with no JavaScript or file access" ],
+    "cwe" : "CWE-939",
+    "owasp_category" : "M4: Insufficient Input/Output Validation",
+    "severity_guidance" : "High when the target WebView has JS or file access.",
+    "abstract_example" : "String u = uri.getQueryParameter(<param>);\nif (u.endsWith(<trustedHost>)) webView.loadUrl(u);",
+    "source_finding_ids" : [ "953d336cde24e65f" ]
+  }, {
+    "id" : "L05",
+    "title" : "Exported Activity reflects caller Intent through setResult",
+    "applies_to" : {
+      "component_types" : [ "Activity" ],
+      "apis" : [ "setResult", "getIntent", "FLAG_GRANT_READ_URI_PERMISSION", "FileProvider" ]
+    },
+    "signals" : [ "setResult(RESULT_OK, getIntent()) in an exported Activity", "FileProvider or grantUriPermissions provider present in the app", "Caller can set data URI and grant flags" ],
+    "why_exploitable" : "The caller's Intent returns with its grant flags and URI, so the app grants the caller access to its own provider URIs. This leaks private files.",
+    "false_positive_guards" : [ "Result Intent is newly built with no caller URI or flags", "Activity is not exported or no grantable provider exists" ],
+    "cwe" : "CWE-927",
+    "owasp_category" : "M8: Security Misconfiguration",
+    "severity_guidance" : "High when combined with a broad FileProvider.",
+    "abstract_example" : "// exported Activity\nsetResult(RESULT_OK, getIntent());",
+    "source_finding_ids" : [ "19f64712f531c58b" ]
+  }, {
+    "id" : "L06",
+    "title" : "FileProvider configured with overly broad root path",
+    "applies_to" : {
+      "component_types" : [ "ContentProvider", "XML resource" ],
+      "apis" : [ "FileProvider", "root-path", "grantUriPermissions", "FileProvider.getUriForFile" ]
+    },
+    "signals" : [ "Paths XML contains <root-path> with path=\"/\" or a broad files-path", "FileProvider has grantUriPermissions=true", "Intent redirection or reflected results exist that can grant URIs" ],
+    "why_exploitable" : "Any file readable by the app, including private data, can be exposed through a content URI. An attacker who obtains a grant reads or writes those files.",
+    "false_positive_guards" : [ "Paths limited to a dedicated shared subdirectory holding non-sensitive files", "No grant path is reachable by other apps" ],
+    "cwe" : "CWE-668",
+    "owasp_category" : "M8: Security Misconfiguration",
+    "severity_guidance" : "High, since it amplifies any URI grant primitive.",
+    "abstract_example" : null,
+    "source_finding_ids" : [ "a9de307a71794e20" ]
+  }, {
+    "id" : "L07",
+    "title" : "Sensitive data sent in implicit broadcast",
+    "applies_to" : {
+      "component_types" : [ "Activity", "Service", "BroadcastReceiver" ],
+      "apis" : [ "sendBroadcast", "Intent.putExtra", "registerReceiver" ]
+    },
+    "signals" : [ "sendBroadcast with custom action and no receiver permission", "putExtra carries passwords, tokens or PII", "No setPackage or explicit component set" ],
+    "why_exploitable" : "Any app registering a receiver for the action receives the extras, so credentials leak to malicious apps on the device.",
+    "false_positive_guards" : [ "Broadcast is explicit via setPackage or sent with a signature permission", "Extras hold no sensitive data" ],
+    "cwe" : "CWE-927",
+    "owasp_category" : "M8: Security Misconfiguration",
+    "severity_guidance" : "Medium to high depending on data sensitivity.",
+    "abstract_example" : "i = new Intent(<action>); i.putExtra(<secretKey>, secret);\nsendBroadcast(i);",
+    "source_finding_ids" : [ "1d10851ecc769b82" ]
+  }, {
+    "id" : "L08",
+    "title" : "Dynamic receiver registered without permission triggers actions",
+    "applies_to" : {
+      "component_types" : [ "BroadcastReceiver" ],
+      "apis" : [ "registerReceiver", "IntentFilter", "RECEIVER_EXPORTED", "BroadcastReceiver.onReceive" ]
+    },
+    "signals" : [ "registerReceiver(receiver, filter) without a permission argument", "onReceive reads extras and starts an Activity or loads a URL", "Receiver exported implicitly or by RECEIVER_EXPORTED flag" ],
+    "why_exploitable" : "Any app can send the action. onReceive then acts on attacker-controlled extras, such as launching a WebView with a malicious URL.",
+    "false_positive_guards" : [ "Registered with a signature permission or RECEIVER_NOT_EXPORTED", "onReceive validates the sender and input" ],
+    "cwe" : "CWE-926",
+    "owasp_category" : "M8: Security Misconfiguration",
+    "severity_guidance" : "Medium; higher if the action reaches a WebView or sensitive operation.",
+    "abstract_example" : null,
+    "source_finding_ids" : [ "4d664f2e4822bbf9" ]
+  }, {
+    "id" : "L09",
+    "title" : "Exported third-party service without permission",
+    "applies_to" : {
+      "component_types" : [ "Service" ],
+      "apis" : [ "android:exported", "Service.onStartCommand", "android:permission" ]
+    },
+    "signals" : [ "<service> exported=true from a library with no android:permission", "Service accepts Intent extras describing files or URLs", "Library service performs uploads or downloads" ],
+    "why_exploitable" : "Any app can start the service with crafted intents. This can trigger uploads of local files to attacker servers or other library actions.",
+    "false_positive_guards" : [ "Service is protected by a signature permission or not exported", "Service ignores caller-supplied parameters" ],
+    "cwe" : "CWE-926",
+    "owasp_category" : "M8: Security Misconfiguration",
+    "severity_guidance" : "Medium; high if it can exfiltrate files.",
+    "abstract_example" : "<service exported=true name=<LibService>/>\n// no android:permission",
+    "source_finding_ids" : [ "55b67690b5c71387" ]
+  }, {
+    "id" : "L10",
+    "title" : "Weak transport security: ignored SSL errors and cleartext",
+    "applies_to" : {
+      "component_types" : [ "WebViewClient", "Manifest" ],
+      "apis" : [ "onReceivedSslError", "SslErrorHandler.proceed", "usesCleartextTraffic", "TrustManager" ]
+    },
+    "signals" : [ "onReceivedSslError calls handler.proceed() unconditionally", "android:usesCleartextTraffic=\"true\" or permissive network security config", "WebView loads remote content over HTTP" ],
+    "why_exploitable" : "A network attacker can intercept or modify traffic. Injected JavaScript in a WebView runs with its privileges.",
+    "false_positive_guards" : [ "Handler calls cancel() or is limited to debug builds", "Cleartext allowed only for local test domains, not production hosts" ],
+    "cwe" : "CWE-295",
+    "owasp_category" : "M5: Insecure Communication",
+    "severity_guidance" : "High for WebView or auth traffic; medium for incidental cleartext.",
+    "abstract_example" : "onReceivedSslError(v, handler, e) { handler.proceed(); }",
+    "source_finding_ids" : [ "2e920bfd02d746b5", "971f31cbfa791e32" ]
+  }, {
+    "id" : "L11",
+    "title" : "Hardcoded credentials and cloud identifiers in app",
+    "applies_to" : {
+      "component_types" : [ "Class", "strings.xml" ],
+      "apis" : [ "HashMap.put", "getString", "CognitoCachingCredentialsProvider" ]
+    },
+    "signals" : [ "Literal <String> and password compared locally to authenticate", "Identity pool IDs, API keys or secrets in resources or code", "<Class> logic wholly client-side with no server check" ],
+    "why_exploitable" : "Anyone can decompile the APK and recover the secrets. They then log in or obtain cloud credentials for the backend role.",
+    "false_positive_guards" : [ "Value is a public non-secret identifier with restricted server-side permissions", "Credential is a test value in a non-release build" ],
+    "cwe" : "CWE-798",
+    "owasp_category" : "M1: Improper Credential Usage",
+    "severity_guidance" : "Medium to high depending on what the credential unlocks.",
+    "abstract_example" : "<package>(<user>, <literalPassword>);\nif (<package>(u).equals(p)) <name>();",
+    "source_finding_ids" : [ "1888adee6f8c2e08", "5952756137792283" ]
+  }, {
+    "id" : "L12",
+    "title" : "Plaintext secrets in storage with backup or debuggable enabled",
+    "applies_to" : {
+      "component_types" : [ "Application", "Manifest" ],
+      "apis" : [ "SharedPreferences.Editor.putString", "android:allowBackup", "android:debuggable" ]
+    },
+    "signals" : [ "putString stores password or token in plain SharedPreferences", "allowBackup=true without backup rules excluding the file", "debuggable=true in the release manifest" ],
+    "why_exploitable" : "Unencrypted secrets can be extracted via adb backup or run-as, or by any file-read primitive. Debuggable builds also expose all private data.",
+    "false_positive_guards" : [ "Value is encrypted with a Keystore-backed key", "Backup rules exclude the preferences file and the build is not debuggable" ],
+    "cwe" : "CWE-312",
+    "owasp_category" : "M9: Insecure Data Storage",
+    "severity_guidance" : "Medium; higher when it chains with file read.",
+    "abstract_example" : "prefs.edit().putString(<prefsKey>, password).apply();",
+    "source_finding_ids" : [ "ad51a3c67e777159", "e475e0db94459afe" ]
+  }, {
+    "id" : "L13",
+    "title" : "Credentials written to logcat",
+    "applies_to" : {
+      "component_types" : [ "Activity", "Class" ],
+      "apis" : [ "Log.d", "Log.i", "Log.v" ]
+    },
+    "signals" : [ "Log call with password, token or <String> variable", "Logging not stripped in release builds", "Sensitive values logged in <name> flow" ],
+    "why_exploitable" : "Log output is readable via adb or logcat on debuggable devices and by privileged tooling, exposing credentials to anyone with device access.",
+    "false_positive_guards" : [ "Logs are stripped in release builds via ProGuard or R8 rules", "Logged value is a redacted or non-sensitive string" ],
+    "cwe" : "CWE-532",
+    "owasp_category" : "M9: Insecure Data Storage",
+    "severity_guidance" : "Medium; low if release builds strip logs.",
+    "abstract_example" : "Log.d(<tag>, password);",
+    "source_finding_ids" : [ "cb524a9a78af3cab" ]
+  }, {
+    "id" : "L14",
+    "title" : "Untrusted stream URI copied to shared storage",
+    "applies_to" : {
+      "component_types" : [ "Activity" ],
+      "apis" : [ "EXTRA_STREAM", "Uri.fromFile", "ContentResolver.openInputStream", "getExternalStorageDirectory" ]
+    },
+    "signals" : [ "Exported Activity reads EXTRA_STREAM URI and copies it to external storage", "File name derived from URI path or display name without sanitizing", "Uri converted to a File path without scheme checks" ],
+    "why_exploitable" : "A caller points the URI at private app files or uses traversal in the name. The app copies the data to world-readable storage or writes to arbitrary paths.",
+    "false_positive_guards" : [ "Scheme restricted and name sanitized, output in app-private directory", "Activity not exported and URI source trusted" ],
+    "cwe" : "CWE-22",
+    "owasp_category" : "M4: Insufficient Input/Output Validation",
+    "severity_guidance" : "Medium; high if private files leak or arbitrary writes occur.",
+    "abstract_example" : "Uri u = getIntent().getParcelableExtra(EXTRA_STREAM);\ncopy(new File(u.toString()), <externalDir>);",
+    "source_finding_ids" : [ "e76491cd0d4300ad" ]
+  }, {
+    "id" : "L15",
+    "title" : "Loading code from another package by name prefix",
+    "applies_to" : {
+      "component_types" : [ "Activity", "Class" ],
+      "apis" : [ "createPackageContext", "CONTEXT_INCLUDE_CODE", "CONTEXT_IGNORE_SECURITY", "ClassLoader.loadClass" ]
+    },
+    "signals" : [ "createPackageContext with CONTEXT_INCLUDE_CODE and CONTEXT_IGNORE_SECURITY", "Package chosen by name prefix or from the installed list", "loadClass followed by reflective invoke" ],
+    "why_exploitable" : "Any app with a matching package name is loaded into this process and its code runs with the app's permissions and data access.",
+    "false_positive_guards" : [ "Package signature is verified against a pinned certificate before loading", "Package name is an exact match and signature-checked" ],
+    "cwe" : "CWE-94",
+    "owasp_category" : "M7: Insufficient Binary Protections",
+    "severity_guidance" : "High; arbitrary code execution in the app process.",
+    "abstract_example" : "Context c = createPackageContext(<pkgPrefixMatch>, CONTEXT_INCLUDE_CODE);\nc.getClassLoader().loadClass(<cls>)...invoke(...);",
+    "source_finding_ids" : [ "ff92dfed3e3a5c81" ]
+  } ],
+  "selected_ids" : [ "L01", "L02", "L03", "L04", "L05", "L06", "L07", "L08", "L09", "L10", "L11", "L12", "L13", "L14", "L15" ],
+  "guidance" : "- L01 Exported ContentProvider leaks data behind weak permission (CWE-200, M8: Security Misconfiguration)\n  Applies to: ContentProvider; APIs: ContentProvider.query, android:readPermission, android:protectionLevel\n  Look for: <provider> exported=true with readPermission whose protectionLevel is normal or undeclared; query() returns credentials, tokens or user records; No caller or path checks inside query()\n  Why: Normal-level permissions are granted automatically to any app that requests them, so they are no barrier. Any installed app can query the provider and read the sensitive columns.\n  Not a finding when: Permission is signature-level or the provider is not exported; Returned columns contain no sensitive data\n  Severity: High when credentials or PII are returned.\n  Example: <provider exported=true readPermission=<normalPerm>/> query(...) -> Cursor with <secretColumn>\n\n- L02 Intent redirection via nested Intent extra (CWE-749, M8: Security Misconfiguration)\n  Applies to: Activity, Service, BroadcastReceiver; APIs: getParcelableExtra, startActivity, startService, sendBroadcast\n  Look for: Exported component reads an Intent from an extra and launches it; No check on target component, package or grant flags; Nested Intent passed straight to startActivity\n  Why: The app launches the attacker-built Intent with its own identity. This reaches non-exported components and can carry URI grant flags, bypassing the exported=false boundary.\n  Not a finding when: Target component is resolved and checked against an allowlist before launch; Component is not exported and only receives intents from trusted code\n  Severity: High when private components or URI grants become reachable.\n\n- L03 Exported WebView component loads unvalidated URL with file access (CWE-79, M4: Insufficient Input/Output Validation)\n  Applies to: Activity; APIs: WebView.loadUrl, setJavaScriptEnabled, setAllowUniversalAccessFromFileURLs, getDataString\n  Look for: loadUrl() argument taken from intent data or extras without validation; JavaScript enabled plus setAllowUniversalAccessFromFileURLs(true) or file access allowed; Component exported or reachable through intent redirection\n  Why: An attacker supplies a file:// or remote page URL. Script runs with universal file access, reads private app files such as prefs and exfiltrates them.\n  Not a finding when: URL is checked against a strict scheme and host allowlist before loadUrl; File access settings are disabled and JavaScript is off\n  Severity: High if exported or reachable by a third party; medium if only internal.\n  Example: ws.setAllowUniversalAccessFromFileURLs(true); webView.loadUrl(getIntent().getStringExtra(<urlKey>));\n\n- L04 Deep link URL check bypassable via weak host validation (CWE-939, M4: Insufficient Input/Output Validation)\n  Applies to: Activity, Deep link handler; APIs: Uri.getQueryParameter, String.endsWith, String.contains, WebView.loadUrl\n  Look for: Browsable intent-filter with custom scheme or host feeding a WebView; Validation uses endsWith/contains/startsWith on the raw URL string; Another deep link path loads the <String> parameter without any check\n  Why: String suffix or substring checks are satisfied by attacker URLs that merely include the trusted name in the query or path. Any web link can then load arbitrary content into the privileged WebView.\n  Not a finding when: Host parsed with Uri.getHost and compared by exact equality with https scheme; WebView is hardened with no JavaScript or file access\n  Severity: High when the target WebView has JS or file access.\n  Example: String u = uri.getQueryParameter(<param>); if (u.endsWith(<trustedHost>)) webView.loadUrl(u);\n\n- L05 Exported Activity reflects caller Intent through setResult (CWE-927, M8: Security Misconfiguration)\n  Applies to: Activity; APIs: setResult, getIntent, FLAG_GRANT_READ_URI_PERMISSION, FileProvider\n  Look for: setResult(RESULT_OK, getIntent()) in an exported Activity; FileProvider or grantUriPermissions provider present in the app; Caller can set data URI and grant flags\n  Why: The caller's Intent returns with its grant flags and URI, so the app grants the caller access to its own provider URIs. This leaks private files.\n  Not a finding when: Result Intent is newly built with no caller URI or flags; Activity is not exported or no grantable provider exists\n  Severity: High when combined with a broad FileProvider.\n  Example: // exported Activity setResult(RESULT_OK, getIntent());\n\n- L06 FileProvider configured with overly broad root path (CWE-668, M8: Security Misconfiguration)\n  Applies to: ContentProvider, XML resource; APIs: FileProvider, root-path, grantUriPermissions, FileProvider.getUriForFile\n  Look for: Paths XML contains <root-path> with path=\"/\" or a broad files-path; FileProvider has grantUriPermissions=true; Intent redirection or reflected results exist that can grant URIs\n  Why: Any file readable by the app, including private data, can be exposed through a content URI. An attacker who obtains a grant reads or writes those files.\n  Not a finding when: Paths limited to a dedicated shared subdirectory holding non-sensitive files; No grant path is reachable by other apps\n  Severity: High, since it amplifies any URI grant primitive.\n\n- L07 Sensitive data sent in implicit broadcast (CWE-927, M8: Security Misconfiguration)\n  Applies to: Activity, Service, BroadcastReceiver; APIs: sendBroadcast, Intent.putExtra, registerReceiver\n  Look for: sendBroadcast with custom action and no receiver permission; putExtra carries passwords, tokens or PII; No setPackage or explicit component set\n  Why: Any app registering a receiver for the action receives the extras, so credentials leak to malicious apps on the device.\n  Not a finding when: Broadcast is explicit via setPackage or sent with a signature permission; Extras hold no sensitive data\n  Severity: Medium to high depending on data sensitivity.\n  Example: i = new Intent(<action>); i.putExtra(<secretKey>, secret); sendBroadcast(i);\n\n- L08 Dynamic receiver registered without permission triggers actions (CWE-926, M8: Security Misconfiguration)\n  Applies to: BroadcastReceiver; APIs: registerReceiver, IntentFilter, RECEIVER_EXPORTED, BroadcastReceiver.onReceive\n  Look for: registerReceiver(receiver, filter) without a permission argument; onReceive reads extras and starts an Activity or loads a URL; Receiver exported implicitly or by RECEIVER_EXPORTED flag\n  Why: Any app can send the action. onReceive then acts on attacker-controlled extras, such as launching a WebView with a malicious URL.\n  Not a finding when: Registered with a signature permission or RECEIVER_NOT_EXPORTED; onReceive validates the sender and input\n  Severity: Medium; higher if the action reaches a WebView or sensitive operation.\n\n- L09 Exported third-party service without permission (CWE-926, M8: Security Misconfiguration)\n  Applies to: Service; APIs: android:exported, Service.onStartCommand, android:permission\n  Look for: <service> exported=true from a library with no android:permission; Service accepts Intent extras describing files or URLs; Library service performs uploads or downloads\n  Why: Any app can start the service with crafted intents. This can trigger uploads of local files to attacker servers or other library actions.\n  Not a finding when: Service is protected by a signature permission or not exported; Service ignores caller-supplied parameters\n  Severity: Medium; high if it can exfiltrate files.\n  Example: <service exported=true name=<LibService>/> // no android:permission\n\n- L10 Weak transport security: ignored SSL errors and cleartext (CWE-295, M5: Insecure Communication)\n  Applies to: WebViewClient, Manifest; APIs: onReceivedSslError, SslErrorHandler.proceed, usesCleartextTraffic, TrustManager\n  Look for: onReceivedSslError calls handler.proceed() unconditionally; android:usesCleartextTraffic=\"true\" or permissive network security config; WebView loads remote content over HTTP\n  Why: A network attacker can intercept or modify traffic. Injected JavaScript in a WebView runs with its privileges.\n  Not a finding when: Handler calls cancel() or is limited to debug builds; Cleartext allowed only for local test domains, not production hosts\n  Severity: High for WebView or auth traffic; medium for incidental cleartext.\n  Example: onReceivedSslError(v, handler, e) { handler.proceed(); }\n\n- L11 Hardcoded credentials and cloud identifiers in app (CWE-798, M1: Improper Credential Usage)\n  Applies to: Class, strings.xml; APIs: HashMap.put, getString, CognitoCachingCredentialsProvider\n  Look for: Literal <String> and password compared locally to authenticate; Identity pool IDs, API keys or secrets in resources or code; <Class> logic wholly client-side with no server check\n  Why: Anyone can decompile the APK and recover the secrets. They then log in or obtain cloud credentials for the backend role.\n  Not a finding when: Value is a public non-secret identifier with restricted server-side permissions; Credential is a test value in a non-release build\n  Severity: Medium to high depending on what the credential unlocks.\n  Example: <package>(<user>, <literalPassword>); if (<package>(u).equals(p)) <name>();\n\n- L12 Plaintext secrets in storage with backup or debuggable enabled (CWE-312, M9: Insecure Data Storage)\n  Applies to: Application, Manifest; APIs: SharedPreferences.Editor.putString, android:allowBackup, android:debuggable\n  Look for: putString stores password or token in plain SharedPreferences; allowBackup=true without backup rules excluding the file; debuggable=true in the release manifest\n  Why: Unencrypted secrets can be extracted via adb backup or run-as, or by any file-read primitive. Debuggable builds also expose all private data.\n  Not a finding when: Value is encrypted with a Keystore-backed key; Backup rules exclude the preferences file and the build is not debuggable\n  Severity: Medium; higher when it chains with file read.\n  Example: prefs.edit().putString(<prefsKey>, password).apply();\n\n- L13 Credentials written to logcat (CWE-532, M9: Insecure Data Storage)\n  Applies to: Activity, Class; APIs: Log.d, Log.i, Log.v\n  Look for: Log call with password, token or <String> variable; Logging not stripped in release builds; Sensitive values logged in <name> flow\n  Why: Log output is readable via adb or logcat on debuggable devices and by privileged tooling, exposing credentials to anyone with device access.\n  Not a finding when: Logs are stripped in release builds via ProGuard or R8 rules; Logged value is a redacted or non-sensitive string\n  Severity: Medium; low if release builds strip logs.\n  Example: Log.d(<tag>, password);\n\n- L14 Untrusted stream URI copied to shared storage (CWE-22, M4: Insufficient Input/Output Validation)\n  Applies to: Activity; APIs: EXTRA_STREAM, Uri.fromFile, ContentResolver.openInputStream, getExternalStorageDirectory\n  Look for: Exported Activity reads EXTRA_STREAM URI and copies it to external storage; File name derived from URI path or display name without sanitizing; Uri converted to a File path without scheme checks\n  Why: A caller points the URI at private app files or uses traversal in the name. The app copies the data to world-readable storage or writes to arbitrary paths.\n  Not a finding when: Scheme restricted and name sanitized, output in app-private directory; Activity not exported and URI source trusted\n  Severity: Medium; high if private files leak or arbitrary writes occur.\n  Example: Uri u = getIntent().getParcelableExtra(EXTRA_STREAM); copy(new File(u.toString()), <externalDir>);\n\n- L15 Loading code from another package by name prefix (CWE-94, M7: Insufficient Binary Protections)\n  Applies to: Activity, Class; APIs: createPackageContext, CONTEXT_INCLUDE_CODE, CONTEXT_IGNORE_SECURITY, ClassLoader.loadClass\n  Look for: createPackageContext with CONTEXT_INCLUDE_CODE and CONTEXT_IGNORE_SECURITY; Package chosen by name prefix or from the installed list; loadClass followed by reflective invoke\n  Why: Any app with a matching package name is loaded into this process and its code runs with the app's permissions and data access.\n  Not a finding when: Package signature is verified against a pinned certificate before loading; Package name is an exact match and signature-checked\n  Severity: High; arbitrary code execution in the app process.\n  Example: Context c = createPackageContext(<pkgPrefixMatch>, CONTEXT_INCLUDE_CODE); c.getClassLoader().loadClass(<cls>)...invoke(...);",
+  "guidance_tokens" : 3583
+}

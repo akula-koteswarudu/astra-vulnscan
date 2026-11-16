@@ -1,0 +1,236 @@
+{
+  "schema_version" : 1,
+  "source" : "distilled",
+  "prompt_version" : "v2",
+  "input_findings" : 21,
+  "input_cap_from" : null,
+  "lessons" : [ {
+    "id" : "L01",
+    "title" : "Exported component launches attacker-supplied Intent (intent redirection)",
+    "applies_to" : {
+      "component_types" : [ "Activity", "Service", "BroadcastReceiver" ],
+      "apis" : [ "getParcelableExtra", "IntentCompat.getParcelableExtra", "startActivity", "setResult" ]
+    },
+    "signals" : [ "Exported component reads an Intent parcelable extra and passes it to startActivity", "Implicit-intent result passed back unchanged via setResult(resultCode, data)", "No check of target component or grant flags on the nested intent" ],
+    "why_exploitable" : "The nested intent runs with the app's identity, reaching non-exported components or granting URI permissions on private providers. Reflecting a foreign result passes grants through to the caller.",
+    "false_positive_guards" : [ "Nested intent's component is fixed and flags are cleared before launch", "Component is not exported and only receives intents from trusted callers" ],
+    "cwe" : "CWE-926",
+    "owasp_category" : "MASVS-PLATFORM",
+    "severity_guidance" : "High when non-exported components or providers are reachable; medium otherwise.",
+    "abstract_example" : null,
+    "source_finding_ids" : [ "e6f816fce290dfb2", "33bebc75eadfea98" ]
+  }, {
+    "id" : "L02",
+    "title" : "FileProvider paths expose root or private storage",
+    "applies_to" : {
+      "component_types" : [ "ContentProvider", "FileProvider" ],
+      "apis" : [ "FileProvider", "root-path", "grantUriPermissions", "FileProvider.getUriForFile" ]
+    },
+    "signals" : [ "provider_paths XML has <root-path> or path=\"/\" or \".\"", "FileProvider has grantUriPermissions=\"true\"", "A redirection or result-reflection primitive can grant its URIs" ],
+    "why_exploitable" : "A broad path mapping lets any granted content URI address any file the app can read, including private data. Combined with intent redirection, the attacker obtains the grant.",
+    "false_positive_guards" : [ "Paths limited to a dedicated shared subdirectory holding no sensitive files", "No code path lets untrusted callers obtain grants" ],
+    "cwe" : "CWE-552",
+    "owasp_category" : "MASVS-PLATFORM",
+    "severity_guidance" : "High when a grant path exists; medium as standalone misconfiguration.",
+    "abstract_example" : null,
+    "source_finding_ids" : [ "e1ea004b0629e922" ]
+  }, {
+    "id" : "L03",
+    "title" : "Exported provider path traversal with file access",
+    "applies_to" : {
+      "component_types" : [ "ContentProvider" ],
+      "apis" : [ "ContentProvider.openFile", "Uri.getLastPathSegment", "ParcelFileDescriptor.open", "new File" ]
+    },
+    "signals" : [ "Exported provider without permission overrides openFile", "File built from Uri.getLastPathSegment or getPath without canonicalization", "Open mode permits write or create" ],
+    "why_exploitable" : "URL-decoded ../ in the URI escapes the intended directory. Any app can read or overwrite files the victim can access, including private data.",
+    "false_positive_guards" : [ "Provider protected by signature permission or not exported", "Canonical path verified to be under an allowed base directory" ],
+    "cwe" : "CWE-22",
+    "owasp_category" : "MASVS-PLATFORM",
+    "severity_guidance" : "High, especially with write mode or private data reachable.",
+    "abstract_example" : null,
+    "source_finding_ids" : [ "119183b8ce7ae922" ]
+  }, {
+    "id" : "L04",
+    "title" : "Exported service writes to caller-chosen file path",
+    "applies_to" : {
+      "component_types" : [ "Service", "Activity", "BroadcastReceiver" ],
+      "apis" : [ "Intent.getExtras", "new File", "FileOutputStream", "Runtime.exec" ]
+    },
+    "signals" : [ "Exported component takes file path string from intent extra", "Component writes logs or data to that path with its own privileges", "No permission or path validation" ],
+    "why_exploitable" : "Caller controls the destination, so it can overwrite private app files or direct sensitive output to a location it can read.",
+    "false_positive_guards" : [ "Component not exported or guarded by signature permission", "Path forced into an app-controlled directory after canonicalization" ],
+    "cwe" : "CWE-73",
+    "owasp_category" : "MASVS-PLATFORM",
+    "severity_guidance" : "High when overwrite of private files or sensitive dump is possible.",
+    "abstract_example" : "File out = new File(intent.getStringExtra(<extraKey>)); write(out, <data>);",
+    "source_finding_ids" : [ "1c64d929ac5aa88e" ]
+  }, {
+    "id" : "L05",
+    "title" : "Weak <name> URL validation before WebView load",
+    "applies_to" : {
+      "component_types" : [ "Activity", "WebView" ],
+      "apis" : [ "Uri.getHost", "String.endsWith", "WebView.loadUrl", "getQueryParameter" ]
+    },
+    "signals" : [ "Host check uses endsWith or contains without a leading dot", "Browsable <name> parameter passed to WebView.loadUrl", "Scheme not restricted to https" ],
+    "why_exploitable" : "Look-alike domains pass the check, so attacker pages load in a privileged WebView, exposing JS and file-access settings.",
+    "false_positive_guards" : [ "Exact host equality against an allowlist with https enforced", "WebView has JS and file access disabled and no bridges" ],
+    "cwe" : "CWE-601",
+    "owasp_category" : "MASVS-PLATFORM",
+    "severity_guidance" : "Medium; high if the WebView is privileged.",
+    "abstract_example" : "if (uri.getHost().endsWith(<domain>)) webView.loadUrl(uri.toString());",
+    "source_finding_ids" : [ "ba60daca1072c799" ]
+  }, {
+    "id" : "L06",
+    "title" : "Insecure WebView settings with intent-controlled URL",
+    "applies_to" : {
+      "component_types" : [ "Activity", "WebView" ],
+      "apis" : [ "setJavaScriptEnabled", "setAllowFileAccessFromFileURLs", "setAllowUniversalAccessFromFileURLs", "WebView.loadUrl" ]
+    },
+    "signals" : [ "JavaScript enabled together with file-URL access flags", "URL read from intent extra or <name>", "file: scheme not rejected" ],
+    "why_exploitable" : "A file: page can run script and read other local files, including private app data, then exfiltrate them.",
+    "false_positive_guards" : [ "Only fixed trusted content is loaded, never intent input", "File-access flags are false and scheme is restricted to https" ],
+    "cwe" : "CWE-749",
+    "owasp_category" : "MASVS-PLATFORM",
+    "severity_guidance" : "High when URL is attacker-reachable.",
+    "abstract_example" : null,
+    "source_finding_ids" : [ "f4412e759fc547c9" ]
+  }, {
+    "id" : "L07",
+    "title" : "<Class> parameter overwrites trusted endpoint setting",
+    "applies_to" : {
+      "component_types" : [ "Activity" ],
+      "apis" : [ "Uri.getQueryParameter", "SharedPreferences.Editor.putString", "Intent.getData" ]
+    },
+    "signals" : [ "Browsable <name> persists a URL parameter into config or prefs", "Stored value later used as a credentials-submission endpoint", "No allowlist or user confirmation" ],
+    "why_exploitable" : "A crafted link redirects subsequent authenticated requests to an attacker server, leaking credentials.",
+    "false_positive_guards" : [ "URL validated against a fixed allowlist of hosts", "Setting is only available in non-release builds" ],
+    "cwe" : "CWE-345",
+    "owasp_category" : "MASVS-AUTH",
+    "severity_guidance" : "High when credentials or tokens are sent to the URL.",
+    "abstract_example" : null,
+    "source_finding_ids" : [ "794244afc58dd378" ]
+  }, {
+    "id" : "L08",
+    "title" : "Dynamic code loading from untrusted location or package",
+    "applies_to" : {
+      "component_types" : [ "Application", "Service", "Activity" ],
+      "apis" : [ "DexClassLoader", "PathClassLoader", "createPackageContext", "CONTEXT_INCLUDE_CODE" ]
+    },
+    "signals" : [ "DexClassLoader path on external storage or world-writable directory", "createPackageContext with CONTEXT_INCLUDE_CODE chosen by package name prefix", "No signature or hash verification before loading" ],
+    "why_exploitable" : "Another app can plant a file or install a matching package, so its code runs in this app's process and with its permissions.",
+    "false_positive_guards" : [ "Code is signature-verified or loaded from app-private storage", "Package must match a pinned signing certificate" ],
+    "cwe" : "CWE-94",
+    "owasp_category" : "MASVS-CODE",
+    "severity_guidance" : "High for external storage; medium for name-prefix plugin loading.",
+    "abstract_example" : "new DexClassLoader(<externalPath>, <optDir>, null, getClassLoader()).loadClass(<name>);",
+    "source_finding_ids" : [ "afada569473ae646", "c323e9c1ff38926c" ]
+  }, {
+    "id" : "L09",
+    "title" : "Unsafe deserialization with side effects or arbitrary classes",
+    "applies_to" : {
+      "component_types" : [ "Serializable", "Parcelable", "Activity", "Service" ],
+      "apis" : [ "readObject", "Parcelable.Creator", "Class.forName", "Gson.fromJson" ]
+    },
+    "signals" : [ "readObject performs file deletion or other actions using stream data", "Parcel constructor reads class name then Class.forName and fromJson", "Serializable or Parcelable extra read from an exported component" ],
+    "why_exploitable" : "Attacker-crafted extras trigger the side effects or instantiate arbitrary classes during unparcelling, giving file deletion or gadget execution.",
+    "false_positive_guards" : [ "Class never reachable from untrusted input", "Class name checked against a fixed allowlist" ],
+    "cwe" : "CWE-502",
+    "owasp_category" : "MASVS-CODE",
+    "severity_guidance" : "Medium; high if exported entry reaches a destructive gadget.",
+    "abstract_example" : null,
+    "source_finding_ids" : [ "d6c9cc920e29ea83", "a6849c50647118ae" ]
+  }, {
+    "id" : "L10",
+    "title" : "Credentials or tokens sent over cleartext HTTP",
+    "applies_to" : {
+      "component_types" : [ "Application", "Activity" ],
+      "apis" : [ "Retrofit.Builder.baseUrl", "HttpURLConnection", "usesCleartextTraffic", "network-security-config" ]
+    },
+    "signals" : [ "http:// base URL used for <name> or token requests", "Token placed in a query string", "No network security config blocking cleartext" ],
+    "why_exploitable" : "A network attacker can read or modify traffic and capture credentials or tokens.",
+    "false_positive_guards" : [ "Non-sensitive public content only", "Cleartext blocked by config and URL is https at runtime" ],
+    "cwe" : "CWE-319",
+    "owasp_category" : "MASVS-NETWORK",
+    "severity_guidance" : "High for credentials; medium for derived tokens.",
+    "abstract_example" : "new Retrofit.Builder().baseUrl(\"http://<host>/\")",
+    "source_finding_ids" : [ "56407c3e395e283d", "93d1944cfea13202" ]
+  }, {
+    "id" : "L11",
+    "title" : "Sensitive data in implicit broadcast or implicit intent",
+    "applies_to" : {
+      "component_types" : [ "Activity", "BroadcastReceiver" ],
+      "apis" : [ "sendBroadcast", "startActivity", "Intent.putExtra", "setPackage" ]
+    },
+    "signals" : [ "sendBroadcast with credential extras and no receiver permission", "Implicit intent carries token or URL data", "No setPackage or component pinning" ],
+    "why_exploitable" : "Any app can register a matching receiver or activity and capture the secrets.",
+    "false_positive_guards" : [ "Explicit intent or setPackage to own app", "Broadcast guarded by a signature permission" ],
+    "cwe" : "CWE-927",
+    "owasp_category" : "MASVS-PLATFORM",
+    "severity_guidance" : "Medium to high depending on secret sensitivity.",
+    "abstract_example" : null,
+    "source_finding_ids" : [ "629434f0201bf6b6", "93d1944cfea13202" ]
+  }, {
+    "id" : "L12",
+    "title" : "Secrets stored or logged in plaintext",
+    "applies_to" : {
+      "component_types" : [ "Activity", "Service", "Application" ],
+      "apis" : [ "Log.d", "SharedPreferences.Editor.putString", "toString" ]
+    },
+    "signals" : [ "Log calls on objects whose toString contains password or token", "Password saved to SharedPreferences without encryption", "Log dumped to files by a service" ],
+    "why_exploitable" : "Other apps with log access, backups or device access can read the secrets; logs may be dumped to readable files.",
+    "false_positive_guards" : [ "Value is non-sensitive or redacted", "Stored via Keystore-backed encryption" ],
+    "cwe" : "CWE-312",
+    "owasp_category" : "MASVS-STORAGE",
+    "severity_guidance" : "Medium; higher if the secret is easily extracted.",
+    "abstract_example" : null,
+    "source_finding_ids" : [ "69b5e3bc2170c5bc", "cabfa2e774fa81ce" ]
+  }, {
+    "id" : "L13",
+    "title" : "Hardcoded keys and weak cipher modes",
+    "applies_to" : {
+      "component_types" : [ "Crypto helper" ],
+      "apis" : [ "Cipher.getInstance", "SecretKeySpec" ]
+    },
+    "signals" : [ "SecretKeySpec built from a string constant", "Cipher.getInstance(\"<String>\") with no mode", "ECB mode, or static IV" ],
+    "why_exploitable" : "Constant keys can be extracted from the APK to decrypt any protected data. ECB leaks patterns and offers no integrity.",
+    "false_positive_guards" : [ "Key is generated at runtime in Android Keystore", "Constant is unrelated to protecting sensitive data" ],
+    "cwe" : "CWE-321",
+    "owasp_category" : "MASVS-CRYPTO",
+    "severity_guidance" : "Medium; high if it protects credentials.",
+    "abstract_example" : "new SecretKeySpec(<CONST>.getBytes(), \"<String>\"); Cipher.getInstance(\"<String>\");",
+    "source_finding_ids" : [ "a43a0b5de5b2e605", "d5f03017fe31d857" ]
+  }, {
+    "id" : "L14",
+    "title" : "Debuggable build with backup enabled",
+    "applies_to" : {
+      "component_types" : [ "Application manifest" ],
+      "apis" : [ "android:debuggable", "android:allowBackup", "adb backup", "run-as" ]
+    },
+    "signals" : [ "android:debuggable=\"true\" in release manifest", "android:allowBackup=\"true\" without backup rules", "App stores sensitive data in private storage" ],
+    "why_exploitable" : "Debugger, run-as or adb backup lets someone with device access extract private data and tamper with app execution.",
+    "false_positive_guards" : [ "Debug-only build variant not shipped", "Backup rules exclude sensitive files" ],
+    "cwe" : "CWE-1188",
+    "owasp_category" : "MASVS-RESILIENCE",
+    "severity_guidance" : "Medium; higher when sensitive data is stored unencrypted.",
+    "abstract_example" : null,
+    "source_finding_ids" : [ "ff8b738a25f1c0c7" ]
+  }, {
+    "id" : "L15",
+    "title" : "Hardcoded credentials in resources",
+    "applies_to" : {
+      "component_types" : [ "Resource", "Application" ],
+      "apis" : [ "res/values/strings.xml", "Resources.getString" ]
+    },
+    "signals" : [ "URL with user:pass@ embedded in resources", "Password or API secret strings in strings.xml", "Dev or test endpoint credentials" ],
+    "why_exploitable" : "Anyone can unpack the APK and read the credentials, possibly gaining access to backend or dev systems.",
+    "false_positive_guards" : [ "Placeholder or revoked credentials", "Value is a public non-secret identifier" ],
+    "cwe" : "CWE-522",
+    "owasp_category" : "MASVS-AUTH",
+    "severity_guidance" : "Low to high depending on what the credential grants.",
+    "abstract_example" : "<string name=<n>>https://<user>:<pass>@<host></string>",
+    "source_finding_ids" : [ "864459b8c6e396e1" ]
+  } ],
+  "selected_ids" : [ "L01", "L02", "L03", "L04", "L05", "L06", "L07", "L08", "L09", "L10", "L11", "L12", "L13", "L14", "L15" ],
+  "guidance" : "- L01 Exported component launches attacker-supplied Intent (intent redirection) (CWE-926, MASVS-PLATFORM)\n  Applies to: Activity, Service, BroadcastReceiver; APIs: getParcelableExtra, IntentCompat.getParcelableExtra, startActivity, setResult\n  Look for: Exported component reads an Intent parcelable extra and passes it to startActivity; Implicit-intent result passed back unchanged via setResult(resultCode, data); No check of target component or grant flags on the nested intent\n  Why: The nested intent runs with the app's identity, reaching non-exported components or granting URI permissions on private providers. Reflecting a foreign result passes grants through to the caller.\n  Not a finding when: Nested intent's component is fixed and flags are cleared before launch; Component is not exported and only receives intents from trusted callers\n  Severity: High when non-exported components or providers are reachable; medium otherwise.\n\n- L02 FileProvider paths expose root or private storage (CWE-552, MASVS-PLATFORM)\n  Applies to: ContentProvider, FileProvider; APIs: FileProvider, root-path, grantUriPermissions, FileProvider.getUriForFile\n  Look for: provider_paths XML has <root-path> or path=\"/\" or \".\"; FileProvider has grantUriPermissions=\"true\"; A redirection or result-reflection primitive can grant its URIs\n  Why: A broad path mapping lets any granted content URI address any file the app can read, including private data. Combined with intent redirection, the attacker obtains the grant.\n  Not a finding when: Paths limited to a dedicated shared subdirectory holding no sensitive files; No code path lets untrusted callers obtain grants\n  Severity: High when a grant path exists; medium as standalone misconfiguration.\n\n- L03 Exported provider path traversal with file access (CWE-22, MASVS-PLATFORM)\n  Applies to: ContentProvider; APIs: ContentProvider.openFile, Uri.getLastPathSegment, ParcelFileDescriptor.open, new File\n  Look for: Exported provider without permission overrides openFile; File built from Uri.getLastPathSegment or getPath without canonicalization; Open mode permits write or create\n  Why: URL-decoded ../ in the URI escapes the intended directory. Any app can read or overwrite files the victim can access, including private data.\n  Not a finding when: Provider protected by signature permission or not exported; Canonical path verified to be under an allowed base directory\n  Severity: High, especially with write mode or private data reachable.\n\n- L04 Exported service writes to caller-chosen file path (CWE-73, MASVS-PLATFORM)\n  Applies to: Service, Activity, BroadcastReceiver; APIs: Intent.getExtras, new File, FileOutputStream, Runtime.exec\n  Look for: Exported component takes file path string from intent extra; Component writes logs or data to that path with its own privileges; No permission or path validation\n  Why: Caller controls the destination, so it can overwrite private app files or direct sensitive output to a location it can read.\n  Not a finding when: Component not exported or guarded by signature permission; Path forced into an app-controlled directory after canonicalization\n  Severity: High when overwrite of private files or sensitive dump is possible.\n  Example: File out = new File(intent.getStringExtra(<extraKey>)); write(out, <data>);\n\n- L05 Weak <name> URL validation before WebView load (CWE-601, MASVS-PLATFORM)\n  Applies to: Activity, WebView; APIs: Uri.getHost, String.endsWith, WebView.loadUrl, getQueryParameter\n  Look for: Host check uses endsWith or contains without a leading dot; Browsable <name> parameter passed to WebView.loadUrl; Scheme not restricted to https\n  Why: Look-alike domains pass the check, so attacker pages load in a privileged WebView, exposing JS and file-access settings.\n  Not a finding when: Exact host equality against an allowlist with https enforced; WebView has JS and file access disabled and no bridges\n  Severity: Medium; high if the WebView is privileged.\n  Example: if (uri.getHost().endsWith(<domain>)) webView.loadUrl(uri.toString());\n\n- L06 Insecure WebView settings with intent-controlled URL (CWE-749, MASVS-PLATFORM)\n  Applies to: Activity, WebView; APIs: setJavaScriptEnabled, setAllowFileAccessFromFileURLs, setAllowUniversalAccessFromFileURLs, WebView.loadUrl\n  Look for: JavaScript enabled together with file-URL access flags; URL read from intent extra or <name>; file: scheme not rejected\n  Why: A file: page can run script and read other local files, including private app data, then exfiltrate them.\n  Not a finding when: Only fixed trusted content is loaded, never intent input; File-access flags are false and scheme is restricted to https\n  Severity: High when URL is attacker-reachable.\n\n- L07 <Class> parameter overwrites trusted endpoint setting (CWE-345, MASVS-AUTH)\n  Applies to: Activity; APIs: Uri.getQueryParameter, SharedPreferences.Editor.putString, Intent.getData\n  Look for: Browsable <name> persists a URL parameter into config or prefs; Stored value later used as a credentials-submission endpoint; No allowlist or user confirmation\n  Why: A crafted link redirects subsequent authenticated requests to an attacker server, leaking credentials.\n  Not a finding when: URL validated against a fixed allowlist of hosts; Setting is only available in non-release builds\n  Severity: High when credentials or tokens are sent to the URL.\n\n- L08 Dynamic code loading from untrusted location or package (CWE-94, MASVS-CODE)\n  Applies to: Application, Service, Activity; APIs: DexClassLoader, PathClassLoader, createPackageContext, CONTEXT_INCLUDE_CODE\n  Look for: DexClassLoader path on external storage or world-writable directory; createPackageContext with CONTEXT_INCLUDE_CODE chosen by package name prefix; No signature or hash verification before loading\n  Why: Another app can plant a file or install a matching package, so its code runs in this app's process and with its permissions.\n  Not a finding when: Code is signature-verified or loaded from app-private storage; Package must match a pinned signing certificate\n  Severity: High for external storage; medium for name-prefix plugin loading.\n  Example: new DexClassLoader(<externalPath>, <optDir>, null, getClassLoader()).loadClass(<name>);\n\n- L09 Unsafe deserialization with side effects or arbitrary classes (CWE-502, MASVS-CODE)\n  Applies to: Serializable, Parcelable, Activity, Service; APIs: readObject, Parcelable.Creator, Class.forName, Gson.fromJson\n  Look for: readObject performs file deletion or other actions using stream data; Parcel constructor reads class name then Class.forName and fromJson; Serializable or Parcelable extra read from an exported component\n  Why: Attacker-crafted extras trigger the side effects or instantiate arbitrary classes during unparcelling, giving file deletion or gadget execution.\n  Not a finding when: Class never reachable from untrusted input; Class name checked against a fixed allowlist\n  Severity: Medium; high if exported entry reaches a destructive gadget.\n\n- L10 Credentials or tokens sent over cleartext HTTP (CWE-319, MASVS-NETWORK)\n  Applies to: Application, Activity; APIs: Retrofit.Builder.baseUrl, HttpURLConnection, usesCleartextTraffic, network-security-config\n  Look for: http:// base URL used for <name> or token requests; Token placed in a query string; No network security config blocking cleartext\n  Why: A network attacker can read or modify traffic and capture credentials or tokens.\n  Not a finding when: Non-sensitive public content only; Cleartext blocked by config and URL is https at runtime\n  Severity: High for credentials; medium for derived tokens.\n  Example: new Retrofit.Builder().baseUrl(\"http://<host>/\")\n\n- L11 Sensitive data in implicit broadcast or implicit intent (CWE-927, MASVS-PLATFORM)\n  Applies to: Activity, BroadcastReceiver; APIs: sendBroadcast, startActivity, Intent.putExtra, setPackage\n  Look for: sendBroadcast with credential extras and no receiver permission; Implicit intent carries token or URL data; No setPackage or component pinning\n  Why: Any app can register a matching receiver or activity and capture the secrets.\n  Not a finding when: Explicit intent or setPackage to own app; Broadcast guarded by a signature permission\n  Severity: Medium to high depending on secret sensitivity.\n\n- L12 Secrets stored or logged in plaintext (CWE-312, MASVS-STORAGE)\n  Applies to: Activity, Service, Application; APIs: Log.d, SharedPreferences.Editor.putString, toString\n  Look for: Log calls on objects whose toString contains password or token; Password saved to SharedPreferences without encryption; Log dumped to files by a service\n  Why: Other apps with log access, backups or device access can read the secrets; logs may be dumped to readable files.\n  Not a finding when: Value is non-sensitive or redacted; Stored via Keystore-backed encryption\n  Severity: Medium; higher if the secret is easily extracted.\n\n- L13 Hardcoded keys and weak cipher modes (CWE-321, MASVS-CRYPTO)\n  Applies to: Crypto helper; APIs: Cipher.getInstance, SecretKeySpec\n  Look for: SecretKeySpec built from a string constant; Cipher.getInstance(\"<String>\") with no mode; ECB mode, or static IV\n  Why: Constant keys can be extracted from the APK to decrypt any protected data. ECB leaks patterns and offers no integrity.\n  Not a finding when: Key is generated at runtime in Android Keystore; Constant is unrelated to protecting sensitive data\n  Severity: Medium; high if it protects credentials.\n  Example: new SecretKeySpec(<CONST>.getBytes(), \"<String>\"); Cipher.getInstance(\"<String>\");\n\n- L14 Debuggable build with backup enabled (CWE-1188, MASVS-RESILIENCE)\n  Applies to: Application manifest; APIs: android:debuggable, android:allowBackup, adb backup, run-as\n  Look for: android:debuggable=\"true\" in release manifest; android:allowBackup=\"true\" without backup rules; App stores sensitive data in private storage\n  Why: Debugger, run-as or adb backup lets someone with device access extract private data and tamper with app execution.\n  Not a finding when: Debug-only build variant not shipped; Backup rules exclude sensitive files\n  Severity: Medium; higher when sensitive data is stored unencrypted.\n\n- L15 Hardcoded credentials in resources (CWE-522, MASVS-AUTH)\n  Applies to: Resource, Application; APIs: res/values/strings.xml, Resources.getString\n  Look for: URL with user:pass@ embedded in resources; Password or API secret strings in strings.xml; Dev or test endpoint credentials\n  Why: Anyone can unpack the APK and read the credentials, possibly gaining access to backend or dev systems.\n  Not a finding when: Placeholder or revoked credentials; Value is a public non-secret identifier\n  Severity: Low to high depending on what the credential grants.\n  Example: <string name=<n>>https://<user>:<pass>@<host></string>",
+  "guidance_tokens" : 3106
+}

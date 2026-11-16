@@ -1,0 +1,402 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Scan report: ovaa</title>
+<style>
+  :root {
+    --bg: #f7f7f5; --panel: #ffffff; --text: #1d1d1b; --muted: #6b6b66; --line: #e3e2dd;
+    --accent: #3b5bdb; --teacher: #868e96;
+    --hit: #2b8a3e; --hit-bg: #d3f9d8; --partial: #b07d00; --partial-bg: #fff3bf;
+    --unc: #5f3dc4; --unc-bg: #e5dbff; --miss: #868e96; --miss-bg: #f1f3f5;
+    --code-bg: #f1f0ec;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #161615; --panel: #1f1f1d; --text: #ecebe6; --muted: #a3a29b; --line: #34332f;
+      --accent: #7c95f5; --teacher: #a5adb5;
+      --hit: #8ce99a; --hit-bg: #1f3b26; --partial: #ffd43b; --partial-bg: #3d3416;
+      --unc: #b197fc; --unc-bg: #2f2552; --miss: #909296; --miss-bg: #2a2a28;
+      --code-bg: #262623;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  main { max-width: 1040px; margin: 0 auto; padding: 24px 16px 64px; }
+  h1 { font-size: 26px; margin: 0 0 4px; }
+  h2 { font-size: 19px; margin: 36px 0 12px; padding-bottom: 6px; border-bottom: 1px solid var(--line); }
+  h3 { font-size: 15px; margin: 20px 0 8px; }
+  .muted { color: var(--muted); }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px; margin: 12px 0; }
+  .banner { border-left: 4px solid var(--partial); }
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+  .kpi .v { font-size: 26px; font-weight: 650; }
+  .kpi .l { color: var(--muted); font-size: 13px; }
+  .bar-row { display: grid; grid-template-columns: minmax(120px, 210px) 1fr 70px; gap: 10px; align-items: center; margin: 8px 0; }
+  .bar { position: relative; height: 18px; background: var(--miss-bg); border-radius: 4px; overflow: hidden; }
+  .bar .len { position: absolute; inset: 0 auto 0 0; background: var(--accent); opacity: .25; }
+  .bar .str { position: absolute; inset: 0 auto 0 0; background: var(--accent); }
+  .bar.teacher .str, .bar.teacher .len { background: var(--teacher); }
+  .bar-row .val { font-variant-numeric: tabular-nums; text-align: right; font-size: 13px; }
+  .scroll { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; font-size: 14px; }
+  th, td { text-align: left; padding: 7px 9px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; font-size: 13px; }
+  td.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  td.c { text-align: center; font-weight: 650; border-radius: 4px; white-space: nowrap; }
+  td.hit { color: var(--hit); background: var(--hit-bg); }
+  td.partial { color: var(--partial); background: var(--partial-bg); }
+  td.uncredited { color: var(--unc); background: var(--unc-bg); }
+  td.miss { color: var(--miss); background: var(--miss-bg); }
+  .legend span { display: inline-block; padding: 1px 8px; border-radius: 4px; margin-right: 6px; font-size: 13px; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px; }
+  .card h4 { margin: 0 0 6px; font-size: 15px; }
+  .tag { display: inline-block; font-size: 12px; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 0 8px; }
+  .card ul { margin: 6px 0; padding-left: 18px; }
+  pre, code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12.5px; }
+  pre { background: var(--code-bg); padding: 10px; border-radius: 6px; overflow-x: auto; white-space: pre-wrap; }
+  details { margin: 10px 0; }
+  summary { cursor: pointer; font-weight: 600; }
+  ul.plain { padding-left: 18px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Scan report: ovaa</h1>
+  <div class="muted">Run <code>2026-11-15T1429_ovaa_f76a7263</code> · profile <code>assignment</code> · every number is read from this run folder</div>
+
+  <div class="panel banner"><strong>No ground truth for this app.</strong> The teacher's verified findings are the reference, so every number is <em>agreement with teacher</em>, not recall. The lessons come from the same findings, so the comparison favours the with-lessons arm. Teacher ceiling and precision are omitted.</div>
+
+  <h2>1. Core result</h2>
+  <p>Headline: how many of the teacher&#39;s verified findings the student also reports, before and after the lessons.</p>
+  <div class="panel">
+    <div class="bar-row">
+      <div>student baseline</div>
+      <div class="bar " title="strict 67% · lenient 71%">
+        <div class="len" style="width: 71%"></div><div class="str" style="width: 67%"></div>
+      </div>
+      <div class="val">14/21 (67%)</div>
+    </div>
+    <div class="bar-row">
+      <div>student with lessons</div>
+      <div class="bar " title="strict 81% · lenient 86%">
+        <div class="len" style="width: 86%"></div><div class="str" style="width: 81%"></div>
+      </div>
+      <div class="val">17/21 (81%)</div>
+    </div>
+    <div class="muted" style="font-size: 13px; margin-top: 6px;">Solid: strict recall (judge said "match"). Faded extension: lenient (also "partial").</div>
+  </div>
+  <div class="panel"><strong>Lift: +14.3 points of agreement with teacher (14/21 (67%) → 17/21 (81%), strict, verified). One run per arm: LLM output varies between runs, so a lift of one or two items is within run-to-run noise; small N, not a significance test.</strong></div>
+
+  <div class="scroll"><table>
+    <tr><th>Arm</th><th>Model</th><th>Agreement with teacher (strict, verified)</th><th>Lenient</th><th>Incl. unverified</th><th>Findings (verified / total)</th></tr>
+    <tr><td>student baseline</td><td><code>qwen/qwen3.8-27b</code></td><td class="num"><strong>14/21 (67%)</strong></td><td class="num">15/21 (71%)</td><td class="num">14/21 (67%)</td><td class="num">15 / 15</td></tr>
+    <tr><td>student with lessons</td><td><code>qwen/qwen3.8-27b</code></td><td class="num"><strong>17/21 (81%)</strong></td><td class="num">18/21 (86%)</td><td class="num">19/21 (90%)</td><td class="num">18 / 20</td></tr>
+  </table></div>
+  <p class="muted" style="font-size: 13px;">One-to-one assignment (Hungarian): each reference item is credited to at most one finding and each finding counts for at most one item. Precision counts findings that match any item over verified findings; unmatched findings are not necessarily false positives.</p>
+
+  <h3>Per item (teacher findings, 21 items)</h3>
+  <div class="legend muted"><span style="background: var(--hit-bg); color: var(--hit);">✓ match</span><span style="background: var(--unc-bg); color: var(--unc);">◐ matched, credited elsewhere</span><span style="background: var(--partial-bg); color: var(--partial);">~ partial</span><span style="background: var(--miss-bg); color: var(--miss);">· not found</span></div>
+  <div class="scroll"><table>
+    <tr><th>Item</th><th>Title</th><th>Static visibility</th><th>student baseline</th><th>student with lessons</th></tr>
+    <tr><td>T-01</td><td>Exported provider opens arbitrary files via an unvalidated path segment, with read/write</td><td class="muted">full</td><td class="c hit">✓</td><td class="c hit">✓</td></tr>
+    <tr><td>T-02</td><td>Exported service writes logcat to a caller-supplied path</td><td class="muted">full</td><td class="c hit">✓</td><td class="c hit">✓</td></tr>
+    <tr><td>T-03</td><td>Exported LoginActivity starts an attacker-supplied intent</td><td class="muted">full</td><td class="c hit">✓</td><td class="c hit">✓</td></tr>
+    <tr><td>T-04</td><td>Credentials sent over cleartext HTTP</td><td class="muted">full</td><td class="c hit">✓</td><td class="c hit">✓</td></tr>
+    <tr><td>T-05</td><td>Credentials sent in an implicit broadcast with no permission</td><td class="muted">full</td><td class="c hit">✓</td><td class="c hit">✓</td></tr>
+    <tr><td>T-06</td><td>Credentials written to logcat</td><td class="muted">full</td><td class="c partial">~</td><td class="c partial">~</td></tr>
+    <tr><td>T-07</td><td>Deeplink can set the login URL to an attacker server</td><td class="muted">full</td><td class="c hit">✓</td><td class="c hit">✓</td></tr>
+    <tr><td>T-08</td><td>Hardcoded credentials in a URL resource</td><td class="muted">full</td><td class="c hit">✓</td><td class="c hit">✓</td></tr>
+    <tr><td>T-09</td><td>Credential token sent in a URL over HTTP</td><td class="muted">full</td><td class="c miss">·</td><td class="c miss">·</td></tr>
+    <tr><td>T-10</td><td>Hardcoded AES key</td><td class="muted">full</td><td class="c hit">✓</td><td class="c hit">✓</td></tr>
+    <tr><td>T-11</td><td>Parcelable instantiates an attacker-chosen class from a Parcel string</td><td class="muted">full</td><td class="c miss">·</td><td class="c hit">✓</td></tr>
+    <tr><td>T-12</td><td>Plugin code loaded from any package matching a name prefix</td><td class="muted">full</td><td class="c hit">✓</td><td class="c hit">✓</td></tr>
+    <tr><td>T-13</td><td>Deeplink WebView URL check bypassable via endsWith suffix</td><td class="muted">full</td><td class="c miss">·</td><td class="c hit">✓</td></tr>
+    <tr><td>T-14</td><td>DexClassLoader loads code from world-writable /sdcard/updater.apk</td><td class="muted">full</td><td class="c hit">✓</td><td class="c hit">✓</td></tr>
+    <tr><td>T-15</td><td>Password stored in plaintext SharedPreferences</td><td class="muted">full</td><td class="c hit">✓</td><td class="c hit">✓</td></tr>
+    <tr><td>T-16</td><td>AES used with the default ECB mode</td><td class="muted">full</td><td class="c miss">·</td><td class="c hit">✓</td></tr>
+    <tr><td>T-17</td><td>Serializable deletes files named in the stream on deserialization</td><td class="muted">full</td><td class="c miss">·</td><td class="c hit">✓</td></tr>
+    <tr><td>T-18</td><td>FileProvider exposes the entire filesystem root</td><td class="muted">full</td><td class="c hit">✓</td><td class="c miss">·</td></tr>
+    <tr><td>T-19</td><td>Result from an implicit intent is reflected to the caller, leaking URI grants</td><td class="muted">full</td><td class="c miss">·</td><td class="c hit">✓</td></tr>
+    <tr><td>T-20</td><td>WebView with JS and file access from file URLs loads intent URL</td><td class="muted">full</td><td class="c hit">✓</td><td class="c hit">✓</td></tr>
+    <tr><td>T-21</td><td>Application is debuggable and allows backup</td><td class="muted">full</td><td class="c hit">✓</td><td class="c miss">·</td></tr>
+  </table></div>
+
+  <h2>2. Lessons</h2>
+  <p>15 lessons kept after sanitising, distilled in one teacher call from 21 verified teacher findings; 15 selected for the student (3106 tokens, within the reserved budget).</p>
+  <div class="cards">
+    <div class="panel card">
+      <h4>L01 · Exported component launches attacker-supplied Intent (intent redirection)</h4>
+      <span class="tag">CWE-926 MASVS-PLATFORM</span>
+      <div style="margin-top: 8px;"><strong>Look for</strong><ul><li>Exported component reads an Intent parcelable extra and passes it to startActivity</li><li>Implicit-intent result passed back unchanged via setResult(resultCode, data)</li><li>No check of target component or grant flags on the nested intent</li></ul></div>
+      <div><strong>Why</strong> The nested intent runs with the app&#39;s identity, reaching non-exported components or granting URI permissions on private providers. Reflecting a foreign result passes grants through to the caller.</div>
+      <div style="margin-top: 6px;"><strong>Not a finding when</strong><ul><li>Nested intent&#39;s component is fixed and flags are cleared before launch</li><li>Component is not exported and only receives intents from trusted callers</li></ul></div>
+      
+    </div>
+    <div class="panel card">
+      <h4>L02 · FileProvider paths expose root or private storage</h4>
+      <span class="tag">CWE-552 MASVS-PLATFORM</span>
+      <div style="margin-top: 8px;"><strong>Look for</strong><ul><li>provider_paths XML has &lt;root-path&gt; or path&#x3D;&quot;/&quot; or &quot;.&quot;</li><li>FileProvider has grantUriPermissions&#x3D;&quot;true&quot;</li><li>A redirection or result-reflection primitive can grant its URIs</li></ul></div>
+      <div><strong>Why</strong> A broad path mapping lets any granted content URI address any file the app can read, including private data. Combined with intent redirection, the attacker obtains the grant.</div>
+      <div style="margin-top: 6px;"><strong>Not a finding when</strong><ul><li>Paths limited to a dedicated shared subdirectory holding no sensitive files</li><li>No code path lets untrusted callers obtain grants</li></ul></div>
+      
+    </div>
+    <div class="panel card">
+      <h4>L03 · Exported provider path traversal with file access</h4>
+      <span class="tag">CWE-22 MASVS-PLATFORM</span>
+      <div style="margin-top: 8px;"><strong>Look for</strong><ul><li>Exported provider without permission overrides openFile</li><li>File built from Uri.getLastPathSegment or getPath without canonicalization</li><li>Open mode permits write or create</li></ul></div>
+      <div><strong>Why</strong> URL-decoded ../ in the URI escapes the intended directory. Any app can read or overwrite files the victim can access, including private data.</div>
+      <div style="margin-top: 6px;"><strong>Not a finding when</strong><ul><li>Provider protected by signature permission or not exported</li><li>Canonical path verified to be under an allowed base directory</li></ul></div>
+      
+    </div>
+    <div class="panel card">
+      <h4>L04 · Exported service writes to caller-chosen file path</h4>
+      <span class="tag">CWE-73 MASVS-PLATFORM</span>
+      <div style="margin-top: 8px;"><strong>Look for</strong><ul><li>Exported component takes file path string from intent extra</li><li>Component writes logs or data to that path with its own privileges</li><li>No permission or path validation</li></ul></div>
+      <div><strong>Why</strong> Caller controls the destination, so it can overwrite private app files or direct sensitive output to a location it can read.</div>
+      <div style="margin-top: 6px;"><strong>Not a finding when</strong><ul><li>Component not exported or guarded by signature permission</li><li>Path forced into an app-controlled directory after canonicalization</li></ul></div>
+      <pre>File out &#x3D; new File(intent.getStringExtra(&lt;extraKey&gt;)); write(out, &lt;data&gt;);</pre>
+    </div>
+    <div class="panel card">
+      <h4>L05 · Weak &lt;name&gt; URL validation before WebView load</h4>
+      <span class="tag">CWE-601 MASVS-PLATFORM</span>
+      <div style="margin-top: 8px;"><strong>Look for</strong><ul><li>Host check uses endsWith or contains without a leading dot</li><li>Browsable &lt;name&gt; parameter passed to WebView.loadUrl</li><li>Scheme not restricted to https</li></ul></div>
+      <div><strong>Why</strong> Look-alike domains pass the check, so attacker pages load in a privileged WebView, exposing JS and file-access settings.</div>
+      <div style="margin-top: 6px;"><strong>Not a finding when</strong><ul><li>Exact host equality against an allowlist with https enforced</li><li>WebView has JS and file access disabled and no bridges</li></ul></div>
+      <pre>if (uri.getHost().endsWith(&lt;domain&gt;)) webView.loadUrl(uri.toString());</pre>
+    </div>
+    <div class="panel card">
+      <h4>L06 · Insecure WebView settings with intent-controlled URL</h4>
+      <span class="tag">CWE-749 MASVS-PLATFORM</span>
+      <div style="margin-top: 8px;"><strong>Look for</strong><ul><li>JavaScript enabled together with file-URL access flags</li><li>URL read from intent extra or &lt;name&gt;</li><li>file: scheme not rejected</li></ul></div>
+      <div><strong>Why</strong> A file: page can run script and read other local files, including private app data, then exfiltrate them.</div>
+      <div style="margin-top: 6px;"><strong>Not a finding when</strong><ul><li>Only fixed trusted content is loaded, never intent input</li><li>File-access flags are false and scheme is restricted to https</li></ul></div>
+      
+    </div>
+    <div class="panel card">
+      <h4>L07 · &lt;Class&gt; parameter overwrites trusted endpoint setting</h4>
+      <span class="tag">CWE-345 MASVS-AUTH</span>
+      <div style="margin-top: 8px;"><strong>Look for</strong><ul><li>Browsable &lt;name&gt; persists a URL parameter into config or prefs</li><li>Stored value later used as a credentials-submission endpoint</li><li>No allowlist or user confirmation</li></ul></div>
+      <div><strong>Why</strong> A crafted link redirects subsequent authenticated requests to an attacker server, leaking credentials.</div>
+      <div style="margin-top: 6px;"><strong>Not a finding when</strong><ul><li>URL validated against a fixed allowlist of hosts</li><li>Setting is only available in non-release builds</li></ul></div>
+      
+    </div>
+    <div class="panel card">
+      <h4>L08 · Dynamic code loading from untrusted location or package</h4>
+      <span class="tag">CWE-94 MASVS-CODE</span>
+      <div style="margin-top: 8px;"><strong>Look for</strong><ul><li>DexClassLoader path on external storage or world-writable directory</li><li>createPackageContext with CONTEXT_INCLUDE_CODE chosen by package name prefix</li><li>No signature or hash verification before loading</li></ul></div>
+      <div><strong>Why</strong> Another app can plant a file or install a matching package, so its code runs in this app&#39;s process and with its permissions.</div>
+      <div style="margin-top: 6px;"><strong>Not a finding when</strong><ul><li>Code is signature-verified or loaded from app-private storage</li><li>Package must match a pinned signing certificate</li></ul></div>
+      <pre>new DexClassLoader(&lt;externalPath&gt;, &lt;optDir&gt;, null, getClassLoader()).loadClass(&lt;name&gt;);</pre>
+    </div>
+    <div class="panel card">
+      <h4>L09 · Unsafe deserialization with side effects or arbitrary classes</h4>
+      <span class="tag">CWE-502 MASVS-CODE</span>
+      <div style="margin-top: 8px;"><strong>Look for</strong><ul><li>readObject performs file deletion or other actions using stream data</li><li>Parcel constructor reads class name then Class.forName and fromJson</li><li>Serializable or Parcelable extra read from an exported component</li></ul></div>
+      <div><strong>Why</strong> Attacker-crafted extras trigger the side effects or instantiate arbitrary classes during unparcelling, giving file deletion or gadget execution.</div>
+      <div style="margin-top: 6px;"><strong>Not a finding when</strong><ul><li>Class never reachable from untrusted input</li><li>Class name checked against a fixed allowlist</li></ul></div>
+      
+    </div>
+    <div class="panel card">
+      <h4>L10 · Credentials or tokens sent over cleartext HTTP</h4>
+      <span class="tag">CWE-319 MASVS-NETWORK</span>
+      <div style="margin-top: 8px;"><strong>Look for</strong><ul><li>http:// base URL used for &lt;name&gt; or token requests</li><li>Token placed in a query string</li><li>No network security config blocking cleartext</li></ul></div>
+      <div><strong>Why</strong> A network attacker can read or modify traffic and capture credentials or tokens.</div>
+      <div style="margin-top: 6px;"><strong>Not a finding when</strong><ul><li>Non-sensitive public content only</li><li>Cleartext blocked by config and URL is https at runtime</li></ul></div>
+      <pre>new Retrofit.Builder().baseUrl(&quot;http://&lt;host&gt;/&quot;)</pre>
+    </div>
+    <div class="panel card">
+      <h4>L11 · Sensitive data in implicit broadcast or implicit intent</h4>
+      <span class="tag">CWE-927 MASVS-PLATFORM</span>
+      <div style="margin-top: 8px;"><strong>Look for</strong><ul><li>sendBroadcast with credential extras and no receiver permission</li><li>Implicit intent carries token or URL data</li><li>No setPackage or component pinning</li></ul></div>
+      <div><strong>Why</strong> Any app can register a matching receiver or activity and capture the secrets.</div>
+      <div style="margin-top: 6px;"><strong>Not a finding when</strong><ul><li>Explicit intent or setPackage to own app</li><li>Broadcast guarded by a signature permission</li></ul></div>
+      
+    </div>
+    <div class="panel card">
+      <h4>L12 · Secrets stored or logged in plaintext</h4>
+      <span class="tag">CWE-312 MASVS-STORAGE</span>
+      <div style="margin-top: 8px;"><strong>Look for</strong><ul><li>Log calls on objects whose toString contains password or token</li><li>Password saved to SharedPreferences without encryption</li><li>Log dumped to files by a service</li></ul></div>
+      <div><strong>Why</strong> Other apps with log access, backups or device access can read the secrets; logs may be dumped to readable files.</div>
+      <div style="margin-top: 6px;"><strong>Not a finding when</strong><ul><li>Value is non-sensitive or redacted</li><li>Stored via Keystore-backed encryption</li></ul></div>
+      
+    </div>
+    <div class="panel card">
+      <h4>L13 · Hardcoded keys and weak cipher modes</h4>
+      <span class="tag">CWE-321 MASVS-CRYPTO</span>
+      <div style="margin-top: 8px;"><strong>Look for</strong><ul><li>SecretKeySpec built from a string constant</li><li>Cipher.getInstance(&quot;&lt;String&gt;&quot;) with no mode</li><li>ECB mode, or static IV</li></ul></div>
+      <div><strong>Why</strong> Constant keys can be extracted from the APK to decrypt any protected data. ECB leaks patterns and offers no integrity.</div>
+      <div style="margin-top: 6px;"><strong>Not a finding when</strong><ul><li>Key is generated at runtime in Android Keystore</li><li>Constant is unrelated to protecting sensitive data</li></ul></div>
+      <pre>new SecretKeySpec(&lt;CONST&gt;.getBytes(), &quot;&lt;String&gt;&quot;); Cipher.getInstance(&quot;&lt;String&gt;&quot;);</pre>
+    </div>
+    <div class="panel card">
+      <h4>L14 · Debuggable build with backup enabled</h4>
+      <span class="tag">CWE-1188 MASVS-RESILIENCE</span>
+      <div style="margin-top: 8px;"><strong>Look for</strong><ul><li>android:debuggable&#x3D;&quot;true&quot; in release manifest</li><li>android:allowBackup&#x3D;&quot;true&quot; without backup rules</li><li>App stores sensitive data in private storage</li></ul></div>
+      <div><strong>Why</strong> Debugger, run-as or adb backup lets someone with device access extract private data and tamper with app execution.</div>
+      <div style="margin-top: 6px;"><strong>Not a finding when</strong><ul><li>Debug-only build variant not shipped</li><li>Backup rules exclude sensitive files</li></ul></div>
+      
+    </div>
+    <div class="panel card">
+      <h4>L15 · Hardcoded credentials in resources</h4>
+      <span class="tag">CWE-522 MASVS-AUTH</span>
+      <div style="margin-top: 8px;"><strong>Look for</strong><ul><li>URL with user:pass@ embedded in resources</li><li>Password or API secret strings in strings.xml</li><li>Dev or test endpoint credentials</li></ul></div>
+      <div><strong>Why</strong> Anyone can unpack the APK and read the credentials, possibly gaining access to backend or dev systems.</div>
+      <div style="margin-top: 6px;"><strong>Not a finding when</strong><ul><li>Placeholder or revoked credentials</li><li>Value is a public non-secret identifier</li></ul></div>
+      <pre>&lt;string name&#x3D;&lt;n&gt;&gt;https://&lt;user&gt;:&lt;pass&gt;@&lt;host&gt;&lt;/string&gt;</pre>
+    </div>
+  </div>
+  <details><summary>Guidance block exactly as the student saw it</summary><pre>- L01 Exported component launches attacker-supplied Intent (intent redirection) (CWE-926, MASVS-PLATFORM)
+  Applies to: Activity, Service, BroadcastReceiver; APIs: getParcelableExtra, IntentCompat.getParcelableExtra, startActivity, setResult
+  Look for: Exported component reads an Intent parcelable extra and passes it to startActivity; Implicit-intent result passed back unchanged via setResult(resultCode, data); No check of target component or grant flags on the nested intent
+  Why: The nested intent runs with the app&#39;s identity, reaching non-exported components or granting URI permissions on private providers. Reflecting a foreign result passes grants through to the caller.
+  Not a finding when: Nested intent&#39;s component is fixed and flags are cleared before launch; Component is not exported and only receives intents from trusted callers
+  Severity: High when non-exported components or providers are reachable; medium otherwise.
+
+- L02 FileProvider paths expose root or private storage (CWE-552, MASVS-PLATFORM)
+  Applies to: ContentProvider, FileProvider; APIs: FileProvider, root-path, grantUriPermissions, FileProvider.getUriForFile
+  Look for: provider_paths XML has &lt;root-path&gt; or path&#x3D;&quot;/&quot; or &quot;.&quot;; FileProvider has grantUriPermissions&#x3D;&quot;true&quot;; A redirection or result-reflection primitive can grant its URIs
+  Why: A broad path mapping lets any granted content URI address any file the app can read, including private data. Combined with intent redirection, the attacker obtains the grant.
+  Not a finding when: Paths limited to a dedicated shared subdirectory holding no sensitive files; No code path lets untrusted callers obtain grants
+  Severity: High when a grant path exists; medium as standalone misconfiguration.
+
+- L03 Exported provider path traversal with file access (CWE-22, MASVS-PLATFORM)
+  Applies to: ContentProvider; APIs: ContentProvider.openFile, Uri.getLastPathSegment, ParcelFileDescriptor.open, new File
+  Look for: Exported provider without permission overrides openFile; File built from Uri.getLastPathSegment or getPath without canonicalization; Open mode permits write or create
+  Why: URL-decoded ../ in the URI escapes the intended directory. Any app can read or overwrite files the victim can access, including private data.
+  Not a finding when: Provider protected by signature permission or not exported; Canonical path verified to be under an allowed base directory
+  Severity: High, especially with write mode or private data reachable.
+
+- L04 Exported service writes to caller-chosen file path (CWE-73, MASVS-PLATFORM)
+  Applies to: Service, Activity, BroadcastReceiver; APIs: Intent.getExtras, new File, FileOutputStream, Runtime.exec
+  Look for: Exported component takes file path string from intent extra; Component writes logs or data to that path with its own privileges; No permission or path validation
+  Why: Caller controls the destination, so it can overwrite private app files or direct sensitive output to a location it can read.
+  Not a finding when: Component not exported or guarded by signature permission; Path forced into an app-controlled directory after canonicalization
+  Severity: High when overwrite of private files or sensitive dump is possible.
+  Example: File out &#x3D; new File(intent.getStringExtra(&lt;extraKey&gt;)); write(out, &lt;data&gt;);
+
+- L05 Weak &lt;name&gt; URL validation before WebView load (CWE-601, MASVS-PLATFORM)
+  Applies to: Activity, WebView; APIs: Uri.getHost, String.endsWith, WebView.loadUrl, getQueryParameter
+  Look for: Host check uses endsWith or contains without a leading dot; Browsable &lt;name&gt; parameter passed to WebView.loadUrl; Scheme not restricted to https
+  Why: Look-alike domains pass the check, so attacker pages load in a privileged WebView, exposing JS and file-access settings.
+  Not a finding when: Exact host equality against an allowlist with https enforced; WebView has JS and file access disabled and no bridges
+  Severity: Medium; high if the WebView is privileged.
+  Example: if (uri.getHost().endsWith(&lt;domain&gt;)) webView.loadUrl(uri.toString());
+
+- L06 Insecure WebView settings with intent-controlled URL (CWE-749, MASVS-PLATFORM)
+  Applies to: Activity, WebView; APIs: setJavaScriptEnabled, setAllowFileAccessFromFileURLs, setAllowUniversalAccessFromFileURLs, WebView.loadUrl
+  Look for: JavaScript enabled together with file-URL access flags; URL read from intent extra or &lt;name&gt;; file: scheme not rejected
+  Why: A file: page can run script and read other local files, including private app data, then exfiltrate them.
+  Not a finding when: Only fixed trusted content is loaded, never intent input; File-access flags are false and scheme is restricted to https
+  Severity: High when URL is attacker-reachable.
+
+- L07 &lt;Class&gt; parameter overwrites trusted endpoint setting (CWE-345, MASVS-AUTH)
+  Applies to: Activity; APIs: Uri.getQueryParameter, SharedPreferences.Editor.putString, Intent.getData
+  Look for: Browsable &lt;name&gt; persists a URL parameter into config or prefs; Stored value later used as a credentials-submission endpoint; No allowlist or user confirmation
+  Why: A crafted link redirects subsequent authenticated requests to an attacker server, leaking credentials.
+  Not a finding when: URL validated against a fixed allowlist of hosts; Setting is only available in non-release builds
+  Severity: High when credentials or tokens are sent to the URL.
+
+- L08 Dynamic code loading from untrusted location or package (CWE-94, MASVS-CODE)
+  Applies to: Application, Service, Activity; APIs: DexClassLoader, PathClassLoader, createPackageContext, CONTEXT_INCLUDE_CODE
+  Look for: DexClassLoader path on external storage or world-writable directory; createPackageContext with CONTEXT_INCLUDE_CODE chosen by package name prefix; No signature or hash verification before loading
+  Why: Another app can plant a file or install a matching package, so its code runs in this app&#39;s process and with its permissions.
+  Not a finding when: Code is signature-verified or loaded from app-private storage; Package must match a pinned signing certificate
+  Severity: High for external storage; medium for name-prefix plugin loading.
+  Example: new DexClassLoader(&lt;externalPath&gt;, &lt;optDir&gt;, null, getClassLoader()).loadClass(&lt;name&gt;);
+
+- L09 Unsafe deserialization with side effects or arbitrary classes (CWE-502, MASVS-CODE)
+  Applies to: Serializable, Parcelable, Activity, Service; APIs: readObject, Parcelable.Creator, Class.forName, Gson.fromJson
+  Look for: readObject performs file deletion or other actions using stream data; Parcel constructor reads class name then Class.forName and fromJson; Serializable or Parcelable extra read from an exported component
+  Why: Attacker-crafted extras trigger the side effects or instantiate arbitrary classes during unparcelling, giving file deletion or gadget execution.
+  Not a finding when: Class never reachable from untrusted input; Class name checked against a fixed allowlist
+  Severity: Medium; high if exported entry reaches a destructive gadget.
+
+- L10 Credentials or tokens sent over cleartext HTTP (CWE-319, MASVS-NETWORK)
+  Applies to: Application, Activity; APIs: Retrofit.Builder.baseUrl, HttpURLConnection, usesCleartextTraffic, network-security-config
+  Look for: http:// base URL used for &lt;name&gt; or token requests; Token placed in a query string; No network security config blocking cleartext
+  Why: A network attacker can read or modify traffic and capture credentials or tokens.
+  Not a finding when: Non-sensitive public content only; Cleartext blocked by config and URL is https at runtime
+  Severity: High for credentials; medium for derived tokens.
+  Example: new Retrofit.Builder().baseUrl(&quot;http://&lt;host&gt;/&quot;)
+
+- L11 Sensitive data in implicit broadcast or implicit intent (CWE-927, MASVS-PLATFORM)
+  Applies to: Activity, BroadcastReceiver; APIs: sendBroadcast, startActivity, Intent.putExtra, setPackage
+  Look for: sendBroadcast with credential extras and no receiver permission; Implicit intent carries token or URL data; No setPackage or component pinning
+  Why: Any app can register a matching receiver or activity and capture the secrets.
+  Not a finding when: Explicit intent or setPackage to own app; Broadcast guarded by a signature permission
+  Severity: Medium to high depending on secret sensitivity.
+
+- L12 Secrets stored or logged in plaintext (CWE-312, MASVS-STORAGE)
+  Applies to: Activity, Service, Application; APIs: Log.d, SharedPreferences.Editor.putString, toString
+  Look for: Log calls on objects whose toString contains password or token; Password saved to SharedPreferences without encryption; Log dumped to files by a service
+  Why: Other apps with log access, backups or device access can read the secrets; logs may be dumped to readable files.
+  Not a finding when: Value is non-sensitive or redacted; Stored via Keystore-backed encryption
+  Severity: Medium; higher if the secret is easily extracted.
+
+- L13 Hardcoded keys and weak cipher modes (CWE-321, MASVS-CRYPTO)
+  Applies to: Crypto helper; APIs: Cipher.getInstance, SecretKeySpec
+  Look for: SecretKeySpec built from a string constant; Cipher.getInstance(&quot;&lt;String&gt;&quot;) with no mode; ECB mode, or static IV
+  Why: Constant keys can be extracted from the APK to decrypt any protected data. ECB leaks patterns and offers no integrity.
+  Not a finding when: Key is generated at runtime in Android Keystore; Constant is unrelated to protecting sensitive data
+  Severity: Medium; high if it protects credentials.
+  Example: new SecretKeySpec(&lt;CONST&gt;.getBytes(), &quot;&lt;String&gt;&quot;); Cipher.getInstance(&quot;&lt;String&gt;&quot;);
+
+- L14 Debuggable build with backup enabled (CWE-1188, MASVS-RESILIENCE)
+  Applies to: Application manifest; APIs: android:debuggable, android:allowBackup, adb backup, run-as
+  Look for: android:debuggable&#x3D;&quot;true&quot; in release manifest; android:allowBackup&#x3D;&quot;true&quot; without backup rules; App stores sensitive data in private storage
+  Why: Debugger, run-as or adb backup lets someone with device access extract private data and tamper with app execution.
+  Not a finding when: Debug-only build variant not shipped; Backup rules exclude sensitive files
+  Severity: Medium; higher when sensitive data is stored unencrypted.
+
+- L15 Hardcoded credentials in resources (CWE-522, MASVS-AUTH)
+  Applies to: Resource, Application; APIs: res/values/strings.xml, Resources.getString
+  Look for: URL with user:pass@ embedded in resources; Password or API secret strings in strings.xml; Dev or test endpoint credentials
+  Why: Anyone can unpack the APK and read the credentials, possibly gaining access to backend or dev systems.
+  Not a finding when: Placeholder or revoked credentials; Value is a public non-secret identifier
+  Severity: Low to high depending on what the credential grants.
+  Example: &lt;string name&#x3D;&lt;n&gt;&gt;https://&lt;user&gt;:&lt;pass&gt;@&lt;host&gt;&lt;/string&gt;</pre></details>
+  <p>Sanitiser (redact): 8 term(s) redacted, 9 example(s) removed by the answer-key check, 0 lesson(s) dropped; 0 lesson(s) left out by the count/token caps. Full records: 05_learn/rejected_lessons.json.</p>
+  <details><summary>Sanitiser actions</summary><div class="scroll"><table>
+    <tr><th>Lesson</th><th>Field</th><th>Rule</th><th>Term</th><th>Action</th></tr>
+    <tr><td>L01</td><td>abstract_example</td><td>answer_key_similarity</td><td><code></code></td><td>example_removed</td></tr><tr><td>L02</td><td>abstract_example</td><td>answer_key_similarity</td><td><code></code></td><td>example_removed</td></tr><tr><td>L03</td><td>abstract_example</td><td>answer_key_similarity</td><td><code></code></td><td>example_removed</td></tr><tr><td>L05</td><td>title</td><td>identifier_part</td><td><code>deeplink</code></td><td>redacted</td></tr><tr><td>L05</td><td>signals</td><td>identifier_part</td><td><code>deeplink</code></td><td>redacted</td></tr><tr><td>L06</td><td>abstract_example</td><td>answer_key_similarity</td><td><code></code></td><td>example_removed</td></tr><tr><td>L06</td><td>signals</td><td>identifier_part</td><td><code>deeplink</code></td><td>redacted</td></tr><tr><td>L07</td><td>abstract_example</td><td>answer_key_similarity</td><td><code></code></td><td>example_removed</td></tr><tr><td>L07</td><td>title</td><td>identifier_part</td><td><code>Deeplink</code></td><td>redacted</td></tr><tr><td>L07</td><td>signals</td><td>identifier_part</td><td><code>deeplink</code></td><td>redacted</td></tr><tr><td>L09</td><td>abstract_example</td><td>answer_key_similarity</td><td><code></code></td><td>example_removed</td></tr><tr><td>L10</td><td>signals</td><td>identifier_part</td><td><code>login</code></td><td>redacted</td></tr><tr><td>L11</td><td>abstract_example</td><td>answer_key_similarity</td><td><code></code></td><td>example_removed</td></tr><tr><td>L12</td><td>abstract_example</td><td>answer_key_similarity</td><td><code></code></td><td>example_removed</td></tr><tr><td>L13</td><td>signals</td><td>string_literal</td><td><code>AES</code></td><td>redacted</td></tr><tr><td>L13</td><td>abstract_example</td><td>string_literal</td><td><code>AES</code></td><td>redacted</td></tr><tr><td>L14</td><td>abstract_example</td><td>answer_key_similarity</td><td><code></code></td><td>example_removed</td></tr>
+  </table></div></details>
+
+  <h2>3. Robustness check: README-only vs enriched reference</h2>
+  <p class="muted">Not computed (no enriched ground truth for this app).</p>
+
+  <h2>4. Judge audit</h2>
+  <p>Not run yet for this run: &#x60;vulnscan audit export&#x60; writes blind rows to label, &#x60;vulnscan audit score&#x60; measures agreement.</p>
+
+  <h2>5. Coverage and quality</h2>
+  <div class="scroll"><table>
+    <tr><th>Arm</th><th>Units</th><th>Unit status</th><th>Evidence status</th><th>Bad findings dropped</th></tr>
+    <tr><td>teacher (ceiling)</td><td class="num">1</td><td>ok 1</td><td>verified_exact 21</td><td class="num">0</td></tr><tr><td>student baseline</td><td class="num">1</td><td>ok 1</td><td>verified_exact 15</td><td class="num">0</td></tr><tr><td>student with lessons</td><td class="num">1</td><td>ok 1</td><td>unverified 2, verified_exact 18</td><td class="num">0</td></tr>
+  </table></div>
+  <ul class="plain">
+    <li>Decompilation: jadx 1.5.6, exit code 3 (partial success: output present); 42 failed-method markers in all code, 0 in first-party code.</li>
+    <li>First-party split: 21 of 4119 Java files (prefixes oversecured.ovaa); 1 build-generated files excluded. Largest excluded groups: kotlinx.coroutines (503), androidx.core (400), org.apache (286), androidx.constraintlayout (202), kotlinx.serialization (186).</li>
+    <li>Units: teacher 1 (whole), student 1 (whole).</li>
+    <li>Judge: 38 confirm calls, 0 unparseable answers.</li>
+  </ul>
+
+  <h2>6. Usage</h2>
+  <details><summary>Calls and tokens per model and stage</summary><div class="scroll"><table>
+    <tr><th>Model</th><th>Purpose</th><th>Arm</th><th>Calls billed / cached</th><th>Input tokens</th><th>Output tokens</th><th>Cost</th></tr>
+    <tr><td>student_pollinations</td><td>scan</td><td>student_baseline</td><td class="num">0 / 1</td><td class="num">9579</td><td class="num">3589</td><td class="num">$0.0000</td></tr><tr><td>student_pollinations</td><td>scan</td><td>student_with_lessons</td><td class="num">1 / 0</td><td class="num">12055</td><td class="num">4665</td><td class="num">$0.0000</td></tr><tr><td>teacher</td><td>scan</td><td>teacher</td><td class="num">0 / 1</td><td class="num">17541</td><td class="num">6132</td><td class="num">$0.0000</td></tr><tr><td>teacher</td><td>distill</td><td>distill</td><td class="num">1 / 0</td><td class="num">6098</td><td class="num">5236</td><td class="num">$0.0646</td></tr><tr><td>judge_pollinations</td><td>judge_confirm</td><td>teacher_findings:student_baseline</td><td class="num">17 / 0</td><td class="num">7498</td><td class="num">1566</td><td class="num">$0.0000</td></tr><tr><td>judge_pollinations</td><td>judge_confirm</td><td>teacher_findings:student_with_lessons</td><td class="num">21 / 0</td><td class="num">9082</td><td class="num">1853</td><td class="num">$0.0000</td></tr><tr><td>judge_pollinations</td><td>judge_screen</td><td>teacher_findings:student_baseline</td><td class="num">1 / 0</td><td class="num">3115</td><td class="num">256</td><td class="num">$0.0000</td></tr><tr><td>judge_pollinations</td><td>judge_screen</td><td>teacher_findings:student_with_lessons</td><td class="num">1 / 0</td><td class="num">3555</td><td class="num">331</td><td class="num">$0.0000</td></tr>
+  </table></div></details>
+  <p>Billed in this run: $0.0646. Including calls served from the response cache at their original price: $0.1610. Free-tier models are shown at $0 (tokens are still counted).</p>
+
+  <h2>7. Prompt versions</h2>
+  <div class="scroll"><table>
+    <tr><th>Prompt</th><th>sha256</th></tr>
+    <tr><td><code>distill/v2</code></td><td><code>8d23a5746d60</code></td></tr><tr><td><code>judge_confirm/v1</code></td><td><code>cbbc6bf53622</code></td></tr><tr><td><code>judge_screen/v1</code></td><td><code>0d8f84acdbc7</code></td></tr><tr><td><code>scan/v4</code></td><td><code>7cd4f30371a6</code></td></tr>
+  </table></div>
+  <p class="muted">Prompts were written from the OWASP MASVS categories, not from the ground-truth list, but they were developed and debugged on this app. The scores above are for exactly these versions.</p>
+
+  <h2>8. Limitations</h2>
+  <ul class="plain"><li>The lift is in-sample: lessons are distilled from the same app the student is rescanned on. One app cannot show that the lessons generalise (cross-app transfer is the partial answer).</li><li>Contamination: the evaluation app and its vulnerability list are public; the models may have memorised them.</li><li>Some ingest features (dependency inventory, cloud-identifier patterns) were added after reading the ground-truth list; they are generic, but not chosen blind.</li><li>Prompts were developed on this app (versions and scores are recorded in section 8).</li><li>Ground-truth enrichment is the author&#39;s own labelling (mitigated: written and committed before any scan, README-only headline, robustness check).</li><li>Some items are only partly visible statically (server-side cloud configuration; known-vulnerable components rely on the model&#39;s advisory knowledge).</li><li>The teacher&#39;s temperature cannot be set (Claude Sonnet 5.5 rejects non-default sampling); LLM output varies between runs; small N; no significance test.</li><li>Teacher refusals can reduce coverage (counted; the model that answered is recorded when a fallback was used).</li><li>Teacher and student may scan different units because of different budgets; the student&#39;s free tier (1,000 output tokens per minute) forces small units, and units whose answer does not fit are re-planned into smaller ones.</li><li>The judge is an LLM; the hand audit measures its agreement with the author, it does not remove bias.</li><li>One-to-one matching is conservative.</li><li>Unmatched findings are not automatically false positives (the reference list may be incomplete).</li><li>Teacher-as-reference (apps without ground truth) inherits the teacher&#39;s misses and mistakes and is circular with the lessons.</li><li>Decompilation is lossy (jadx failures are counted); the smali fallback is not built in v0.1.</li><li>Obfuscated apps: first-party code is derived from the manifest, but library detection is not fingerprint-based.</li><li>Native code, assets and split APKs / app bundles are not analysed.</li><li>Text-based one-hop graph: reflection, framework callbacks and string-action intents are missed; oversized files are skipped; no hub/skeleton handling in v0.1.</li><li>strings.xml filtering can miss innocently named, low-entropy secrets.</li><li>Prompt injection via app code or strings can still influence the model.</li><li>Model confidence is uncalibrated (used for ranking only).</li><li>The sanitiser is lexical plus a similarity check; paraphrased references can pass.</li><li>Lessons cover only the vulnerability classes the teacher found in the source app.</li><li>Line numbers refer to decompiled code.</li><li>Static only: runtime-only issues are out of scope (see the dynamic-analysis write-up).</li></ul>
+</main>
+</body>
+</html>
