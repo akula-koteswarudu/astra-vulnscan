@@ -29,7 +29,7 @@ All 11 experiments (prompt versions, sampling vs shuffled order, both references
 What each results folder contains: [`results/README.md`](results/README.md).
 
 **A real app.** The teacher also scanned Markor, an open-source Markdown editor from F-Droid (39 units, 1.22M input
-tokens, $2.90). Its 31 findings were 11 distinct issues: 6 real (1 high, 1 severity unconfirmed, 4 low) and 5 noise. The teacher rated one issue (an exported screen that opens caller-chosen file paths) high; my review confirmed the code issue but could not confirm its impact statically, so its severity is counted as unconfirmed. The report is published with the high-severity issue
+tokens, $2.90). Its 31 raw findings (21 after duplicate merging) were 11 distinct issues by hand triage: 6 real (1 high, 1 severity unconfirmed, 4 low) and 5 noise. The teacher rated one issue (an exported screen that opens caller-chosen file paths) high; my review confirmed the code issue but could not confirm its impact statically, so its severity is counted as unconfirmed. The report is published with the high-severity issue
 redacted until the maintainers have been notified: [`results/markor-real-apk/report.html`](results/markor-real-apk/report.html). The scan also exposed what breaks on a real app; those fixes are
 described in [`BUILD_LOG.md`](BUILD_LOG.md).
 
@@ -130,7 +130,8 @@ each run records the sha256 of every prompt it used.
 
 ## Documents
 
-- [`docs/WRITEUP_DRAFT.md`](docs/WRITEUP_DRAFT.md): the write-up (match function, a 1M+ line app, models and why, limitations, held-out testing).
+- [The write-up (Google Doc)](https://docs.google.com/document/d/1SQSfzBbTTyE_FNNeTYi4EWYKFKj3lhX7djYSK4ejjE0/edit?usp=sharing): results, match function, a 1M+ line app, dynamic analysis, models and why.
+- [`docs/DESIGN.md`](docs/DESIGN.md): the rules each stage actually applies (evidence checks, duplicate merging, lesson sanitiser, judge and assignment, metrics) and where they live in the code.
 - [`docs/DYNAMIC.md`](docs/DYNAMIC.md): extending this to dynamic analysis, with a diagram.
 - [`PLAN.md`](PLAN.md): the plan the build followed. [`BUILD_LOG.md`](BUILD_LOG.md): progress, every deviation from the plan with its reason, and every measurement.
 
