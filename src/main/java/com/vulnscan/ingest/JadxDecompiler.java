@@ -102,7 +102,13 @@ public class JadxDecompiler implements Decompiler {
 
     /** jadx version string, e.g. "1.5.6". */
     public String version() {
-        ProcessRunner.Result r = runner.run(List.of(jadx.toString(), "--version"), Map.of(), null, Duration.ofSeconds(60));
+        ProcessRunner.Result r;
+        try {
+            r = runner.run(List.of(jadx.toString(), "--version"), Map.of(), null, Duration.ofSeconds(60));
+        } catch (UncheckedIOException e) {
+            throw new DecompileException("jadx not found at " + jadx + ": run `bash scripts/bootstrap.sh` first (installs it into .tools/), "
+                    + "or use the Docker image, which includes it");
+        }
         if (r.exitCode() != 0) {
             throw new DecompileException("cannot run jadx at " + jadx + " (decompile.jadx_path): " + tail(r.output()));
         }

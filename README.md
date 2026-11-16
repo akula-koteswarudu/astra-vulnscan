@@ -47,7 +47,7 @@ described in [`BUILD_LOG.md`](BUILD_LOG.md).
    | InsecureShop | [releases](https://github.com/hax0rgb/InsecureShop/releases) | `apps/InsecureShop.apk` | `a83298ae4a37fcab8101e8b41e513dd2199af71a94ea537d556a318e07d4d1bd` |
    | OVAA | [releases](https://github.com/oversecured/ovaa/releases) (1.0.0, `app-debug.apk`) | `apps/OVAA.apk` | `073d87a2bcbfcd539146854681d4968960dbee0209673b17cdbe1aaed6705233` |
 
-3. **Build** (runs the 163 unit tests inside the build; they use fake models, no network):
+3. **Build** (runs the unit tests inside the build; they use fake models, no network):
    ```bash
    docker build -t vulnscan .
    ```

@@ -149,4 +149,11 @@ class JadxDecompilerTest {
         InputResolver resolver = new InputResolver(decompiler(new FakeJadx(FakeJadx.Mode.OK)), new LayoutDetector());
         assertThatThrownBy(() -> resolver.resolve(apk, "00ff")).hasMessageContaining("sha256 mismatch");
     }
+
+    @Test
+    void missingJadxIsAOneLineHint() {
+        ProcessRunner missing = (cmd, env, wd, t) -> { throw new java.io.UncheckedIOException("cannot run " + cmd.get(0), new IOException("no such file")); };
+        JadxDecompiler d = new JadxDecompiler(Path.of(".tools/jadx/bin/jadx"), true, Duration.ofSeconds(5), "", dir.resolve("cache"), missing, new LayoutDetector());
+        org.assertj.core.api.Assertions.assertThatThrownBy(d::version).isInstanceOf(DecompileException.class).hasMessageContaining("bootstrap.sh");
+    }
 }
