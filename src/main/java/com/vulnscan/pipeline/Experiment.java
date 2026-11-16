@@ -87,13 +87,13 @@ public class Experiment {
 
     /**
      * Re-runs evaluation and the report from saved findings (no rescans), e.g. after a matcher or judge-prompt change.
-     * Overwrites 07_evaluate/ and report.md.
+     * Overwrites 07_evaluate/ and report.md. {@code record} (what this re-evaluation used) is appended to
+     * manifest.reevaluations; the run's own config_hash stays the one it was scanned with.
      */
-    public void reevaluate() {
+    public void reevaluate(Map<String, Object> record) {
         app = savedApp();
         new Reprocessor().reprocess(this, planner);
-        manifest.putIn("reevaluations", java.time.Instant.now().toString(), Map.of("config_hash", cfg.configHash(),
-                "judge", cfg.models().spec(cfg.models().roles().judge()).model()));
+        manifest.putIn("reevaluations", java.time.Instant.now().toString(), record);
         for (String stage : List.of("evaluate", "report")) {
             long start = System.currentTimeMillis();
             store.log("stage_start", Map.of("stage", stage, "rerun", true));

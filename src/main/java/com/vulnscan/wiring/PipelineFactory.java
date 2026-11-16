@@ -114,6 +114,26 @@ public class PipelineFactory {
                 planner(cfg, prompts), modelClients(cfg), new ArmScanner(new Deduplicator(cfg.matching().cweGroups(), cfg.app().scan().dedup() == AppConfig.Dedup.LOSSLESS)), later, progress);
     }
 
+    /**
+     * What a re-evaluation used, stored under manifest.reevaluations: the config hash alone says only THAT something
+     * changed, so the settings that decide the scores are stored too (judge, quick look, headline, evidence checker,
+     * dedup, matching config) plus the git commit of the code. Command-line overrides such as --screen-orders are
+     * applied to cfg before this is called, so they show here even though they do not change the file's hash.
+     */
+    public Map<String, Object> reevaluationRecord(LoadedConfig cfg) {
+        Map<String, Object> r = new LinkedHashMap<>();
+        var judge = cfg.models().spec(cfg.models().roles().judge());
+        r.put("config_hash", cfg.configHash());
+        r.put("config_file", baseDir.relativize(cfg.appFile()).toString());
+        r.put("git", git());
+        r.put("judge", judge.provider() + ":" + judge.model());
+        r.put("evaluate", cfg.app().evaluate());
+        r.put("evidence", cfg.app().scan().evidence());
+        r.put("dedup", cfg.app().scan().dedup());
+        r.put("matching", cfg.matching());
+        return r;
+    }
+
     private RunManifest newManifest(LoadedConfig cfg) {
         RunManifest m = new RunManifest();
         m.put("schema_version", 1);

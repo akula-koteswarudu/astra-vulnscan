@@ -42,7 +42,7 @@ public class EvaluateCommand implements Callable<Integer> {
         LoadedConfig cfg = screenOrders == null ? loaded : new LoadedConfig(loaded.app().withScreenOrders(screenOrders), loaded.models(),
                 loaded.matching(), loaded.appFile(), loaded.configHash());
         Experiment e = factory.experimentForEvaluation(cfg, factory.resolve(run.toString()), stages.later(cfg), System.out::println);
-        e.reevaluate();
+        e.reevaluate(factory.reevaluationRecord(cfg));
         return 0;
     }
 }
