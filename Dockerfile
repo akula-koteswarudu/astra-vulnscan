@@ -41,6 +41,7 @@ COPY --from=build /build/target/vulnscan.jar /app/vulnscan.jar
 COPY --from=build /build/prompts /app/prompts
 COPY --from=build /build/configs /app/configs
 COPY --from=build /build/ground_truth /app/ground_truth
+COPY lessons /app/lessons
 # Same path as the project-local layout, so configs work unchanged (decompile.jadx_path: .tools/jadx/bin/jadx).
 COPY --from=jadx /opt/jadx /app/.tools/jadx
 RUN mkdir -p /app/apps /app/runs /app/cache && chown -R vulnscan:vulnscan /app
