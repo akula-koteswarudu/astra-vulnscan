@@ -1,0 +1,19 @@
+# Ablation: lesson cap 25 instead of 15. The distill prompt says "Write at most {{max_lessons}} lessons", so the
+# teacher may write fewer. Lessons are distilled fresh from this run's (v4) teacher findings; compare with the v4
+# headline run 2026-11-15T1036_insecureshop_fec4c875 (15 lessons, distilled earlier in the v3 run).
+profile: assignment
+runs: {student_runs: 3}
+app:
+  name: insecureshop
+  input: apps/InsecureShop.apk
+  input_sha256: a83298ae4a37fcab8101e8b41e513dd2199af71a94ea537d556a318e07d4d1bd
+  ground_truth: ground_truth/insecureshop.yaml
+scan:
+  prompt_version: v4
+  perturb_order: true
+planning:
+  prompt_overhead_tokens: 1200
+  reserved_guidance_tokens: 6000
+distill:
+  max_lessons: 25
+  max_lesson_tokens: 6000

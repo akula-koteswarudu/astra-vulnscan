@@ -22,6 +22,7 @@ judge, verified evidence only). Full report: [`results/insecureshop-v4-headline/
 - Place check (a credit counts only if the finding is in a file the item names): +3.7 to +4.3.
 - Judge stability: the judge's shortlist step runs in 3 orders; re-evaluating all 11 experiments this way moved 2 of 18 rows by one run.
 - Where it comes from: dynamic code loading, file theft and the insecure broadcast receiver go from 0/3 to 3/3 runs.
+- Lesson cap and lesson-set variance: allowed up to 25 lessons, the teacher wrote only 16, so the cap of 15 was not the limit. That freshly distilled set (from the v4 teacher run) gave +3.0 instead of +4.3, so one distillation is a noisy ingredient; distilling several times and merging is a next step.
 
 **Honest limits.** The lessons were distilled from the same app, so this lift is in-sample. On a second app (OVAA, 18
 known vulnerabilities) the same lessons gave **+0.3 items: no transfer** ([report](results/ovaa-transfer-v4/report.html)).
@@ -39,6 +40,12 @@ described in [`BUILD_LOG.md`](BUILD_LOG.md).
    - `ANTHROPIC_API_KEY`: the teacher.
    - `POLLINATIONS_API_KEY`: the student and the judge ([pollinations.ai](https://pollinations.ai)).
    - `GROQ_API_KEY`: only for the older Groq entries in `configs/models.yaml`; can stay empty.
+
+   **Using Groq with a paid or developer key?** The Groq entries (`student`, `judge_open` in `configs/models.yaml`) are
+   tuned to the free tier: `rate_limit` (8K tokens per minute, 1,000 output tokens per minute), `max_output_tokens: 1000`,
+   `planning_budget_tokens: 4900` and `concurrency: 1`. That makes runs slow and splits the app into many small units.
+   Set those values to your tier's limits (or drop `planning_budget_tokens` to use the context window) and point
+   `roles.student` / `roles.judge` at them; otherwise the tool will pace itself to the free-tier limits.
 
 2. **APKs** go in `apps/` (gitignored). Each config checks the file's sha256 before decompiling.
 
